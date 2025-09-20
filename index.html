@@ -1,1 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chefy · Recetas inteligentes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div class="background"></div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__logo" aria-hidden="true">🍳</span>
+      <span class="brand__name">Chefy</span>
+    </div>
+    <nav class="topbar__nav" aria-label="Acciones">
+      <span id="userWelcome" class="user-badge" hidden></span>
+      <button id="settingsButton" class="ghost" type="button" aria-haspopup="dialog" aria-controls="settingsPanel">
+        Configuración
+      </button>
+      <div class="auth-group">
+        <button id="authToggle" class="primary ghost" type="button" aria-haspopup="dialog" aria-controls="authDialog">
+          Iniciar sesión
+        </button>
+        <button id="logoutButton" class="ghost" type="button">
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+  </header>
 
+  <main class="layout" id="mainContent">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div>
+        <h1 id="heroTitle">Descubre recetas adaptadas a ti</h1>
+        <p class="hero__subtitle">
+          Genera desayunos, comidas o cenas inspiradas en tus gustos, al instante y sin ingredientes que no quieres ver ni en pintura.
+        </p>
+      </div>
+      <div class="hero__cta">
+        <button id="generateButton" class="cta-button" type="button">
+          Generar receta
+        </button>
+        <p class="meal-hint" id="mealHint">Preparado para sorprenderte en cualquier momento del día.</p>
+      </div>
+    </section>
+
+    <section class="card result" aria-live="polite" aria-atomic="true">
+      <h2 class="result__title" id="resultTitle">¿Qué vamos a cocinar?</h2>
+      <p class="result__subtitle" id="resultSubtitle">Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.</p>
+      <div class="result__tags" id="resultTags" hidden></div>
+      <p class="result__description" id="resultDescription"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer__brand">© <span id="currentYear"></span> Chefy. Cocina inteligente, cada día.</p>
+    <div class="footer__links" aria-label="Información legal">
+      <button type="button" class="link" data-modal="privacyDialog">Política de privacidad</button>
+      <button type="button" class="link" data-modal="termsDialog">Términos y condiciones</button>
+    </div>
+  </footer>
+
+  <dialog id="settingsPanel" class="modal" aria-labelledby="settingsTitle">
+    <form method="dialog" class="modal__content" id="settingsForm">
+      <header class="modal__header">
+        <h2 id="settingsTitle">Preferencias de ingredientes</h2>
+        <button type="submit" class="icon-button" aria-label="Cerrar configuración">
+          ✕
+        </button>
+      </header>
+      <p class="modal__intro">Selecciona los ingredientes que quieres excluir de tus recetas. Puedes añadir los tuyos propios.</p>
+      <p id="settingsStatus" class="settings__status" role="status"></p>
+      <section class="chips" id="defaultRestrictions">
+        <!-- Chips autogenerados desde JavaScript -->
+      </section>
+      <div class="custom-restriction">
+        <label for="customRestriction">Añadir ingrediente a evitar</label>
+        <div class="custom-restriction__row">
+          <input type="text" id="customRestriction" name="customRestriction" placeholder="Ej. judías verdes" autocomplete="off">
+          <button type="button" id="addRestriction" class="ghost">Añadir</button>
+        </div>
+      </div>
+      <section class="active-restrictions">
+        <h3>Ingredientes bloqueados</h3>
+        <ul id="activeRestrictions" class="active-restrictions__list" aria-live="polite"></ul>
+      </section>
+    </form>
+  </dialog>
+
+  <dialog id="authDialog" class="modal" aria-labelledby="authTitle">
+    <form method="dialog" class="modal__content" id="authForm">
+      <header class="modal__header">
+        <h2 id="authTitle">Bienvenido a Chefy</h2>
+        <button type="submit" class="icon-button" aria-label="Cerrar acceso">
+          ✕
+        </button>
+      </header>
+      <div class="tabs" role="tablist" aria-label="Método de acceso">
+        <button class="tab tab--active" role="tab" id="loginTab" aria-controls="loginPanel" aria-selected="true">Iniciar sesión</button>
+        <button class="tab" role="tab" id="registerTab" aria-controls="registerPanel" aria-selected="false">Crear cuenta</button>
+      </div>
+      <div class="tab-panel tab-panel--active" id="loginPanel" role="tabpanel" aria-labelledby="loginTab">
+        <label for="loginEmail">Correo electrónico</label>
+        <input type="email" id="loginEmail" autocomplete="username" required>
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" required>
+        <p class="form-hint">Utilizamos almacenamiento local seguro para recordar tus preferencias.</p>
+        <button type="button" id="loginButton" class="primary">Entrar</button>
+      </div>
+      <div class="tab-panel" id="registerPanel" role="tabpanel" aria-labelledby="registerTab">
+        <label for="registerEmail">Correo electrónico</label>
+        <input type="email" id="registerEmail" autocomplete="username" required>
+        <label for="registerPassword">Contraseña</label>
+        <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
+        <p class="form-hint">Tu cuenta guardará tus configuraciones y restricciones de ingredientes.</p>
+        <button type="button" id="registerButton" class="primary">Registrarme</button>
+      </div>
+      <p class="form-feedback" id="authFeedback" role="alert"></p>
+    </form>
+  </dialog>
+
+  <dialog id="privacyDialog" class="modal legal" aria-labelledby="privacyTitle">
+    <form method="dialog" class="modal__content">
+      <header class="modal__header">
+        <h2 id="privacyTitle">Política de privacidad</h2>
+        <button type="submit" class="icon-button" aria-label="Cerrar política de privacidad">✕</button>
+      </header>
+      <div class="modal__body">
+        <p>Chefy almacena tus datos de acceso y preferencias en tu propio navegador utilizando almacenamiento local. No compartimos tus datos con terceros.</p>
+        <p>Puedes eliminar la información en cualquier momento desde la sección de configuración o borrando los datos del sitio en tu navegador.</p>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="termsDialog" class="modal legal" aria-labelledby="termsTitle">
+    <form method="dialog" class="modal__content">
+      <header class="modal__header">
+        <h2 id="termsTitle">Términos y condiciones</h2>
+        <button type="submit" class="icon-button" aria-label="Cerrar términos y condiciones">✕</button>
+      </header>
+      <div class="modal__body">
+        <p>El servicio de Chefy se ofrece tal cual. Las recetas son sugerencias generadas automáticamente. Verifica los ingredientes si tienes alergias o restricciones médicas.</p>
+        <p>Al utilizar Chefy aceptas que eres responsable de revisar y validar cada receta antes de cocinarla.</p>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="assets/js/app.js" type="module"></script>
+</body>
+</html>
