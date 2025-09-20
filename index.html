@@ -48,11 +48,90 @@
       </div>
     </section>
 
-    <section class="card result" aria-live="polite" aria-atomic="true">
-      <h2 class="result__title" id="resultTitle">¿Qué vamos a cocinar?</h2>
-      <p class="result__subtitle" id="resultSubtitle">Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.</p>
-      <div class="result__tags" id="resultTags" hidden></div>
-      <p class="result__description" id="resultDescription"></p>
+
+    <section class="dashboard" aria-label="Panel culinario">
+      <div class="dashboard__main">
+        <section class="card result" aria-live="polite" aria-atomic="true">
+          <header class="result__header">
+            <div class="result__heading">
+              <h2 class="result__title" id="resultTitle">¿Qué vamos a cocinar?</h2>
+              <p class="result__subtitle" id="resultSubtitle">Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.</p>
+            </div>
+            <div class="result__actions">
+              <button id="shareButton" class="ghost" type="button" disabled>Compartir por WhatsApp</button>
+              <div class="result__planner" aria-live="polite">
+                <label for="planDaySelect">Añadir al plan semanal</label>
+                <div class="result__planner-controls">
+                  <select id="planDaySelect" name="planDaySelect">
+                    <option value="lunes">Lunes</option>
+                    <option value="martes">Martes</option>
+                    <option value="miércoles">Miércoles</option>
+                    <option value="jueves">Jueves</option>
+                    <option value="viernes">Viernes</option>
+                    <option value="sábado">Sábado</option>
+                    <option value="domingo">Domingo</option>
+                  </select>
+                  <button id="addToPlanButton" class="ghost" type="button" disabled>Agregar</button>
+                </div>
+              </div>
+            </div>
+          </header>
+          <div class="result__tags" id="resultTags" hidden></div>
+          <p class="result__description" id="resultDescription"></p>
+          <div class="result__layout" id="resultDetails" hidden>
+            <section class="result__section">
+              <h3>Ingredientes</h3>
+              <ul id="resultIngredients" class="result__list"></ul>
+            </section>
+            <section class="result__section">
+              <h3>Pasos guiados</h3>
+              <ol id="resultSteps" class="result__list"></ol>
+            </section>
+            <section class="result__section">
+              <h3>Alternativas inteligentes</h3>
+              <ul id="resultAlternatives" class="result__list"></ul>
+            </section>
+          </div>
+          <aside id="chefTip" class="result__tip" hidden></aside>
+        </section>
+
+        <section class="card planner" aria-labelledby="plannerTitle">
+          <header class="card__header">
+            <h2 id="plannerTitle">Planificador semanal</h2>
+            <button id="clearPlanButton" class="ghost" type="button">Limpiar plan</button>
+          </header>
+          <p class="card__hint">Organiza desayunos, comidas y cenas en un vistazo y mantén tus ideas siempre a mano.</p>
+          <div class="planner__grid" id="weeklyPlanGrid" role="grid"></div>
+          <section class="shopping" aria-labelledby="shoppingTitle">
+            <div class="shopping__header">
+              <h3 id="shoppingTitle">Lista inteligente de la compra</h3>
+              <button id="copyShoppingButton" class="ghost" type="button">Copiar</button>
+            </div>
+            <p class="card__hint">Se actualiza automáticamente con tus recetas planificadas.</p>
+            <ul id="shoppingList" class="shopping__list"></ul>
+          </section>
+        </section>
+      </div>
+
+      <aside class="dashboard__aside">
+        <section class="card categories" aria-labelledby="cuisineTitle">
+          <header class="card__header">
+            <h2 id="cuisineTitle">Categorías favoritas</h2>
+            <p class="card__hint">Pulsa para priorizar un estilo culinario en tus próximas sugerencias.</p>
+          </header>
+          <div class="chips" id="cuisineQuickFilters"></div>
+        </section>
+
+        <section class="card history" aria-labelledby="historyTitle">
+          <header class="card__header">
+            <h2 id="historyTitle">Historial de recetas</h2>
+            <button id="clearHistoryButton" class="ghost" type="button">Vaciar</button>
+          </header>
+          <p class="card__hint">Repite tus favoritas o vuelve a esas ideas que guardaste al vuelo.</p>
+          <ul id="historyList" class="history__list"></ul>
+        </section>
+      </aside>
+
     </section>
   </main>
 
@@ -88,6 +167,14 @@
         <h3>Ingredientes bloqueados</h3>
         <ul id="activeRestrictions" class="active-restrictions__list" aria-live="polite"></ul>
       </section>
+
+
+      <section class="settings__group">
+        <h3>Estilos culinarios preferidos</h3>
+        <p class="settings__hint">Selecciona los tipos de cocina que quieres priorizar. Si no eliges ninguno, tendrás recomendaciones de todo el mundo.</p>
+        <div class="chips" id="cuisineChips"></div>
+      </section>
+
     </form>
   </dialog>
 
