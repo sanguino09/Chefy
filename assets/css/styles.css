@@ -778,9 +778,11 @@ input:focus-visible {
     justify-content: center;
   }
 
+
   .dashboard {
     grid-template-columns: 1fr;
   }
+
 }
 
 @media (max-width: 720px) {
@@ -813,6 +815,7 @@ input:focus-visible {
     padding: 1.85rem 1.75rem;
   }
 
+
   .result__actions {
     align-items: stretch;
   }
@@ -836,6 +839,7 @@ input:focus-visible {
   .planner__cell--head {
     padding: 0;
   }
+
 }
 
 @media (max-width: 540px) {

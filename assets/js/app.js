@@ -5,11 +5,13 @@ const DOM = {
   resultSubtitle: document.getElementById('resultSubtitle'),
   resultDescription: document.getElementById('resultDescription'),
   resultTags: document.getElementById('resultTags'),
+
   resultDetails: document.getElementById('resultDetails'),
   resultIngredients: document.getElementById('resultIngredients'),
   resultSteps: document.getElementById('resultSteps'),
   resultAlternatives: document.getElementById('resultAlternatives'),
   chefTip: document.getElementById('chefTip'),
+
   currentYear: document.getElementById('currentYear'),
   authToggle: document.getElementById('authToggle'),
   logoutButton: document.getElementById('logoutButton'),
@@ -34,6 +36,7 @@ const DOM = {
   registerPanel: document.getElementById('registerPanel'),
   authTitle: document.getElementById('authTitle'),
   userWelcome: document.getElementById('userWelcome'),
+
   shareButton: document.getElementById('shareButton'),
   planDaySelect: document.getElementById('planDaySelect'),
   addToPlanButton: document.getElementById('addToPlanButton'),
@@ -51,6 +54,7 @@ const DEFAULT_RESULT = {
   title: '¿Qué vamos a cocinar?',
   subtitle: 'Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.',
   description: '',
+
 };
 
 const DEFAULT_RESTRICTIONS = [
@@ -65,6 +69,7 @@ const DEFAULT_RESTRICTIONS = [
   'carne roja',
   'azúcar refinado',
 ];
+
 
 const CUISINE_OPTIONS = [
   { id: 'mediterranea', label: 'Mediterránea' },
@@ -110,11 +115,13 @@ const HISTORY_FORMATTER = new Intl.DateTimeFormat('es-ES', {
   minute: '2-digit',
 });
 
+
 const RECIPES = [
   {
     id: 'sunrise-bowl',
     name: 'Bowl energizante de amanecer',
     meal: 'desayuno',
+
     cuisines: ['mediterranea', 'plant-based'],
     time: '10 minutos',
     servings: '1 ración',
@@ -203,11 +210,13 @@ const RECIPES = [
     ],
     chefTip: 'Para un contraste crujiente, añade cacahuetes tostados justo antes de servir.',
     keywords: ['chía', 'leche de coco', 'mango', 'lima', 'coco', 'sirope'],
+
   },
   {
     id: 'zen-bento',
     name: 'Bento zen de quinoa y tofu',
     meal: 'comida',
+
     cuisines: ['japonesa', 'plant-based'],
     time: '25 minutos',
     servings: '2 raciones',
@@ -235,11 +244,13 @@ const RECIPES = [
     ],
     chefTip: 'Añade jengibre rallado al glaseado para potenciar el aroma.',
     keywords: ['quinoa', 'tofu', 'tamari', 'pak choi', 'encurtidos', 'zanahoria'],
+
   },
   {
     id: 'citrus-salmon',
     name: 'Salmón cítrico con ensalada templada',
     meal: 'comida',
+
     cuisines: ['mediterranea'],
     time: '30 minutos',
     servings: '2 raciones',
@@ -401,11 +412,13 @@ const RECIPES = [
     ],
     chefTip: 'Añade un toque de rayu o aceite picante justo antes de servir.',
     keywords: ['ramen', 'caldo', 'huevo', 'pak choi', 'fideos', 'sésamo'],
+
   },
   {
     id: 'moonlight-curry',
     name: 'Curry de coco y berenjena a la luz de la luna',
     meal: 'cena',
+
     cuisines: ['india', 'plant-based'],
     time: '30 minutos',
     servings: '3 raciones',
@@ -503,10 +516,12 @@ const RECIPES = [
     keywords: ['tofu', 'citronela', 'lima', 'soja', 'pimiento', 'judías verdes', 'fideos'],
   },
 ];
+
 const STORAGE_KEYS = {
   USERS: 'chefyUsers',
   CURRENT_USER: 'chefyCurrentUser',
   GUEST_RESTRICTIONS: 'chefyGuestRestrictions',
+
   GUEST_CUISINES: 'chefyGuestCuisines',
   GUEST_HISTORY: 'chefyGuestHistory',
   GUEST_WEEKLY_PLAN: 'chefyGuestWeeklyPlan',
@@ -557,6 +572,7 @@ const storage = {
   },
   saveUsers(users) {
     this.writeJSON(STORAGE_KEYS.USERS, users);
+
   },
   getCurrentUserEmail() {
     return localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
@@ -569,6 +585,7 @@ const storage = {
     }
   },
   getGuestRestrictions() {
+
     return this.readJSON(STORAGE_KEYS.GUEST_RESTRICTIONS, []);
   },
   saveGuestRestrictions(restrictions) {
@@ -591,18 +608,21 @@ const storage = {
   },
   saveGuestWeeklyPlan(plan) {
     this.writeJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, plan);
+
   },
 };
 
 const state = {
   currentUser: null,
   restrictions: [],
+
   selectedCuisines: [],
   history: [],
   weeklyPlan: createEmptyWeeklyPlan(),
   lastRecipe: null,
   lastMeal: null,
   shoppingSummaryText: '',
+
 };
 
 function detectMealType(date = new Date()) {
@@ -645,6 +665,7 @@ function closeDialog(dialog) {
   }
 }
 
+
 function setAuthFeedback(message, type = 'info') {
   DOM.authFeedback.textContent = message;
   DOM.authFeedback.classList.toggle('form-feedback--error', type === 'error');
@@ -659,6 +680,7 @@ function findUserByEmail(email) {
   return storage.getUsers().find((user) => user.email === email);
 }
 
+
 function persistUserData(partial) {
   if (!state.currentUser) return;
   const users = storage.getUsers();
@@ -672,12 +694,14 @@ function persistUserData(partial) {
 function persistRestrictions() {
   if (state.currentUser) {
     persistUserData({ restrictions: state.restrictions });
+
   } else {
     storage.saveGuestRestrictions(state.restrictions);
   }
   renderActiveRestrictions();
   renderDefaultChips();
 }
+
 
 function persistCuisines() {
   if (state.currentUser) {
@@ -746,6 +770,7 @@ function renderDefaultChips() {
   });
 }
 
+
 function renderCuisineSelectors() {
   renderCuisineChips(DOM.cuisineChips);
   renderCuisineChips(DOM.cuisineQuickFilters);
@@ -766,6 +791,7 @@ function renderCuisineChips(container) {
     container.appendChild(chip);
   });
 }
+
 
 function toggleRestriction(rawValue) {
   const value = toKey(rawValue);
@@ -1163,12 +1189,14 @@ function displayNoRecipe(meal) {
   setActionAvailability(false);
   state.lastRecipe = null;
   state.lastMeal = meal;
+
 }
 
 function generateRecipe() {
   if (!ensureAuthenticated()) return;
   const meal = detectMealType();
   const restricted = new Set(state.restrictions.map(toKey));
+
   const selected = new Set(state.selectedCuisines.map(toKey));
   const available = RECIPES.filter((recipe) => {
     if (recipe.meal !== meal) return false;
@@ -1178,24 +1206,29 @@ function generateRecipe() {
     return !matchesRestrictions(recipe, restricted);
   });
 
+
   if (!available.length) {
     displayNoRecipe(meal);
     return;
   }
 
+
   const recipe = available[Math.floor(Math.random() * available.length)];
   renderRecipe(recipe, meal, { recordHistory: true });
+
 }
 
 function ensureAuthenticated() {
   if (state.currentUser) return true;
   DOM.resultTitle.textContent = 'Necesitas iniciar sesión';
+
   DOM.resultSubtitle.textContent = 'Crea una cuenta gratuita para guardar tus configuraciones y generar recetas avanzadas.';
   DOM.resultDescription.textContent = '';
   DOM.resultTags.hidden = true;
   DOM.resultDetails.hidden = true;
   DOM.chefTip.hidden = true;
   setActionAvailability(false);
+
   openAuthDialog('login');
   return false;
 }
@@ -1237,6 +1270,7 @@ function handleRegister() {
     return;
   }
   const users = storage.getUsers();
+
   const newUser = {
     email,
     password: hashPassword(password),
@@ -1256,6 +1290,7 @@ function handleRegister() {
   persistCuisines();
   persistHistory();
   persistWeeklyPlan();
+
   closeDialog(DOM.authDialog);
 }
 
@@ -1274,6 +1309,7 @@ function handleLogin() {
   storage.setCurrentUserEmail(email);
   state.currentUser = user;
   state.restrictions = Array.isArray(user.restrictions) ? user.restrictions : [];
+
   state.selectedCuisines = Array.isArray(user.cuisines) ? user.cuisines : [];
   state.history = Array.isArray(user.history) ? user.history : [];
   state.weeklyPlan = normalizeWeeklyPlan(user.weeklyPlan);
@@ -1285,6 +1321,7 @@ function handleLogin() {
   renderHistory();
   renderWeeklyPlan();
   updateShoppingList();
+
   closeDialog(DOM.authDialog);
 }
 
@@ -1305,19 +1342,23 @@ function updateAuthUI() {
 function handleLogout() {
   storage.setCurrentUserEmail(null);
   state.currentUser = null;
+
   hydrateFromStorage();
   clearResultCard();
+
 }
 
 function handleSettingsOpen() {
   if (state.currentUser) {
     DOM.settingsStatus.textContent = 'Tus preferencias se guardan automáticamente en tu cuenta.';
   } else {
+
     DOM.settingsStatus.textContent = 'Modo invitado: inicia sesión para sincronizar tus restricciones y categorías en todos tus dispositivos.';
   }
   renderDefaultChips();
   renderActiveRestrictions();
   renderCuisineSelectors();
+
   showDialog(DOM.settingsPanel);
 }
 
@@ -1328,6 +1369,7 @@ function hydrateFromStorage() {
     if (user) {
       state.currentUser = user;
       state.restrictions = Array.isArray(user.restrictions) ? user.restrictions : [];
+
       state.selectedCuisines = Array.isArray(user.cuisines) ? user.cuisines : [];
       state.history = Array.isArray(user.history) ? user.history : [];
       state.weeklyPlan = normalizeWeeklyPlan(user.weeklyPlan);
@@ -1345,14 +1387,17 @@ function hydrateFromStorage() {
     state.selectedCuisines = storage.getGuestCuisines();
     state.history = storage.getGuestHistory();
     state.weeklyPlan = storage.getGuestWeeklyPlan();
+
   }
   updateAuthUI();
   renderDefaultChips();
   renderActiveRestrictions();
+
   renderCuisineSelectors();
   renderHistory();
   renderWeeklyPlan();
   updateShoppingList();
+
 }
 
 function registerEventListeners() {
@@ -1371,11 +1416,13 @@ function registerEventListeners() {
   DOM.loginButton.addEventListener('click', handleLogin);
   DOM.logoutButton.addEventListener('click', handleLogout);
   DOM.authToggle.addEventListener('click', () => openAuthDialog('login'));
+
   DOM.shareButton.addEventListener('click', shareCurrentRecipe);
   DOM.addToPlanButton.addEventListener('click', addCurrentRecipeToPlan);
   DOM.clearHistoryButton.addEventListener('click', clearHistory);
   DOM.clearPlanButton.addEventListener('click', clearWeeklyPlan);
   DOM.copyShoppingButton.addEventListener('click', copyShoppingList);
+
   document.querySelectorAll('button[data-modal]').forEach((button) => {
     const modalId = button.getAttribute('data-modal');
     const dialog = document.getElementById(modalId);
@@ -1395,7 +1442,9 @@ function init() {
   updateMealUI();
   hydrateFromStorage();
   registerEventListeners();
+
   clearResultCard();
+
   setInterval(updateMealUI, 60 * 1000);
 }
 
