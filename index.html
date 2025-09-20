@@ -18,15 +18,18 @@
     </div>
     <nav class="topbar__nav" aria-label="Acciones">
       <span id="userWelcome" class="user-badge" hidden></span>
-      <button id="settingsButton" class="ghost" type="button" aria-haspopup="dialog" aria-controls="settingsPanel">
-        Configuración
+      <button id="settingsButton" class="ghost icon-label" type="button" aria-haspopup="dialog" aria-controls="settingsPanel">
+        <span class="icon" aria-hidden="true">⚙️</span>
+        <span class="label">Configuración</span>
       </button>
       <div class="auth-group">
-        <button id="authToggle" class="primary ghost" type="button" aria-haspopup="dialog" aria-controls="authDialog">
-          Iniciar sesión
+        <button id="authToggle" class="primary ghost icon-label" type="button" aria-haspopup="dialog" aria-controls="authDialog">
+          <span class="icon" aria-hidden="true">🔑</span>
+          <span class="label">Iniciar sesión</span>
         </button>
-        <button id="logoutButton" class="ghost" type="button">
-          Cerrar sesión
+        <button id="logoutButton" class="ghost icon-label" type="button">
+          <span class="icon" aria-hidden="true">🚪</span>
+          <span class="label">Cerrar sesión</span>
         </button>
       </div>
     </nav>
@@ -58,7 +61,38 @@
               <p class="result__subtitle" id="resultSubtitle">Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.</p>
             </div>
             <div class="result__actions">
-              <button id="shareButton" class="ghost" type="button" disabled>Compartir por WhatsApp</button>
+              <div class="share-control">
+                <button
+                  id="shareButton"
+                  class="ghost icon-label"
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  aria-controls="shareMenu"
+                  disabled
+                >
+                  <span class="icon" aria-hidden="true">📤</span>
+                  <span class="label">Compartir receta</span>
+                </button>
+                <div id="shareMenu" class="share-menu" role="menu" data-share-type="recipe" hidden>
+                  <button type="button" class="share-option" data-share-target="whatsapp" role="menuitem">
+                    <span class="icon" aria-hidden="true">🟢</span>
+                    <span class="label">WhatsApp</span>
+                  </button>
+                  <button type="button" class="share-option" data-share-target="telegram" role="menuitem">
+                    <span class="icon" aria-hidden="true">✈️</span>
+                    <span class="label">Telegram</span>
+                  </button>
+                  <button type="button" class="share-option" data-share-target="email" role="menuitem">
+                    <span class="icon" aria-hidden="true">✉️</span>
+                    <span class="label">Correo</span>
+                  </button>
+                  <button type="button" class="share-option" data-share-target="copy" role="menuitem">
+                    <span class="icon" aria-hidden="true">📋</span>
+                    <span class="label">Copiar</span>
+                  </button>
+                </div>
+              </div>
               <div class="result__planner" aria-live="polite">
                 <label for="planDaySelect">Añadir al plan semanal</label>
                 <div class="result__planner-controls">
@@ -96,9 +130,55 @@
         </section>
 
         <section class="card planner" aria-labelledby="plannerTitle">
-          <header class="card__header">
-            <h2 id="plannerTitle">Planificador semanal</h2>
-            <button id="clearPlanButton" class="ghost" type="button">Limpiar plan</button>
+          <header class="card__header planner__header">
+            <div class="planner__title">
+              <h2 id="plannerTitle">Planificador semanal</h2>
+              <div class="planner__selector">
+                <label class="sr-only" for="planSelect">Planificación activa</label>
+                <select id="planSelect" name="planSelect" aria-label="Planificación activa"></select>
+                <button id="addPlanButton" class="ghost icon-only" type="button" aria-label="Crear nueva planificación">
+                  <span aria-hidden="true">＋</span>
+                </button>
+              </div>
+            </div>
+            <div class="planner__actions">
+              <div class="share-control">
+                <button
+                  id="sharePlanButton"
+                  class="ghost icon-label"
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  aria-controls="planShareMenu"
+                  disabled
+                >
+                  <span class="icon" aria-hidden="true">🗓️</span>
+                  <span class="label">Compartir plan</span>
+                </button>
+                <div id="planShareMenu" class="share-menu" role="menu" data-share-type="plan" hidden>
+                  <button type="button" class="share-option" data-share-target="whatsapp" role="menuitem">
+                    <span class="icon" aria-hidden="true">🟢</span>
+                    <span class="label">WhatsApp</span>
+                  </button>
+                  <button type="button" class="share-option" data-share-target="telegram" role="menuitem">
+                    <span class="icon" aria-hidden="true">✈️</span>
+                    <span class="label">Telegram</span>
+                  </button>
+                  <button type="button" class="share-option" data-share-target="email" role="menuitem">
+                    <span class="icon" aria-hidden="true">✉️</span>
+                    <span class="label">Correo</span>
+                  </button>
+                  <button type="button" class="share-option" data-share-target="copy" role="menuitem">
+                    <span class="icon" aria-hidden="true">📋</span>
+                    <span class="label">Copiar</span>
+                  </button>
+                </div>
+              </div>
+              <button id="clearPlanButton" class="ghost icon-label" type="button">
+                <span class="icon" aria-hidden="true">🧹</span>
+                <span class="label">Limpiar plan</span>
+              </button>
+            </div>
           </header>
           <p class="card__hint">Organiza desayunos, comidas y cenas en un vistazo y mantén tus ideas siempre a mano.</p>
           <div class="planner__grid" id="weeklyPlanGrid" role="grid"></div>

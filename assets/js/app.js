@@ -38,12 +38,17 @@ const DOM = {
   userWelcome: document.getElementById('userWelcome'),
 
   shareButton: document.getElementById('shareButton'),
+  shareMenu: document.getElementById('shareMenu'),
   planDaySelect: document.getElementById('planDaySelect'),
   addToPlanButton: document.getElementById('addToPlanButton'),
   historyList: document.getElementById('historyList'),
   clearHistoryButton: document.getElementById('clearHistoryButton'),
+  planSelect: document.getElementById('planSelect'),
+  addPlanButton: document.getElementById('addPlanButton'),
   weeklyPlanGrid: document.getElementById('weeklyPlanGrid'),
   clearPlanButton: document.getElementById('clearPlanButton'),
+  sharePlanButton: document.getElementById('sharePlanButton'),
+  planShareMenu: document.getElementById('planShareMenu'),
   shoppingList: document.getElementById('shoppingList'),
   copyShoppingButton: document.getElementById('copyShoppingButton'),
   cuisineChips: document.getElementById('cuisineChips'),
@@ -554,6 +559,119 @@ function normalizeWeeklyPlan(plan) {
   return base;
 }
 
+function createPlan(id, name, slots = createEmptyWeeklyPlan()) {
+  const planId = (id ?? '').toString().trim() || 'plan-1';
+  const planName = (name ?? '').toString().trim() || 'Planificación 1';
+  return { id: planId, name: planName, slots: normalizeWeeklyPlan(slots) };
+}
+
+function createInitialPlannerState() {
+  const initialId = 'plan-1';
+  return {
+    activePlanId: initialId,
+    plans: {
+      [initialId]: createPlan(initialId, 'Planificación 1'),
+    },
+  };
+}
+
+function normalizePlannerState(raw) {
+  if (!raw || typeof raw !== 'object') {
+    return createInitialPlannerState();
+  }
+
+  if (raw.plans && typeof raw.plans === 'object') {
+    const entries = Object.values(raw.plans);
+    if (!entries.length) {
+      return createInitialPlannerState();
+    }
+    const normalized = {};
+    entries.forEach((plan, index) => {
+      const fallbackId = `plan-${index + 1}`;
+      const planId = typeof plan?.id === 'string' && plan.id.trim() ? plan.id.trim() : fallbackId;
+      const planName = typeof plan?.name === 'string' && plan.name.trim() ? plan.name.trim() : `Planificación ${index + 1}`;
+      normalized[planId] = createPlan(planId, planName, plan?.slots ?? plan);
+    });
+    const activeId = normalized[raw.activePlanId]?.id ?? Object.keys(normalized)[0];
+    return { activePlanId: activeId, plans: normalized };
+  }
+
+  // Legacy single weekly plan
+  const legacy = normalizeWeeklyPlan(raw);
+  const initial = createInitialPlannerState();
+  initial.plans[initial.activePlanId] = createPlan(initial.activePlanId, initial.plans[initial.activePlanId].name, legacy);
+  return initial;
+}
+
+function ensurePlannerState() {
+  if (!Object.keys(state.weeklyPlans).length) {
+    const initial = createInitialPlannerState();
+    state.weeklyPlans = initial.plans;
+    state.activePlanId = initial.activePlanId;
+  }
+  if (!state.weeklyPlans[state.activePlanId]) {
+    state.activePlanId = Object.keys(state.weeklyPlans)[0];
+  }
+}
+
+function ensureActivePlan() {
+  ensurePlannerState();
+  return state.weeklyPlans[state.activePlanId];
+}
+
+function getActivePlanSlots() {
+  return ensureActivePlan().slots;
+}
+
+function planHasEntries(plan) {
+  return WEEK_DAYS.some((day) => MEALS.some((meal) => Boolean(plan?.[day.id]?.[meal]?.recipeId)));
+}
+
+function generateNextPlanId() {
+  ensurePlannerState();
+  let index = Object.keys(state.weeklyPlans).length + 1;
+  let id = `plan-${index}`;
+  while (state.weeklyPlans[id]) {
+    index += 1;
+    id = `plan-${index}`;
+  }
+  return id;
+}
+
+function buildPlanShareSummary(plan, planName) {
+  const sections = [];
+  WEEK_DAYS.forEach((day) => {
+    const entries = [];
+    MEALS.forEach((meal) => {
+      const slot = plan?.[day.id]?.[meal];
+      if (!slot?.recipeId) return;
+      const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+      if (recipe) {
+        entries.push(`• ${MEAL_DISPLAY[meal]}: ${recipe.name}`);
+      } else {
+        entries.push(`• ${MEAL_DISPLAY[meal]}: Receta no disponible`);
+      }
+    });
+    if (entries.length) {
+      sections.push([`${day.label}:`, ...entries]);
+    }
+  });
+
+  if (!sections.length) {
+    return '';
+  }
+
+  const lines = planName ? [planName, ''] : [];
+  sections.forEach((section, index) => {
+    lines.push(...section);
+    if (index < sections.length - 1) {
+      lines.push('');
+    }
+  });
+  lines.push('', 'Plan creado con Chefy 🍳');
+  return lines.join('\n');
+}
+
 const storage = {
   readJSON(key, fallback) {
     try {
@@ -603,11 +721,11 @@ const storage = {
   saveGuestHistory(history) {
     this.writeJSON(STORAGE_KEYS.GUEST_HISTORY, history);
   },
-  getGuestWeeklyPlan() {
-    return normalizeWeeklyPlan(this.readJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, createEmptyWeeklyPlan()));
+  getGuestPlanner() {
+    return normalizePlannerState(this.readJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, createInitialPlannerState()));
   },
-  saveGuestWeeklyPlan(plan) {
-    this.writeJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, plan);
+  saveGuestPlanner(planner) {
+    this.writeJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, planner);
 
   },
 };
@@ -618,12 +736,19 @@ const state = {
 
   selectedCuisines: [],
   history: [],
-  weeklyPlan: createEmptyWeeklyPlan(),
+  weeklyPlans: {},
+  activePlanId: '',
   lastRecipe: null,
   lastMeal: null,
   shoppingSummaryText: '',
+  planShareText: '',
+  planShareSubject: 'Planificación semanal de Chefy',
 
 };
+
+const defaultPlannerState = createInitialPlannerState();
+state.weeklyPlans = defaultPlannerState.plans;
+state.activePlanId = defaultPlannerState.activePlanId;
 
 function detectMealType(date = new Date()) {
   const hour = date.getHours();
@@ -721,14 +846,25 @@ function persistHistory() {
   renderHistory();
 }
 
-function persistWeeklyPlan() {
+function persistPlanner() {
+  const normalized = {};
+  Object.entries(state.weeklyPlans).forEach(([id, plan], index) => {
+    const name = typeof plan?.name === 'string' && plan.name.trim() ? plan.name.trim() : `Planificación ${index + 1}`;
+    const normalizedPlan = createPlan(id, name, plan?.slots ?? plan);
+    normalized[normalizedPlan.id] = normalizedPlan;
+  });
+  state.weeklyPlans = normalized;
+  ensurePlannerState();
+  const plannerPayload = { plans: state.weeklyPlans, activePlanId: state.activePlanId };
   if (state.currentUser) {
-    persistUserData({ weeklyPlan: state.weeklyPlan });
+    persistUserData({ weeklyPlans: plannerPayload.plans, activePlanId: plannerPayload.activePlanId });
   } else {
-    storage.saveGuestWeeklyPlan(state.weeklyPlan);
+    storage.saveGuestPlanner(plannerPayload);
   }
+  renderPlanSelector();
   renderWeeklyPlan();
   updateShoppingList();
+  updatePlanShareSummary();
 }
 
 function renderActiveRestrictions() {
@@ -834,7 +970,11 @@ function toggleCuisine(id) {
 
 function setActionAvailability(enabled) {
   const disabled = !enabled;
+  DOM.shareButton.setAttribute('aria-expanded', 'false');
   DOM.shareButton.disabled = disabled;
+  if (disabled) {
+    closeShareMenu(DOM.shareMenu);
+  }
   DOM.addToPlanButton.disabled = disabled;
 }
 
@@ -858,7 +998,7 @@ function clearResultCard() {
 function getCuisineLabels(cuisines = []) {
   return cuisines.map((id) => CUISINE_LABELS[id] ?? id);
 }
-function renderRecipe(recipe, meal, { recordHistory = false } = {}) {
+function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false } = {}) {
   if (!recipe) return;
   state.lastRecipe = recipe;
   state.lastMeal = meal;
@@ -923,12 +1063,12 @@ function renderRecipe(recipe, meal, { recordHistory = false } = {}) {
   }
 
   setActionAvailability(true);
-  if (recordHistory) {
-    recordHistory(recipe, meal);
+  if (shouldRecordHistory) {
+    saveRecipeToHistory(recipe, meal);
   }
 }
 
-function recordHistory(recipe, meal) {
+function saveRecipeToHistory(recipe, meal) {
   const entry = { recipeId: recipe.id, meal, timestamp: Date.now() };
   const filtered = state.history.filter((item) => item.recipeId !== recipe.id || item.meal !== meal);
   state.history = [entry, ...filtered].slice(0, HISTORY_LIMIT);
@@ -972,10 +1112,7 @@ function renderHistory() {
   });
 }
 
-function shareCurrentRecipe() {
-  if (!state.lastRecipe) return;
-  const recipe = state.lastRecipe;
-  const meal = state.lastMeal ?? detectMealType();
+function buildRecipeSharePayload(recipe, meal) {
   const intro = `¡Hola! Chefy me recomendó "${recipe.name}" para ${MEAL_LABELS[meal]}.`;
   const ingredients = (recipe.ingredients ?? [])
     .map((ingredient) => {
@@ -990,28 +1127,174 @@ function shareCurrentRecipe() {
     .map((step, index) => `${index + 1}. ${step}`)
     .join('\n');
   const message = `${intro}\n\nIngredientes:\n${ingredients}\n\nPasos:\n${steps}\n\nGenerado con Chefy 🍳`;
-  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  const subject = `Receta de Chefy: ${recipe.name}`;
+  return { message, subject };
+}
+
+function openShareWindow(url) {
   window.open(url, '_blank', 'noopener');
+}
+
+async function copyShareText(text, optionButton) {
+  if (!text) return;
+  const labelNode = optionButton?.querySelector('.label');
+  const originalLabel = labelNode?.textContent;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    if (labelNode) {
+      labelNode.textContent = 'Copiado ✔';
+      setTimeout(() => {
+        labelNode.textContent = originalLabel;
+      }, 2000);
+    }
+  } catch (error) {
+    console.warn('No se pudo copiar el texto de compartir', error);
+    if (labelNode) {
+      labelNode.textContent = 'Error al copiar';
+      setTimeout(() => {
+        labelNode.textContent = originalLabel;
+      }, 2000);
+    }
+  }
+}
+
+function shareViaTarget(target, { message, subject }, optionButton) {
+  if (!message) return;
+  switch (target) {
+    case 'whatsapp':
+      openShareWindow(`https://wa.me/?text=${encodeURIComponent(message)}`);
+      break;
+    case 'telegram':
+      openShareWindow(`https://t.me/share/url?text=${encodeURIComponent(message)}`);
+      break;
+    case 'email': {
+      const mailto = `mailto:?subject=${encodeURIComponent(subject ?? 'Compartido desde Chefy')}&body=${encodeURIComponent(message)}`;
+      window.location.href = mailto;
+      break;
+    }
+    case 'copy':
+      return copyShareText(message, optionButton);
+    default:
+      break;
+  }
+  return undefined;
+}
+
+function shareRecipe(target, optionButton) {
+  if (!state.lastRecipe) return;
+  const meal = state.lastMeal ?? detectMealType();
+  const payload = buildRecipeSharePayload(state.lastRecipe, meal);
+  return shareViaTarget(target, payload, optionButton);
+}
+
+function shareWeeklyPlan(target, optionButton) {
+  if (!state.planShareText) return;
+  const payload = { message: state.planShareText, subject: state.planShareSubject };
+  return shareViaTarget(target, payload, optionButton);
+}
+
+let openShareMenuElement = null;
+
+function closeShareMenu(menu) {
+  if (!menu || menu.hidden) return;
+  menu.hidden = true;
+  const triggerId = menu.dataset.openedBy;
+  if (triggerId) {
+    const trigger = document.getElementById(triggerId);
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  }
+  menu.dataset.openedBy = '';
+  if (openShareMenuElement === menu) {
+    openShareMenuElement = null;
+  }
+}
+
+function closeAllShareMenus() {
+  closeShareMenu(DOM.shareMenu);
+  closeShareMenu(DOM.planShareMenu);
+}
+
+function toggleShareMenu(menu, trigger) {
+  if (!menu || !trigger || trigger.disabled) return;
+  const isOpen = !menu.hidden;
+  if (isOpen) {
+    closeShareMenu(menu);
+    return;
+  }
+  closeAllShareMenus();
+  menu.hidden = false;
+  menu.dataset.openedBy = trigger.id;
+  trigger.setAttribute('aria-expanded', 'true');
+  openShareMenuElement = menu;
+}
+
+async function handleShareMenuClick(event) {
+  const option = event.target.closest('.share-option');
+  if (!option) return;
+  const menu = event.currentTarget;
+  const target = option.dataset.shareTarget;
+  const type = menu.dataset.shareType;
+  if (!target || !type) return;
+  if (type === 'plan') {
+    await shareWeeklyPlan(target, option);
+  } else {
+    await shareRecipe(target, option);
+  }
+  closeShareMenu(menu);
+}
+
+function handleDocumentClick(event) {
+  if (!openShareMenuElement) return;
+  if (event.target.closest('.share-control')) return;
+  closeAllShareMenus();
+}
+
+function handleDocumentKeydown(event) {
+  if (event.key === 'Escape') {
+    closeAllShareMenus();
+  }
 }
 
 function addCurrentRecipeToPlan() {
   if (!state.lastRecipe) return;
   const day = DOM.planDaySelect.value || WEEK_DAYS[0].id;
   const meal = state.lastMeal ?? detectMealType();
-  const plan = { ...state.weeklyPlan };
-  const dayPlan = { ...(plan[day] ?? { desayuno: null, comida: null, cena: null }) };
+  const activePlan = ensureActivePlan();
+  const slots = normalizeWeeklyPlan(activePlan.slots);
+  const dayPlan = { ...(slots[day] ?? { desayuno: null, comida: null, cena: null }) };
   dayPlan[meal] = { recipeId: state.lastRecipe.id, addedAt: Date.now() };
-  plan[day] = dayPlan;
-  state.weeklyPlan = plan;
-  persistWeeklyPlan();
+  const updatedSlots = { ...slots, [day]: dayPlan };
+  state.weeklyPlans = {
+    ...state.weeklyPlans,
+    [activePlan.id]: { ...activePlan, slots: updatedSlots },
+  };
+  persistPlanner();
 }
 
 function removeFromPlan(dayId, meal) {
-  const plan = { ...state.weeklyPlan };
-  if (!plan[dayId]) return;
-  plan[dayId] = { ...plan[dayId], [meal]: null };
-  state.weeklyPlan = plan;
-  persistWeeklyPlan();
+  const activePlan = ensureActivePlan();
+  const slots = normalizeWeeklyPlan(activePlan.slots);
+  if (!slots[dayId]) return;
+  slots[dayId] = { ...slots[dayId], [meal]: null };
+  state.weeklyPlans = {
+    ...state.weeklyPlans,
+    [activePlan.id]: { ...activePlan, slots },
+  };
+  persistPlanner();
 }
 
 function clearHistory() {
@@ -1020,8 +1303,12 @@ function clearHistory() {
 }
 
 function clearWeeklyPlan() {
-  state.weeklyPlan = createEmptyWeeklyPlan();
-  persistWeeklyPlan();
+  const activePlan = ensureActivePlan();
+  state.weeklyPlans = {
+    ...state.weeklyPlans,
+    [activePlan.id]: { ...activePlan, slots: createEmptyWeeklyPlan() },
+  };
+  persistPlanner();
 }
 
 function renderWeeklyPlan() {
@@ -1037,6 +1324,8 @@ function renderWeeklyPlan() {
 
   let hasEntries = false;
 
+  const plan = getActivePlanSlots();
+
   WEEK_DAYS.forEach((day) => {
     const row = document.createElement('div');
     row.className = 'planner__row';
@@ -1049,7 +1338,7 @@ function renderWeeklyPlan() {
     MEALS.forEach((meal) => {
       const cell = document.createElement('div');
       cell.className = 'planner__cell';
-      const slot = state.weeklyPlan[day.id]?.[meal];
+      const slot = plan[day.id]?.[meal];
       if (slot?.recipeId) {
         hasEntries = true;
         const recipe = RECIPES.find((item) => item.id === slot.recipeId);
@@ -1082,6 +1371,47 @@ function renderWeeklyPlan() {
   });
 
   DOM.clearPlanButton.disabled = !hasEntries;
+  if (DOM.sharePlanButton) {
+    DOM.sharePlanButton.disabled = !hasEntries;
+  }
+}
+
+function renderPlanSelector() {
+  if (!DOM.planSelect) return;
+  ensurePlannerState();
+  DOM.planSelect.innerHTML = '';
+  const plans = Object.values(state.weeklyPlans);
+  plans.forEach((plan, index) => {
+    const option = document.createElement('option');
+    option.value = plan.id;
+    option.textContent = plan.name || `Planificación ${index + 1}`;
+    DOM.planSelect.appendChild(option);
+  });
+  DOM.planSelect.value = state.activePlanId;
+}
+
+function setActivePlan(planId) {
+  if (!planId || !state.weeklyPlans[planId]) return;
+  if (planId === state.activePlanId) return;
+  state.activePlanId = planId;
+  persistPlanner();
+}
+
+function handlePlanSelectChange(event) {
+  setActivePlan(event.target.value);
+}
+
+function handleAddPlan() {
+  const newId = generateNextPlanId();
+  const order = Object.keys(state.weeklyPlans).length + 1;
+  const name = `Planificación ${order}`;
+  state.weeklyPlans = {
+    ...state.weeklyPlans,
+    [newId]: createPlan(newId, name),
+  };
+  state.activePlanId = newId;
+  persistPlanner();
+  DOM.planSelect?.focus();
 }
 
 function aggregatePlanIngredients(plan) {
@@ -1110,7 +1440,7 @@ function aggregatePlanIngredients(plan) {
 
 function updateShoppingList() {
   DOM.shoppingList.innerHTML = '';
-  const summary = aggregatePlanIngredients(state.weeklyPlan);
+  const summary = aggregatePlanIngredients(getActivePlanSlots());
   if (!summary.length) {
     const empty = document.createElement('li');
     empty.className = 'shopping__empty';
@@ -1164,6 +1494,23 @@ async function copyShoppingList() {
     setTimeout(() => {
       DOM.copyShoppingButton.textContent = originalLabel;
     }, 2000);
+  }
+}
+
+function updatePlanShareSummary() {
+  const activePlan = ensureActivePlan();
+  const summary = buildPlanShareSummary(normalizeWeeklyPlan(activePlan.slots), activePlan.name);
+  state.planShareText = summary;
+  const subjectName = activePlan.name?.trim();
+  state.planShareSubject = subjectName ? `${subjectName} · Chefy` : 'Planificación semanal de Chefy';
+
+  if (DOM.sharePlanButton) {
+    DOM.sharePlanButton.disabled = !summary;
+    const label = subjectName ? `Compartir ${subjectName}` : 'Compartir planificación semanal';
+    DOM.sharePlanButton.setAttribute('aria-label', label);
+    DOM.sharePlanButton.title = label;
+    DOM.sharePlanButton.setAttribute('aria-expanded', 'false');
+    closeShareMenu(DOM.planShareMenu);
   }
 }
 
@@ -1271,25 +1618,32 @@ function handleRegister() {
   }
   const users = storage.getUsers();
 
+  const planner = createInitialPlannerState();
   const newUser = {
     email,
     password: hashPassword(password),
     restrictions: state.restrictions,
     cuisines: state.selectedCuisines,
     history: [],
-    weeklyPlan: createEmptyWeeklyPlan(),
+    weeklyPlans: planner.plans,
+    activePlanId: planner.activePlanId,
   };
   storage.saveUsers([...users, newUser]);
   storage.setCurrentUserEmail(email);
   state.currentUser = newUser;
   state.history = [];
-  state.weeklyPlan = createEmptyWeeklyPlan();
+  state.weeklyPlans = planner.plans;
+  state.activePlanId = planner.activePlanId;
+  updatePlanShareSummary();
+  renderPlanSelector();
+  renderWeeklyPlan();
+  updateShoppingList();
   setAuthFeedback('Cuenta creada con éxito. ¡Ya puedes generar recetas!', 'success');
   updateAuthUI();
   persistRestrictions();
   persistCuisines();
   persistHistory();
-  persistWeeklyPlan();
+  persistPlanner();
 
   closeDialog(DOM.authDialog);
 }
@@ -1312,15 +1666,21 @@ function handleLogin() {
 
   state.selectedCuisines = Array.isArray(user.cuisines) ? user.cuisines : [];
   state.history = Array.isArray(user.history) ? user.history : [];
-  state.weeklyPlan = normalizeWeeklyPlan(user.weeklyPlan);
+  const plannerState = normalizePlannerState(
+    user.weeklyPlans ? { plans: user.weeklyPlans, activePlanId: user.activePlanId } : user.weeklyPlan,
+  );
+  state.weeklyPlans = plannerState.plans;
+  state.activePlanId = plannerState.activePlanId;
   setAuthFeedback('Inicio de sesión exitoso.', 'success');
   updateAuthUI();
   renderDefaultChips();
   renderActiveRestrictions();
   renderCuisineSelectors();
   renderHistory();
+  renderPlanSelector();
   renderWeeklyPlan();
   updateShoppingList();
+  updatePlanShareSummary();
 
   closeDialog(DOM.authDialog);
 }
@@ -1342,6 +1702,7 @@ function updateAuthUI() {
 function handleLogout() {
   storage.setCurrentUserEmail(null);
   state.currentUser = null;
+  closeAllShareMenus();
 
   hydrateFromStorage();
   clearResultCard();
@@ -1364,6 +1725,7 @@ function handleSettingsOpen() {
 
 function hydrateFromStorage() {
   const email = storage.getCurrentUserEmail();
+  let plannerState;
   if (email) {
     const user = findUserByEmail(email);
     if (user) {
@@ -1372,31 +1734,42 @@ function hydrateFromStorage() {
 
       state.selectedCuisines = Array.isArray(user.cuisines) ? user.cuisines : [];
       state.history = Array.isArray(user.history) ? user.history : [];
-      state.weeklyPlan = normalizeWeeklyPlan(user.weeklyPlan);
+      plannerState = normalizePlannerState(
+        user.weeklyPlans ? { plans: user.weeklyPlans, activePlanId: user.activePlanId } : user.weeklyPlan,
+      );
     } else {
       storage.setCurrentUserEmail(null);
       state.currentUser = null;
       state.restrictions = storage.getGuestRestrictions();
       state.selectedCuisines = storage.getGuestCuisines();
       state.history = storage.getGuestHistory();
-      state.weeklyPlan = storage.getGuestWeeklyPlan();
+      plannerState = storage.getGuestPlanner();
     }
   } else {
     state.currentUser = null;
     state.restrictions = storage.getGuestRestrictions();
     state.selectedCuisines = storage.getGuestCuisines();
     state.history = storage.getGuestHistory();
-    state.weeklyPlan = storage.getGuestWeeklyPlan();
+    plannerState = storage.getGuestPlanner();
 
   }
+  if (!plannerState) {
+    plannerState = createInitialPlannerState();
+  }
+  state.weeklyPlans = plannerState.plans;
+  state.activePlanId = plannerState.activePlanId;
+  ensurePlannerState();
   updateAuthUI();
   renderDefaultChips();
   renderActiveRestrictions();
 
   renderCuisineSelectors();
   renderHistory();
+  renderPlanSelector();
   renderWeeklyPlan();
   updateShoppingList();
+  updatePlanShareSummary();
+  closeAllShareMenus();
 
 }
 
@@ -1417,11 +1790,22 @@ function registerEventListeners() {
   DOM.logoutButton.addEventListener('click', handleLogout);
   DOM.authToggle.addEventListener('click', () => openAuthDialog('login'));
 
-  DOM.shareButton.addEventListener('click', shareCurrentRecipe);
+  if (DOM.shareButton && DOM.shareMenu) {
+    DOM.shareButton.addEventListener('click', () => toggleShareMenu(DOM.shareMenu, DOM.shareButton));
+    DOM.shareMenu.addEventListener('click', handleShareMenuClick);
+  }
+  if (DOM.sharePlanButton && DOM.planShareMenu) {
+    DOM.sharePlanButton.addEventListener('click', () => toggleShareMenu(DOM.planShareMenu, DOM.sharePlanButton));
+    DOM.planShareMenu.addEventListener('click', handleShareMenuClick);
+  }
   DOM.addToPlanButton.addEventListener('click', addCurrentRecipeToPlan);
   DOM.clearHistoryButton.addEventListener('click', clearHistory);
   DOM.clearPlanButton.addEventListener('click', clearWeeklyPlan);
   DOM.copyShoppingButton.addEventListener('click', copyShoppingList);
+  DOM.planSelect?.addEventListener('change', handlePlanSelectChange);
+  DOM.addPlanButton?.addEventListener('click', handleAddPlan);
+  document.addEventListener('click', handleDocumentClick);
+  document.addEventListener('keydown', handleDocumentKeydown);
 
   document.querySelectorAll('button[data-modal]').forEach((button) => {
     const modalId = button.getAttribute('data-modal');
