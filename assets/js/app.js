@@ -6,10 +6,12 @@ const DOM = {
   resultDescription: document.getElementById('resultDescription'),
   resultTags: document.getElementById('resultTags'),
   resultCalories: document.getElementById('resultCalories'),
- 
-  resultCost: document.getElementById('resultCost'),
-
-
+  ratingPanel: document.getElementById('ratingPanel'),
+  ratingAverage: document.getElementById('ratingAverage'),
+  ratingCount: document.getElementById('ratingCount'),
+  ratingControls: document.getElementById('ratingControls'),
+  ratingResetButton: document.getElementById('ratingResetButton'),
+  ratingNote: document.getElementById('ratingNote'),
   resultDetails: document.getElementById('resultDetails'),
   resultIngredients: document.getElementById('resultIngredients'),
   resultSteps: document.getElementById('resultSteps'),
@@ -41,6 +43,16 @@ const DOM = {
   registerPanel: document.getElementById('registerPanel'),
   authTitle: document.getElementById('authTitle'),
   userWelcome: document.getElementById('userWelcome'),
+  googleLoginButton: document.getElementById('googleLoginButton'),
+  appleLoginButton: document.getElementById('appleLoginButton'),
+  phoneLoginToggle: document.getElementById('phoneLoginToggle'),
+  phoneLoginContainer: document.getElementById('phoneLoginContainer'),
+  phoneNumberInput: document.getElementById('phoneNumberInput'),
+  phoneSendCodeButton: document.getElementById('phoneSendCodeButton'),
+  phoneCodeContainer: document.getElementById('phoneCodeContainer'),
+  phoneCodeInput: document.getElementById('phoneCodeInput'),
+  phoneVerifyButton: document.getElementById('phoneVerifyButton'),
+  phoneLoginStatus: document.getElementById('phoneLoginStatus'),
 
   shareButton: document.getElementById('shareButton'),
   shareMenu: document.getElementById('shareMenu'),
@@ -85,8 +97,7 @@ const DOM = {
   adminRecipeTags: document.getElementById('adminRecipeTags'),
   adminRecipeDescription: document.getElementById('adminRecipeDescription'),
   adminRecipeIngredients: document.getElementById('adminRecipeIngredients'),
- 
-  adminRecipeIngredientPrices: document.getElementById('adminRecipeIngredientPrices'),
+  adminRecipeIngredientUnits: document.getElementById('adminRecipeIngredientUnits'),
   adminRecipeIngredientStores: document.getElementById('adminRecipeIngredientStores'),
   adminRecipeStepsCasero: document.getElementById('adminRecipeStepsCasero'),
   adminRecipeStepsThermomix: document.getElementById('adminRecipeStepsThermomix'),
@@ -167,19 +178,13 @@ const STEP_MODE_LABELS = {
 };
 
 const SUPERMARKETS = [
-  { id: 'mercadona', label: 'Mercadona', brand: 'Hacendado', priceFactor: 0.96 },
-  { id: 'carrefour', label: 'Carrefour', brand: 'Carrefour', priceFactor: 1.02 },
-  { id: 'alcampo', label: 'Alcampo', brand: 'Auchan', priceFactor: 0.94 },
-  { id: 'lidl', label: 'Lidl', brand: 'Chef Select', priceFactor: 0.9 },
+  { id: 'mercadona', label: 'Mercadona', brand: 'Hacendado' },
+  { id: 'carrefour', label: 'Carrefour', brand: 'Carrefour' },
+  { id: 'alcampo', label: 'Alcampo', brand: 'Auchan' },
+  { id: 'lidl', label: 'Lidl', brand: 'Chef Select' },
 ];
 
 const SUPERMARKET_LABELS = Object.fromEntries(SUPERMARKETS.map((store) => [store.id, store.label]));
-
-const CURRENCY_FORMATTER = new Intl.NumberFormat('es-ES', {
-  style: 'currency',
-  currency: 'EUR',
-  maximumFractionDigits: 2,
-});
 
 const RELATIVE_TIME_FORMAT = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' });
 const DATE_FORMATTER = new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' });
@@ -315,6 +320,49 @@ const BASE_RECIPES = [
     chefTip: 'Para un contraste crujiente, añade cacahuetes tostados justo antes de servir.',
     keywords: ['chía', 'leche de coco', 'mango', 'lima', 'coco', 'sirope'],
 
+  },
+  {
+    id: 'aurora-overnight',
+    name: 'Parfait aurora de yogur y chía',
+    meal: 'desayuno',
+    cuisines: ['fusion', 'plant-based'],
+    time: '8 minutos + reposo',
+    servings: '2 raciones',
+    calories: 360,
+    description:
+      'Capas de yogur aireado, chía cremosa y frutas luminosas para despertar con energía sin esfuerzo.',
+    tags: ['meal prep', 'alto en proteínas'],
+    ingredients: [
+      { quantity: '200 ml', item: 'leche de coco ligera' },
+      { quantity: '3 cdas', item: 'semillas de chía' },
+      { quantity: '1 cda', item: 'sirope de arce' },
+      { quantity: '400 g', item: 'yogur griego natural' },
+      { quantity: '1/2 taza', item: 'granola de frutos secos' },
+      { quantity: '1/2 taza', item: 'frutos rojos frescos' },
+      { quantity: '1/2 taza', item: 'mango maduro en cubos' },
+      { quantity: '1', item: 'naranja (zumo y ralladura)' },
+      { quantity: '2 cdas', item: 'coco tostado en láminas' },
+    ],
+    stepModes: {
+      tradicional: [
+        'Mezcla la leche de coco con la chía y el sirope y deja reposar cinco minutos; remueve de nuevo.',
+        'Bate el yogur con la ralladura y un chorrito de zumo de naranja hasta que quede sedoso.',
+        'Alterna capas de chía, yogur y fruta en vasos fríos, terminando con granola y coco tostado.',
+        'Refrigera toda la noche o al menos dos horas para servir bien frío a la mañana siguiente.',
+      ],
+      thermomix: [
+        'Vierte la leche de coco, la chía y el sirope en el vaso. Mezcla 5 seg/vel 3 y deja reposar 5 minutos en el vaso.',
+        'Añade el yogur y 20 g de zumo de naranja y bate 8 seg/vel 3 para airearlo.',
+        'Distribuye la chía en vasos, añade el yogur y alterna con capas de mango y frutos rojos.',
+        'Espolvorea la granola y el coco tostado antes de refrigerar al menos dos horas.',
+      ],
+    },
+    swaps: [
+      { ingredient: 'leche de coco ligera', alternatives: ['leche de almendras', 'leche de avena'] },
+      { ingredient: 'yogur griego natural', alternatives: ['skyr natural', 'yogur vegetal'] },
+    ],
+    chefTip: 'Añade unas gotas de extracto de vainilla o cardamomo molido para perfumar las capas.',
+    keywords: ['yogur', 'chía', 'frutos rojos', 'mango', 'desayuno', 'meal prep'],
   },
   {
     id: 'zen-bento',
@@ -532,6 +580,61 @@ const BASE_RECIPES = [
     keywords: ['farro', 'garbanzos', 'tahini', 'limón', 'pepino', 'brotes'],
   },
   {
+    id: 'iberian-pot',
+    name: 'Cazuela ibérica de garbanzos y quinoa',
+    meal: 'comida',
+    cuisines: ['mediterranea'],
+    time: '35 minutos',
+    servings: '4 raciones',
+    calories: 540,
+    description:
+      'Un guiso aromático con pimientos dulces, quinoa esponjosa y caldo suave perfumado con pimentón ahumado.',
+    tags: ['alto en fibra', 'comfort food'],
+    ingredients: [
+      { quantity: '2 cdas', item: 'aceite de oliva virgen extra' },
+      { quantity: '1', item: 'cebolla morada picada' },
+      { quantity: '2', item: 'dientes de ajo laminados' },
+      { quantity: '1', item: 'pimiento rojo en láminas' },
+      { quantity: '1', item: 'pimiento amarillo en tiras' },
+      { quantity: '1 cda', item: 'pimentón ahumado dulce' },
+      { quantity: '1 taza', item: 'garbanzos cocidos' },
+      { quantity: '1 taza', item: 'quinoa enjuagada' },
+      { quantity: '2 tazas', item: 'caldo vegetal' },
+      { quantity: '1/2 taza', item: 'tomates cherry' },
+      { quantity: '2 cdas', item: 'zumo de limón' },
+      { quantity: '1 puñado', item: 'brotes verdes' },
+    ],
+    stepModes: {
+      tradicional: [
+        'Calienta el aceite en una cazuela amplia y sofríe la cebolla con el ajo hasta que comiencen a dorarse.',
+        'Añade los pimientos y cocina cinco minutos. Incorpora el pimentón ahumado y remueve rápidamente para que no se queme.',
+        'Agrega los garbanzos y la quinoa, vierte el caldo y cuece a fuego medio 18 minutos hasta que la quinoa esté tierna.',
+        'Integra los tomates cherry y el zumo de limón, apaga el fuego y deja reposar cinco minutos antes de servir con los brotes verdes.',
+      ],
+      thermomix: [
+        'Introduce la cebolla y el ajo en el vaso, trocea 4 seg/vel 5 y sofríe 6 min/120 °C/vel 1 con 20 g de aceite.',
+        'Añade los pimientos en tiras y sofríe 5 min/120 °C/giro inverso/vel cuchara.',
+        'Incorpora el pimentón, los garbanzos, la quinoa y el caldo. Cocina 18 min/100 °C/giro inverso/vel cuchara con el cestillo sobre la tapa.',
+        'Añade los tomates cherry y el zumo de limón y mezcla 10 seg/giro inverso/vel 2. Deja reposar cinco minutos antes de servir con brotes verdes.',
+      ],
+    },
+    swaps: [
+      { ingredient: 'quinoa enjuagada', alternatives: ['farro cocido', 'arroz integral cocido'] },
+      { ingredient: 'pimentón ahumado dulce', alternatives: ['especias ras el hanout', 'hierbas provenzales'] },
+    ],
+    chefTip: 'Termina con un hilo de aceite de oliva crudo y ralladura de limón para potenciar los aromas.',
+    keywords: ['garbanzos', 'quinoa', 'pimentón', 'pimientos', 'guiso'],
+    ingredientGuides: {
+      'pimentón ahumado dulce': {
+        unit: 'lata 75 g',
+        stores: {
+          mercadona: { product: 'Pimentón ahumado dulce Hacendado', unit: '75 g' },
+          carrefour: { product: 'Pimentón de la Vera dulce Carrefour', unit: '70 g' },
+        },
+      },
+    },
+  },
+  {
     id: 'midnight-ramen',
     name: 'Ramen nocturno reconfortante',
     meal: 'cena',
@@ -615,6 +718,59 @@ const BASE_RECIPES = [
     ],
     chefTip: 'Tuesta ligeramente el arroz jazmín antes de hervirlo para intensificar su aroma.',
     keywords: ['berenjena', 'curry', 'leche de coco', 'garbanzos', 'arroz jazmín', 'cilantro'],
+  },
+  {
+    id: 'stellar-polenta',
+    name: 'Polenta estelar con verduras glaseadas',
+    meal: 'cena',
+    cuisines: ['fusion', 'plant-based'],
+    time: '30 minutos',
+    servings: '3 raciones',
+    calories: 520,
+    description:
+      'Polenta cremosa enriquecida con leche vegetal y tahini, acompañada de calabaza asada, tofu glaseado y espárragos crujientes.',
+    tags: ['confort', 'sin gluten'],
+    ingredients: [
+      { quantity: '1 taza', item: 'polenta instantánea' },
+      { quantity: '3 tazas', item: 'caldo vegetal' },
+      { quantity: '1/2 taza', item: 'leche de almendras' },
+      { quantity: '1 cda', item: 'tahini' },
+      { quantity: '200 g', item: 'tofu firme' },
+      { quantity: '1 taza', item: 'calabaza en cubos' },
+      { quantity: '1 taza', item: 'espárragos verdes' },
+      { quantity: '2 cdas', item: 'salsa tamari' },
+      { quantity: '1 cda', item: 'aceite de sésamo tostado' },
+      { quantity: '1 cda', item: 'sirope de arce' },
+    ],
+    stepModes: {
+      tradicional: [
+        'Precalienta el horno a 200 °C, mezcla la calabaza con un chorrito de aceite y ásala 15 minutos hasta que se dore.',
+        'Calienta el caldo con la leche de almendras en una olla, vierte la polenta en lluvia y remueve sin parar hasta que espese. Incorpora el tahini para darle cremosidad.',
+        'Dora el tofu en cubos en una sartén con aceite de sésamo, tamari y sirope de arce hasta glasearlo. Saltea los espárragos en la misma sartén dos minutos.',
+        'Sirve la polenta cremosa en cuencos y coloca encima la calabaza asada, el tofu glaseado y los espárragos crujientes.',
+      ],
+      thermomix: [
+        'Coloca la calabaza en dados en el Varoma, añade 500 ml de agua al vaso y cocina 18 min/Varoma/vel 1. Reserva la calabaza caliente.',
+        'Vacía el vaso, añade el caldo y la leche de almendras y calienta 5 min/95 °C/vel 1. Con la máquina en marcha a vel 2, vierte la polenta por el bocal y cocina 12 min/95 °C/vel 2.',
+        'Agrega el tahini y mezcla 10 seg/vel 3 para emulsionar. Mantén la polenta caliente en el vaso tapado.',
+        'En una sartén aparte, dora el tofu con el aceite de sésamo, la tamari y el sirope hasta glasear. Saltea los espárragos un minuto y sirve sobre la polenta con la calabaza cocinada al vapor.',
+      ],
+    },
+    swaps: [
+      { ingredient: 'polenta instantánea', alternatives: ['cuscús perlado', 'puré de coliflor'] },
+      { ingredient: 'tofu firme', alternatives: ['tempeh', 'setas portobello salteadas'] },
+    ],
+    chefTip: 'Finaliza con ralladura de limón y pimienta recién molida para un contraste brillante.',
+    keywords: ['polenta', 'calabaza', 'tofu', 'tamari', 'espárragos'],
+    ingredientGuides: {
+      'polenta instantánea': {
+        unit: 'caja 500 g',
+        stores: {
+          mercadona: { product: 'Polenta rápida Hacendado', unit: '500 g' },
+          alcampo: { product: 'Polenta instantánea Auchan', unit: '500 g' },
+        },
+      },
+    },
   },
   {
     id: 'veggie-tacos',
@@ -710,10 +866,11 @@ const STORAGE_KEYS = {
 
   GUEST_CUISINES: 'chefyGuestCuisines',
   GUEST_HISTORY: 'chefyGuestHistory',
+  GUEST_RATINGS: 'chefyGuestRatings',
   GUEST_WEEKLY_PLAN: 'chefyGuestWeeklyPlan',
   ADMIN_RECIPES: 'chefyRecipeCatalog',
   SUPER_ADMIN_EMAIL: 'chefySuperAdminEmail',
- 
+
   DISCOVER_ENTRIES: 'chefyDiscoverEntries',
 
  
@@ -742,9 +899,6 @@ function buildStoreProductName(label, store, unit) {
 function createIngredientGuideConfig(name, config = {}) {
   const label = trimText(config.label) || formatGuideBaseLabel(name);
   const unit = trimText(config.unit);
-  const amountRaw = typeof config.amount === 'string' ? config.amount.replace(',', '.') : config.amount;
-  const amountValue = Number.parseFloat(amountRaw);
-  const amount = Number.isFinite(amountValue) ? Number.parseFloat(amountValue.toFixed(2)) : null;
   const stores = {};
   const overrides = config.overrides && typeof config.overrides === 'object' ? config.overrides : {};
 
@@ -752,31 +906,22 @@ function createIngredientGuideConfig(name, config = {}) {
     const overrideEntry = Object.entries(overrides).find(([key]) => toKey(key) === store.id);
     const override = overrideEntry ? overrideEntry[1] : null;
     const overrideLabel = trimText(override?.label);
+    const storeUnit = trimText(override?.unit ?? unit);
     const product =
-      trimText(override?.product) || buildStoreProductName(overrideLabel || label, store, override?.unit ?? unit);
-    let priceValue = override?.price;
-    if (typeof priceValue === 'string') {
-      priceValue = priceValue.replace(',', '.');
+      trimText(override?.product) || buildStoreProductName(overrideLabel || label, store, storeUnit);
+    if (product) {
+      stores[store.id] = { product };
     }
-    let price = Number.parseFloat(priceValue);
-    if (Number.isFinite(price)) {
-      price = Number.parseFloat(price.toFixed(2));
-    } else if (amount) {
-      const multiplierRaw = override?.multiplier;
-      let multiplier = Number.parseFloat(
-        typeof multiplierRaw === 'string' ? multiplierRaw.replace(',', '.') : multiplierRaw,
-      );
-      if (!Number.isFinite(multiplier)) {
-        multiplier = store.priceFactor ?? 1;
-      }
-      price = Number.parseFloat((amount * multiplier).toFixed(2));
-    } else {
-      price = null;
-    }
-    stores[store.id] = { product, price };
   });
 
-  return { price: amount ? { amount, unit } : null, stores };
+  const guide = {};
+  if (unit) {
+    guide.unit = unit;
+  }
+  if (Object.keys(stores).length) {
+    guide.stores = stores;
+  }
+  return guide;
 }
 
 function createMarketGuide(definitions = {}) {
@@ -878,6 +1023,24 @@ const MARKET_GUIDE_PRESETS = createMarketGuide({
   'zumo de lima': { amount: 1.4, unit: 'botella 200 ml', label: 'Zumo de lima' },
   'zumo de limón': { amount: 1.3, unit: 'botella 200 ml', label: 'Zumo de limón' },
 });
+
+const COMMUNITY_RATINGS = {
+  'sunrise-bowl': { average: 4.8, votes: 214 },
+  'matcha-hotcakes': { average: 4.7, votes: 198 },
+  'bangkok-chia': { average: 4.6, votes: 152 },
+  'zen-bento': { average: 4.5, votes: 187 },
+  'citrus-salmon': { average: 4.7, votes: 165 },
+  'bangkok-salad': { average: 4.4, votes: 133 },
+  'yucatan-bowl': { average: 4.6, votes: 142 },
+  'garden-bowl': { average: 4.5, votes: 176 },
+  'midnight-ramen': { average: 4.8, votes: 205 },
+  'moonlight-curry': { average: 4.7, votes: 188 },
+  'veggie-tacos': { average: 4.6, votes: 173 },
+  'lemongrass-tofu': { average: 4.5, votes: 159 },
+  'aurora-overnight': { average: 4.7, votes: 138 },
+  'iberian-pot': { average: 4.6, votes: 164 },
+  'stellar-polenta': { average: 4.8, votes: 121 },
+};
 function createEmptyWeeklyPlan() {
   return WEEK_DAYS.reduce((plan, day) => {
     plan[day.id] = { desayuno: null, comida: null, cena: null };
@@ -958,6 +1121,17 @@ const DISCOVER_FEATURED = [
     author: 'Equipo Chefy',
     createdAt: Date.parse('2024-04-25T18:15:00Z'),
     recipeId: 'citrus-salmon',
+    meal: 'cena',
+  },
+  {
+    id: 'featured-stellar-polenta',
+    type: 'recipe',
+    title: 'Polenta estelar en 30 minutos',
+    summary: 'Cremosa, con calabaza asada y tofu glaseado para una cena que abraza.',
+    details: 'Añade ralladura de limón antes de servir para un brillo final y comparte tu valoración en segundos.',
+    author: 'Equipo Chefy',
+    createdAt: Date.parse('2024-05-02T19:45:00Z'),
+    recipeId: 'stellar-polenta',
     meal: 'cena',
   },
 ];
@@ -1106,20 +1280,9 @@ function normalizeIngredientGuides(rawGuides, ingredients = []) {
     if (!key || (ingredientKeys.size && !ingredientKeys.has(key))) return;
 
     const normalized = {};
-    if (guide.price) {
-      const amountRaw =
-        typeof guide.price === 'object' ? guide.price.amount : typeof guide.price === 'string' ? guide.price : guide.price;
-      const unitValue =
-        typeof guide.price === 'object' ? guide.price.unit : typeof guide.unit === 'string' ? guide.unit : guide.price?.unit;
-      const amountValue = Number.parseFloat(
-        typeof amountRaw === 'string' ? amountRaw.replace(',', '.') : amountRaw,
-      );
-      if (Number.isFinite(amountValue)) {
-        normalized.price = {
-          amount: Number.parseFloat(amountValue.toFixed(2)),
-          unit: cleanString(unitValue),
-        };
-      }
+    const unit = cleanString(guide.unit ?? guide.format);
+    if (unit) {
+      normalized.unit = unit;
     }
 
     if (guide.stores && typeof guide.stores === 'object') {
@@ -1127,24 +1290,28 @@ function normalizeIngredientGuides(rawGuides, ingredients = []) {
       Object.entries(guide.stores).forEach(([storeKey, storeValue]) => {
         const storeId = toKey(storeKey);
         if (!SUPERMARKET_LABELS[storeId]) return;
-        if (!storeValue || typeof storeValue !== 'object') return;
-        const product = cleanString(storeValue.product) || cleanString(storeValue.label);
-        let priceValue = storeValue.price;
-        if (typeof priceValue === 'string') {
-          priceValue = priceValue.replace(',', '.');
+        if (!storeValue) return;
+        let product = '';
+        let unitOverride = '';
+        if (typeof storeValue === 'string') {
+          product = cleanString(storeValue);
+        } else if (typeof storeValue === 'object') {
+          product = cleanString(storeValue.product) || cleanString(storeValue.label) || cleanString(storeValue.name);
+          unitOverride = cleanString(storeValue.unit ?? storeValue.size);
         }
-        const price = Number.parseFloat(priceValue);
-        stores[storeId] = {
-          product,
-          price: Number.isFinite(price) ? Number.parseFloat(price.toFixed(2)) : null,
-        };
+        if (!product) return;
+        const entry = { product };
+        if (unitOverride) {
+          entry.unit = unitOverride;
+        }
+        stores[storeId] = entry;
       });
       if (Object.keys(stores).length) {
         normalized.stores = stores;
       }
     }
 
-    if (normalized.price || normalized.stores) {
+    if (normalized.unit || normalized.stores) {
       guides[key] = normalized;
     }
   });
@@ -1153,7 +1320,22 @@ function normalizeIngredientGuides(rawGuides, ingredients = []) {
 }
 
 
- 
+
+function normalizeRatings(rawRatings) {
+  if (!rawRatings || typeof rawRatings !== 'object') return {};
+  const normalized = {};
+  Object.entries(rawRatings).forEach(([recipeId, score]) => {
+    const id = toKey(recipeId);
+    const value = Number.parseInt(score, 10);
+    if (!id) return;
+    if (Number.isFinite(value) && value >= 1 && value <= 5) {
+      normalized[id] = value;
+    }
+  });
+  return normalized;
+}
+
+
 function normalizeUserRole(user, superAdminEmail) {
   if (!user || typeof user !== 'object') return null;
   const normalized = { ...user };
@@ -1346,6 +1528,12 @@ const storage = {
   saveGuestHistory(history) {
     this.writeJSON(STORAGE_KEYS.GUEST_HISTORY, history);
   },
+  getGuestRatings() {
+    return normalizeRatings(this.readJSON(STORAGE_KEYS.GUEST_RATINGS, {}));
+  },
+  saveGuestRatings(ratings) {
+    this.writeJSON(STORAGE_KEYS.GUEST_RATINGS, ratings);
+  },
   getGuestPlanner() {
     return normalizePlannerState(this.readJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, createInitialPlannerState()));
   },
@@ -1391,6 +1579,7 @@ const state = {
 
   selectedCuisines: [],
   history: [],
+  userRatings: {},
   weeklyPlans: {},
   activePlanId: '',
   lastRecipe: null,
@@ -1403,7 +1592,9 @@ const state = {
   superAdminEmail: '',
   adminSelectedRecipeId: '',
   adminFeedbackTimeout: null,
- 
+  ratingNoteTimeout: null,
+  pendingPhoneLogin: null,
+
   discoverUserEntries: [],
   discoverEntries: [],
   discoverFeedbackTimeout: null,
@@ -1440,9 +1631,62 @@ function persistDiscoverEntries() {
   storage.saveDiscoverEntries(state.discoverUserEntries);
 }
 
+function computePlanRatingSummary(slots) {
+  if (!slots) return null;
+  const normalized = normalizeWeeklyPlan(slots);
+  const recipeIds = new Set();
+  WEEK_DAYS.forEach((day) => {
+    MEALS.forEach((meal) => {
+      const entry = normalized[day.id]?.[meal];
+      if (entry?.recipeId) {
+        recipeIds.add(entry.recipeId);
+      }
+    });
+  });
+  if (!recipeIds.size) return null;
+  const summaries = [];
+  recipeIds.forEach((recipeId) => {
+    const summary = getRecipeRatingSummary(recipeId);
+    if (summary.average) {
+      summaries.push(summary);
+    }
+  });
+  if (!summaries.length) return null;
+  const average =
+    summaries.reduce((sum, item) => sum + item.average, 0) / summaries.length;
+  const votes = summaries.reduce((sum, item) => sum + item.votes, 0);
+  return {
+    average: Number.parseFloat(average.toFixed(2)),
+    votes,
+    recipes: summaries.length,
+  };
+}
+
+function getEntryScore(entry) {
+  if (!entry) return 0;
+  if (entry.type === 'recipe' && entry.recipeId) {
+    const summary = getRecipeRatingSummary(entry.recipeId);
+    if (summary.average) {
+      return summary.average * 1000 + summary.votes;
+    }
+  }
+  if (entry.type === 'plan' && entry.planSnapshot?.slots) {
+    const summary = computePlanRatingSummary(entry.planSnapshot.slots);
+    if (summary?.average) {
+      return summary.average * 1000 + summary.votes;
+    }
+  }
+  return entry.createdAt ?? 0;
+}
+
 function refreshDiscoverEntries() {
   const combined = [...DISCOVER_FEATURED, ...state.discoverUserEntries];
-  combined.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  combined.sort((a, b) => {
+    const scoreA = getEntryScore(a);
+    const scoreB = getEntryScore(b);
+    if (scoreA !== scoreB) return scoreB - scoreA;
+    return (b.createdAt ?? 0) - (a.createdAt ?? 0);
+  });
   state.discoverEntries = combined;
   renderDiscoverFeed();
 }
@@ -1689,16 +1933,13 @@ function clearResultCard() {
   DOM.resultTags.innerHTML = '';
   DOM.resultCalories.hidden = true;
   DOM.resultCalories.textContent = '';
- 
-  DOM.resultCost.hidden = true;
-  DOM.resultCost.textContent = '';
-
   DOM.resultDetails.hidden = true;
   DOM.resultIngredients.innerHTML = '';
   DOM.resultSteps.innerHTML = '';
   DOM.resultAlternatives.innerHTML = '';
   DOM.chefTip.hidden = true;
   DOM.chefTip.textContent = '';
+  resetRatingPanel();
   setActionAvailability(false);
   state.lastRecipe = null;
   state.lastMeal = null;
@@ -1708,46 +1949,225 @@ function getCuisineLabels(cuisines = []) {
   return cuisines.map((id) => CUISINE_LABELS[id] ?? id);
 }
 
-function formatCurrency(value) {
-  if (!Number.isFinite(value)) return '';
-  return CURRENCY_FORMATTER.format(value);
-}
-
 function resolveIngredientGuide(ingredient, recipe) {
   const key = toKey(ingredient.item);
   const custom = recipe?.ingredientGuides?.[key];
   const preset = MARKET_GUIDE_PRESETS[key];
-  const price = custom?.price ?? preset?.price ?? null;
+  const unit = cleanString(custom?.unit ?? preset?.unit);
   const stores = [];
   SUPERMARKETS.forEach((store) => {
     const storeData = custom?.stores?.[store.id] ?? preset?.stores?.[store.id];
     if (!storeData) return;
-    const product = cleanString(storeData.product) || buildStoreProductName(ingredient.item, store, price?.unit);
-    let priceValue = storeData.price;
-    if (typeof priceValue === 'string') {
-      priceValue = priceValue.replace(',', '.');
+    const storeUnit = cleanString(storeData.unit ?? unit);
+    const product =
+      cleanString(storeData.product) || buildStoreProductName(ingredient.item, store, storeUnit || unit);
+    if (!product) return;
+    const entry = { store: store.label, product };
+    if (storeUnit) {
+      entry.unit = storeUnit;
     }
-    let amount = Number.parseFloat(priceValue);
-    if (!Number.isFinite(amount) && price?.amount) {
-      amount = Number.parseFloat((price.amount * (store.priceFactor ?? 1)).toFixed(2));
-    }
-    stores.push({ store: store.label, product, price: Number.isFinite(amount) ? amount : null });
+    stores.push(entry);
   });
-  return { price, stores };
+  return { unit, stores };
 }
 
-function calculateRecipeCost(recipe) {
-  if (!recipe) return null;
-  const amounts = (recipe.ingredients ?? [])
-    .map((ingredient) => {
-      const guide = resolveIngredientGuide(ingredient, recipe);
-      return guide.price?.amount;
-    })
-    .filter((value) => Number.isFinite(value));
+function getCommunityRating(recipeId) {
+  const base = COMMUNITY_RATINGS[recipeId];
+  if (base && Number.isFinite(base.average) && Number.isFinite(base.votes)) {
+    return {
+      average: Number.parseFloat(Number(base.average).toFixed(2)),
+      votes: Math.max(0, Math.trunc(base.votes)),
+    };
+  }
+  return { average: 4.5, votes: 24 };
+}
 
-  if (!amounts.length) return null;
-  const total = amounts.reduce((sum, value) => sum + value, 0);
-  return { total: Number.parseFloat(total.toFixed(2)), items: amounts.length };
+function getRecipeRatingSummary(recipeOrId) {
+  const recipeId = typeof recipeOrId === 'string' ? recipeOrId : recipeOrId?.id;
+  if (!recipeId) {
+    return { average: null, votes: 0, userRating: null, baseAverage: null, baseVotes: 0 };
+  }
+  const { average: baseAverage, votes: baseVotes } = getCommunityRating(recipeId);
+  const userRating = state.userRatings?.[recipeId];
+  let combinedAverage = baseAverage;
+  let combinedVotes = baseVotes;
+  if (Number.isFinite(userRating)) {
+    combinedVotes += 1;
+    combinedAverage = Number.parseFloat(((baseAverage * baseVotes + userRating) / combinedVotes).toFixed(2));
+  }
+  return {
+    average: combinedAverage,
+    votes: combinedVotes,
+    userRating: Number.isFinite(userRating) ? userRating : null,
+    baseAverage,
+    baseVotes,
+  };
+}
+
+function resetRatingPanel() {
+  if (!DOM.ratingPanel) return;
+  DOM.ratingPanel.hidden = true;
+  if (DOM.ratingAverage) {
+    DOM.ratingAverage.textContent = '0.0';
+  }
+  if (DOM.ratingCount) {
+    DOM.ratingCount.textContent = 'Sin valoraciones';
+  }
+  if (DOM.ratingNote) {
+    DOM.ratingNote.textContent = '';
+    DOM.ratingNote.classList.remove('rating__note--success', 'rating__note--error');
+  }
+  if (DOM.ratingResetButton) {
+    DOM.ratingResetButton.hidden = true;
+    DOM.ratingResetButton.setAttribute('hidden', 'true');
+  }
+  if (DOM.ratingControls) {
+    const stars = DOM.ratingControls.querySelectorAll('.rating__star');
+    stars.forEach((star, index) => {
+      star.classList.remove('rating__star--active');
+      star.setAttribute('aria-checked', 'false');
+      star.setAttribute('tabindex', index === 0 ? '0' : '-1');
+    });
+  }
+}
+
+function setRatingNote(message, type = 'info') {
+  if (!DOM.ratingNote) return;
+  if (state.ratingNoteTimeout) {
+    clearTimeout(state.ratingNoteTimeout);
+    state.ratingNoteTimeout = null;
+  }
+  DOM.ratingNote.textContent = message;
+  DOM.ratingNote.classList.toggle('rating__note--success', type === 'success');
+  DOM.ratingNote.classList.toggle('rating__note--error', type === 'error');
+  if (message) {
+    state.ratingNoteTimeout = setTimeout(() => {
+      DOM.ratingNote.textContent = '';
+      DOM.ratingNote.classList.remove('rating__note--success', 'rating__note--error');
+      state.ratingNoteTimeout = null;
+    }, 4000);
+  }
+}
+
+function updateRatingPanel(recipe) {
+  if (!DOM.ratingPanel || !recipe) {
+    resetRatingPanel();
+    return;
+  }
+  const summary = getRecipeRatingSummary(recipe.id);
+  DOM.ratingPanel.hidden = false;
+  if (DOM.ratingAverage) {
+    DOM.ratingAverage.textContent = summary.average ? summary.average.toFixed(1) : '—';
+  }
+  if (DOM.ratingCount) {
+    const votesText = summary.votes
+      ? `${summary.votes} valoración${summary.votes === 1 ? '' : 'es'}`
+      : 'Sé la primera persona en valorar';
+    DOM.ratingCount.textContent = votesText;
+  }
+  if (DOM.ratingControls) {
+    const stars = DOM.ratingControls.querySelectorAll('.rating__star');
+    const highlight = summary.userRating ?? Math.round(summary.average ?? 0);
+    stars.forEach((star, index) => {
+      const score = Number.parseInt(star.dataset.score, 10);
+      const active = highlight > 0 && score <= highlight;
+      star.classList.toggle('rating__star--active', active);
+      star.setAttribute('role', 'radio');
+      const isChecked = Number.isFinite(summary.userRating) && score === summary.userRating;
+      star.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+      const shouldFocus = isChecked || (!Number.isFinite(summary.userRating) && index === 0);
+      star.setAttribute('tabindex', shouldFocus ? '0' : '-1');
+    });
+  }
+  if (DOM.ratingResetButton) {
+    if (Number.isFinite(summary.userRating)) {
+      DOM.ratingResetButton.hidden = false;
+      DOM.ratingResetButton.removeAttribute('hidden');
+      DOM.ratingNote.textContent = `Tu valoración: ${summary.userRating} estrella${summary.userRating === 1 ? '' : 's'}.`;
+      DOM.ratingNote.classList.remove('rating__note--error');
+      DOM.ratingNote.classList.remove('rating__note--success');
+    } else {
+      DOM.ratingResetButton.hidden = true;
+      DOM.ratingResetButton.setAttribute('hidden', 'true');
+      DOM.ratingNote.textContent = 'Valora para personalizar tus recomendaciones y destacar en Descubrir.';
+      DOM.ratingNote.classList.remove('rating__note--success', 'rating__note--error');
+    }
+  }
+}
+
+function persistRatings() {
+  if (state.currentUser) {
+    persistUserData({ ratings: state.userRatings });
+  } else {
+    storage.saveGuestRatings(state.userRatings);
+  }
+  refreshDiscoverEntries();
+}
+
+function setRecipeRating(recipeId, rating) {
+  if (!recipeId || !Number.isFinite(rating)) return;
+  const normalized = Math.min(5, Math.max(1, Math.round(rating)));
+  if (state.userRatings[recipeId] === normalized) {
+    setRatingNote('Ya habías dado esa valoración.', 'info');
+    return;
+  }
+  state.userRatings = { ...state.userRatings, [recipeId]: normalized };
+  persistRatings();
+  if (state.lastRecipe?.id === recipeId) {
+    updateRatingPanel(state.lastRecipe);
+    setRatingNote('⭐ ¡Gracias por tu valoración!', 'success');
+  }
+}
+
+function removeRecipeRating(recipeId) {
+  if (!recipeId || !state.userRatings[recipeId]) return;
+  const { [recipeId]: _removed, ...rest } = state.userRatings;
+  state.userRatings = rest;
+  persistRatings();
+  if (state.lastRecipe?.id === recipeId) {
+    updateRatingPanel(state.lastRecipe);
+    setRatingNote('Valoración eliminada.', 'info');
+  }
+}
+
+function handleRatingClick(event) {
+  const button = event.target.closest('.rating__star');
+  if (!button || !state.lastRecipe) return;
+  const score = Number.parseInt(button.dataset.score, 10);
+  if (!Number.isFinite(score)) return;
+  setRecipeRating(state.lastRecipe.id, score);
+}
+
+function handleRatingKeydown(event) {
+  if (!DOM.ratingControls || !state.lastRecipe) return;
+  const stars = Array.from(DOM.ratingControls.querySelectorAll('.rating__star'));
+  if (!stars.length) return;
+  const currentIndex = stars.findIndex((star) => star.getAttribute('aria-checked') === 'true');
+  let targetIndex = currentIndex;
+  if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+    targetIndex = Math.min(stars.length - 1, currentIndex >= 0 ? currentIndex + 1 : 0);
+  } else if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+    targetIndex = Math.max(0, currentIndex >= 0 ? currentIndex - 1 : 0);
+  } else if (event.key === 'Home') {
+    targetIndex = 0;
+  } else if (event.key === 'End') {
+    targetIndex = stars.length - 1;
+  } else {
+    return;
+  }
+  event.preventDefault();
+  const star = stars[targetIndex];
+  if (!star) return;
+  star.focus();
+  const score = Number.parseInt(star.dataset.score, 10);
+  if (Number.isFinite(score)) {
+    setRecipeRating(state.lastRecipe.id, score);
+  }
+}
+
+function handleRatingReset() {
+  if (!state.lastRecipe) return;
+  removeRecipeRating(state.lastRecipe.id);
 }
 
 function formatRelativeTimeLabel(timestamp) {
@@ -1851,15 +2271,6 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
   DOM.resultSteps.innerHTML = '';
   DOM.resultAlternatives.innerHTML = '';
 
-  const cost = calculateRecipeCost(recipe);
-  if (cost) {
-    DOM.resultCost.hidden = false;
-    DOM.resultCost.textContent = `Coste estimado de la compra: ${formatCurrency(cost.total)} (aprox.)`;
-  } else {
-    DOM.resultCost.hidden = true;
-    DOM.resultCost.textContent = '';
-  }
-
   (recipe.ingredients ?? []).forEach((ingredient) => {
     const item = document.createElement('li');
     item.className = 'ingredient';
@@ -1876,13 +2287,11 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
     header.appendChild(label);
 
     const guide = resolveIngredientGuide(ingredient, recipe);
-    if (guide.price?.amount) {
-      const price = document.createElement('span');
-      price.className = 'ingredient__price';
-      const formatted = formatCurrency(guide.price.amount);
-      const unitText = guide.price.unit ? ` · ${guide.price.unit}` : '';
-      price.textContent = `${formatted}${unitText}`;
-      header.appendChild(price);
+    if (guide.unit) {
+      const unit = document.createElement('span');
+      unit.className = 'ingredient__unit';
+      unit.textContent = `Formato sugerido: ${guide.unit}`;
+      header.appendChild(unit);
     }
 
     item.appendChild(header);
@@ -1905,11 +2314,11 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
         product.className = 'ingredient__market-product';
         product.textContent = storeInfo.product;
         storeItem.append(storeName, product);
-        if (Number.isFinite(storeInfo.price)) {
-          const price = document.createElement('span');
-          price.className = 'ingredient__market-price';
-          price.textContent = formatCurrency(storeInfo.price);
-          storeItem.appendChild(price);
+        if (storeInfo.unit) {
+          const unit = document.createElement('span');
+          unit.className = 'ingredient__market-unit';
+          unit.textContent = storeInfo.unit;
+          storeItem.appendChild(unit);
         }
         list.appendChild(storeItem);
       });
@@ -1944,6 +2353,7 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
     DOM.chefTip.textContent = '';
   }
 
+  updateRatingPanel(recipe);
   setActionAvailability(true);
   if (shouldRecordHistory) {
     saveRecipeToHistory(recipe, meal);
@@ -2055,6 +2465,38 @@ function renderDiscoverFeed() {
     const title = document.createElement('h3');
     title.textContent = entry.title;
     header.append(typeBadge, title);
+    if (entry.type === 'recipe' && entry.recipeId) {
+      const ratingSummary = getRecipeRatingSummary(entry.recipeId);
+      if (ratingSummary.average) {
+        const rating = document.createElement('div');
+        rating.className = 'discover-card__rating';
+        const badge = document.createElement('span');
+        badge.className = 'discover-card__rating-badge';
+        badge.textContent = ratingSummary.average.toFixed(1);
+        const votes = document.createElement('span');
+        votes.textContent = `${ratingSummary.votes} valoración${ratingSummary.votes === 1 ? '' : 'es'}`;
+        rating.append(badge, votes);
+        if (Number.isFinite(ratingSummary.userRating)) {
+          const yours = document.createElement('span');
+          yours.textContent = `Tu nota: ${ratingSummary.userRating}`;
+          rating.appendChild(yours);
+        }
+        header.appendChild(rating);
+      }
+    } else if (entry.type === 'plan' && entry.planSnapshot?.slots) {
+      const planRating = computePlanRatingSummary(entry.planSnapshot.slots);
+      if (planRating?.average) {
+        const rating = document.createElement('div');
+        rating.className = 'discover-card__rating';
+        const badge = document.createElement('span');
+        badge.className = 'discover-card__rating-badge';
+        badge.textContent = planRating.average.toFixed(1);
+        const votes = document.createElement('span');
+        votes.textContent = `${planRating.recipes} recetas · ${planRating.votes} valoración${planRating.votes === 1 ? '' : 'es'}`;
+        rating.append(badge, votes);
+        header.appendChild(rating);
+      }
+    }
     card.appendChild(header);
 
     if (entry.summary) {
@@ -2261,7 +2703,7 @@ function buildRecipeSharePayload(recipe, meal) {
       return `• ${ingredient}`;
     })
     .join('\n');
-  const cost = calculateRecipeCost(recipe);
+  const ratingSummary = getRecipeRatingSummary(recipe.id);
   const stepSections = STEP_MODES.map((mode) => {
     const steps = recipe.stepModes?.[mode] ?? [];
     if (!steps.length) return '';
@@ -2271,9 +2713,14 @@ function buildRecipeSharePayload(recipe, meal) {
   })
     .filter(Boolean)
     .join('\n\n');
-  const costLine = cost ? `\n\nCoste aproximado: ${formatCurrency(cost.total)}` : '';
+  const ratingLine = ratingSummary.average
+    ? `\n\n⭐ Valoración media: ${ratingSummary.average.toFixed(1)} (${ratingSummary.votes} valoraciones)`
+    : '';
+  const userRatingLine = Number.isFinite(ratingSummary.userRating)
+    ? `\nMi nota personal: ${ratingSummary.userRating} estrella${ratingSummary.userRating === 1 ? '' : 's'}`
+    : '';
   const stepsText = stepSections || 'Esta receta admite improvisación en ambos modos.';
-  const message = `${intro}\n\nIngredientes:\n${ingredients}${costLine}\n\nPasos:\n${stepsText}\n\nGenerado con Chefy 🍳`;
+  const message = `${intro}${ratingLine}${userRatingLine}\n\nIngredientes:\n${ingredients}\n\nPasos:\n${stepsText}\n\nGenerado con Chefy 🍳`;
   const subject = `Receta de Chefy: ${recipe.name}`;
   return { message, subject };
 }
@@ -2749,61 +3196,16 @@ function formatIngredients(list) {
     .filter(Boolean)
     .join('\n');
 }
-function parseIngredientPrices(value) {
+function parseIngredientUnits(value) {
   const lines = parseLines(value);
   const result = {};
   lines.forEach((line) => {
-    const [itemPart, amountPart, ...rest] = line.split('|');
+    const [itemPart, unitPart] = line.split('|');
     const itemName = cleanString(itemPart);
-    if (!itemName) return;
+    const unit = cleanString(unitPart);
+    if (!itemName || !unit) return;
     const key = toKey(itemName);
-    const amountValue = Number.parseFloat(cleanString(amountPart).replace(',', '.'));
-    if (!Number.isFinite(amountValue)) return;
-    const unit = cleanString(rest.join('|'));
-    result[key] = result[key] || {};
-    result[key].price = { amount: Number.parseFloat(amountValue.toFixed(2)), unit };
-  });
-  return result;
-}
-
-function formatIngredientPrices(recipe) {
-  const ingredients = recipe?.ingredients ?? [];
-  const guides = recipe?.ingredientGuides ?? {};
-  const lines = ingredients
-    .map((ingredient) => {
-      const key = toKey(ingredient.item);
-      const price = guides[key]?.price;
-      if (!price || !Number.isFinite(price.amount)) return '';
-      const unit = cleanString(price.unit);
-      return unit ? `${ingredient.item} | ${price.amount} | ${unit}` : `${ingredient.item} | ${price.amount}`;
-    })
-    .filter(Boolean);
-  return lines.join('\n');
-}
-
-function parseIngredientStores(value) {
-  const lines = parseLines(value);
-  const result = {};
-  lines.forEach((line) => {
-    const [itemPart, ...storeEntries] = line.split('|');
-    const itemName = cleanString(itemPart);
-    if (!itemName || !storeEntries.length) return;
-    const key = toKey(itemName);
-    result[key] = result[key] || {};
-    result[key].stores = result[key].stores || {};
-    storeEntries.forEach((entry) => {
-      const [storePart, rest] = entry.split(':');
-      const storeId = toKey(storePart);
-      if (!SUPERMARKET_LABELS[storeId]) return;
-      const [productPart, pricePart] = (rest ?? '').split(',');
-      const product = cleanString(productPart);
-      let priceValue = pricePart ? pricePart.replace(',', '.') : '';
-      const price = Number.parseFloat(priceValue);
-      result[key].stores[storeId] = {
-        product,
-        price: Number.isFinite(price) ? Number.parseFloat(price.toFixed(2)) : null,
-      };
-    });
+    result[key] = { unit };
   });
   return result;
 }
@@ -2819,14 +3221,60 @@ function formatIngredientStores(recipe) {
       const entries = Object.entries(stores)
         .filter(([storeId]) => SUPERMARKET_LABELS[storeId])
         .map(([storeId, data]) => {
-          const product = cleanString(data.product);
-          const price = Number.isFinite(data.price) ? data.price : '';
-          const priceText = price !== '' ? `,${price}` : '';
-          return `${SUPERMARKET_LABELS[storeId]}:${product}${priceText}`;
+          const product = cleanString(data?.product);
+          if (!product) return '';
+          const unit = cleanString(data?.unit);
+          return unit
+            ? `${SUPERMARKET_LABELS[storeId]}:${product} ~ ${unit}`
+            : `${SUPERMARKET_LABELS[storeId]}:${product}`;
         })
         .filter(Boolean);
       if (!entries.length) return '';
       return `${ingredient.item} | ${entries.join(' | ')}`;
+    })
+    .filter(Boolean);
+  return lines.join('\n');
+}
+
+function parseIngredientStores(value) {
+  const lines = parseLines(value);
+  const result = {};
+  lines.forEach((line) => {
+    const [itemPart, ...storeEntries] = line.split('|');
+    const itemName = cleanString(itemPart);
+    if (!itemName || !storeEntries.length) return;
+    const key = toKey(itemName);
+    storeEntries.forEach((entry) => {
+      const [storePart, rest] = entry.split(':');
+      const storeId = toKey(storePart);
+      if (!SUPERMARKET_LABELS[storeId]) return;
+      const [productPart, unitPart] = (rest ?? '').split('~');
+      const product = cleanString(productPart);
+      if (!product) return;
+      const storeUnit = cleanString(unitPart);
+      if (!result[key]) {
+        result[key] = {};
+      }
+      result[key].stores = result[key].stores || {};
+      const storeData = { product };
+      if (storeUnit) {
+        storeData.unit = storeUnit;
+      }
+      result[key].stores[storeId] = storeData;
+    });
+  });
+  return result;
+}
+
+function formatIngredientUnits(recipe) {
+  const ingredients = recipe?.ingredients ?? [];
+  const guides = recipe?.ingredientGuides ?? {};
+  const lines = ingredients
+    .map((ingredient) => {
+      const key = toKey(ingredient.item);
+      const unit = cleanString(guides[key]?.unit);
+      if (!unit) return '';
+      return `${ingredient.item} | ${unit}`;
     })
     .filter(Boolean);
   return lines.join('\n');
@@ -2898,8 +3346,7 @@ function populateAdminForm(recipe) {
   DOM.adminRecipeKeywords.value = formatCommaList(recipe?.keywords);
   DOM.adminRecipeDescription.value = recipe?.description ?? '';
   DOM.adminRecipeIngredients.value = formatIngredients(recipe?.ingredients);
- 
-  DOM.adminRecipeIngredientPrices.value = formatIngredientPrices(recipe);
+  DOM.adminRecipeIngredientUnits.value = formatIngredientUnits(recipe);
   DOM.adminRecipeIngredientStores.value = formatIngredientStores(recipe);
   DOM.adminRecipeStepsCasero.value = formatLines(recipe?.stepModes?.tradicional ?? recipe?.steps);
   DOM.adminRecipeStepsThermomix.value = formatLines(recipe?.stepModes?.thermomix);
@@ -2921,7 +3368,7 @@ function clearAdminForm() {
   DOM.adminRecipeDescription.value = '';
   DOM.adminRecipeIngredients.value = '';
  
-  DOM.adminRecipeIngredientPrices.value = '';
+  DOM.adminRecipeIngredientUnits.value = '';
   DOM.adminRecipeIngredientStores.value = '';
   DOM.adminRecipeStepsCasero.value = '';
   DOM.adminRecipeStepsThermomix.value = '';
@@ -3047,14 +3494,22 @@ function buildRecipePayload() {
  
   const stepCasero = parseLines(DOM.adminRecipeStepsCasero.value);
   const stepThermomix = parseLines(DOM.adminRecipeStepsThermomix.value);
-  const priceGuide = parseIngredientPrices(DOM.adminRecipeIngredientPrices.value);
+  const unitGuide = parseIngredientUnits(DOM.adminRecipeIngredientUnits.value);
   const storeGuide = parseIngredientStores(DOM.adminRecipeIngredientStores.value);
   const ingredientGuides = {};
   ingredients.forEach((ingredient) => {
     const key = toKey(ingredient.item);
     if (!key) return;
-    const entry = { ...priceGuide[key], ...storeGuide[key] };
-    if (entry.price || (entry.stores && Object.keys(entry.stores).length)) {
+    const entry = {};
+    const unit = unitGuide[key]?.unit;
+    const stores = storeGuide[key]?.stores;
+    if (unit) {
+      entry.unit = unit;
+    }
+    if (stores && Object.keys(stores).length) {
+      entry.stores = stores;
+    }
+    if (entry.unit || entry.stores) {
       ingredientGuides[key] = entry;
     }
   });
@@ -3231,6 +3686,7 @@ function displayNoRecipe(meal) {
   DOM.resultSteps.innerHTML = '';
   DOM.resultAlternatives.innerHTML = '';
   DOM.chefTip.hidden = true;
+  resetRatingPanel();
   setActionAvailability(false);
   state.lastRecipe = null;
   state.lastMeal = meal;
@@ -3320,37 +3776,24 @@ function handleRegister() {
     storage.setSuperAdminEmail(email);
     superAdminEmail = email;
   }
-
-  const planner = createInitialPlannerState();
+  ensurePlannerState();
+  const plannerClone = JSON.parse(JSON.stringify(state.weeklyPlans));
   const newUser = {
     email,
     password: hashPassword(password),
+    displayName: email.split('@')[0] || 'Chef Chefy',
+    provider: 'password',
     restrictions: state.restrictions,
     cuisines: state.selectedCuisines,
-    history: [],
-    weeklyPlans: planner.plans,
-    activePlanId: planner.activePlanId,
+    history: state.history,
+    ratings: state.userRatings,
+    weeklyPlans: plannerClone,
+    activePlanId: state.activePlanId,
     role: superAdminEmail === email ? 'super-admin' : 'user',
   };
   storage.saveUsers([...users, newUser]);
-  storage.setCurrentUserEmail(email);
-  state.superAdminEmail = superAdminEmail;
-  state.currentUser = findUserByEmail(email) ?? newUser;
-  state.history = [];
-  state.weeklyPlans = planner.plans;
-  state.activePlanId = planner.activePlanId;
-  updatePlanShareSummary();
-  renderPlanSelector();
-  renderWeeklyPlan();
-  updateShoppingList();
-  setAuthFeedback('Cuenta creada con éxito. ¡Ya puedes generar recetas!', 'success');
-  updateAuthUI();
-  persistRestrictions();
-  persistCuisines();
-  persistHistory();
-  persistPlanner();
-
-  closeDialog(DOM.authDialog);
+  const storedUser = findUserByEmail(email) ?? newUser;
+  applyUserSession(storedUser, { feedback: 'Cuenta creada con éxito. ¡Ya puedes generar recetas!' });
 }
 
 function handleLogin() {
@@ -3365,30 +3808,201 @@ function handleLogin() {
     setAuthFeedback('Correo o contraseña incorrectos.', 'error');
     return;
   }
+  applyUserSession(user, { feedback: 'Inicio de sesión exitoso.' });
+}
+
+function applyUserSession(user, { feedback } = {}) {
+  if (!user) return;
   state.superAdminEmail = storage.getSuperAdminEmail();
-  storage.setCurrentUserEmail(email);
+  storage.setCurrentUserEmail(user.email);
   state.currentUser = user;
   state.restrictions = Array.isArray(user.restrictions) ? user.restrictions : [];
-
   state.selectedCuisines = Array.isArray(user.cuisines) ? user.cuisines : [];
   state.history = Array.isArray(user.history) ? user.history : [];
+  state.userRatings = normalizeRatings(user.ratings);
   const plannerState = normalizePlannerState(
     user.weeklyPlans ? { plans: user.weeklyPlans, activePlanId: user.activePlanId } : user.weeklyPlan,
   );
   state.weeklyPlans = plannerState.plans;
   state.activePlanId = plannerState.activePlanId;
-  setAuthFeedback('Inicio de sesión exitoso.', 'success');
-  updateAuthUI();
+  updatePlanShareSummary();
+  renderPlanSelector();
+  renderWeeklyPlan();
+  updateShoppingList();
   renderDefaultChips();
   renderActiveRestrictions();
   renderCuisineSelectors();
   renderHistory();
-  renderPlanSelector();
-  renderWeeklyPlan();
-  updateShoppingList();
-  updatePlanShareSummary();
-
+  refreshDiscoverEntries();
+  updateAuthUI();
+  if (state.lastRecipe) {
+    updateRatingPanel(state.lastRecipe);
+  } else {
+    resetRatingPanel();
+  }
+  if (feedback) {
+    setAuthFeedback(feedback, 'success');
+  } else {
+    clearAuthFeedback();
+  }
   closeDialog(DOM.authDialog);
+}
+
+function normalizePhoneNumber(value) {
+  if (!value) return '';
+  const trimmed = value.toString().trim();
+  const hasPlus = trimmed.startsWith('+');
+  const digits = trimmed.replace(/[^\d]/g, '');
+  if (!digits) return '';
+  return hasPlus ? `+${digits}` : digits;
+}
+
+function setPhoneStatus(message, type = 'info') {
+  if (!DOM.phoneLoginStatus) return;
+  DOM.phoneLoginStatus.textContent = message;
+  DOM.phoneLoginStatus.classList.toggle('form-feedback--error', type === 'error');
+  DOM.phoneLoginStatus.classList.toggle('form-feedback--success', type === 'success');
+}
+
+function togglePhoneLogin() {
+  if (!DOM.phoneLoginContainer) return;
+  const shouldShow = DOM.phoneLoginContainer.hidden;
+  DOM.phoneLoginContainer.hidden = !shouldShow;
+  const label = DOM.phoneLoginToggle?.querySelector('span:nth-of-type(2)');
+  if (label) {
+    label.textContent = shouldShow ? 'Ocultar acceso con teléfono' : 'Usar número de teléfono';
+  }
+  if (shouldShow) {
+    DOM.phoneNumberInput?.focus();
+  } else {
+    if (DOM.phoneNumberInput) DOM.phoneNumberInput.value = '';
+    if (DOM.phoneCodeInput) DOM.phoneCodeInput.value = '';
+    if (DOM.phoneCodeContainer) DOM.phoneCodeContainer.hidden = true;
+    setPhoneStatus('');
+    state.pendingPhoneLogin = null;
+  }
+}
+
+function handleSendPhoneCode() {
+  if (!DOM.phoneNumberInput) return;
+  const raw = DOM.phoneNumberInput.value.trim();
+  const normalized = normalizePhoneNumber(raw);
+  if (!normalized || normalized.length < 6) {
+    setPhoneStatus('Introduce un número válido para recibir tu código.', 'error');
+    return;
+  }
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  state.pendingPhoneLogin = {
+    number: normalized,
+    displayNumber: raw || normalized,
+    code,
+    expiresAt: Date.now() + 2 * 60 * 1000,
+  };
+  if (DOM.phoneCodeContainer) {
+    DOM.phoneCodeContainer.hidden = false;
+  }
+  if (DOM.phoneCodeInput) {
+    DOM.phoneCodeInput.value = '';
+    DOM.phoneCodeInput.focus();
+  }
+  setPhoneStatus(`Tu código temporal es ${code}. Tiene validez durante 2 minutos.`, 'success');
+}
+
+function handleVerifyPhoneCode() {
+  if (!state.pendingPhoneLogin) {
+    setPhoneStatus('Solicita un código antes de verificar.', 'error');
+    return;
+  }
+  const entered = DOM.phoneCodeInput?.value.trim();
+  if (!entered) {
+    setPhoneStatus('Introduce el código que aparece en pantalla.', 'error');
+    return;
+  }
+  if (Date.now() > state.pendingPhoneLogin.expiresAt) {
+    setPhoneStatus('El código ha caducado. Solicita uno nuevo.', 'error');
+    return;
+  }
+  if (entered !== state.pendingPhoneLogin.code) {
+    setPhoneStatus('Código incorrecto. Vuelve a intentarlo.', 'error');
+    return;
+  }
+  completePhoneLogin(state.pendingPhoneLogin.number, state.pendingPhoneLogin.displayNumber);
+}
+
+function completePhoneLogin(number, displayNumber) {
+  const users = storage.getUsers();
+  let user = users.find((item) => item.provider === 'phone' && item.phoneNumber === number);
+  if (!user) {
+    ensurePlannerState();
+    const sanitized = number.replace(/[^\d]/g, '') || Date.now().toString();
+    const email = `phone-${sanitized}@chefy.app`;
+    let superAdminEmail = storage.getSuperAdminEmail();
+    const newUser = {
+      email,
+      provider: 'phone',
+      phoneNumber: number,
+      displayName: displayNumber || `Teléfono ${number}`,
+      restrictions: state.restrictions,
+      cuisines: state.selectedCuisines,
+      history: state.history,
+      ratings: state.userRatings,
+      weeklyPlans: JSON.parse(JSON.stringify(state.weeklyPlans)),
+      activePlanId: state.activePlanId,
+      role: superAdminEmail ? 'user' : 'super-admin',
+    };
+    storage.saveUsers([...users, newUser]);
+    if (!superAdminEmail) {
+      storage.setSuperAdminEmail(email);
+    }
+    user = findUserByEmail(email) ?? newUser;
+  }
+  state.pendingPhoneLogin = null;
+  if (DOM.phoneCodeContainer) DOM.phoneCodeContainer.hidden = true;
+  if (DOM.phoneNumberInput) DOM.phoneNumberInput.value = '';
+  if (DOM.phoneCodeInput) DOM.phoneCodeInput.value = '';
+  setPhoneStatus('Iniciando sesión...', 'success');
+  applyUserSession(user, { feedback: 'Inicio de sesión con teléfono completado.' });
+  if (DOM.phoneLoginToggle) {
+    const label = DOM.phoneLoginToggle.querySelector('span:nth-of-type(2)');
+    if (label) label.textContent = 'Usar número de teléfono';
+  }
+  if (DOM.phoneLoginContainer) {
+    DOM.phoneLoginContainer.hidden = true;
+  }
+}
+
+function handleProviderLogin(provider) {
+  const users = storage.getUsers();
+  const existing = users.find((user) => user.provider === provider);
+  if (existing) {
+    const label = provider === 'apple' ? 'Apple' : 'Google';
+    applyUserSession(existing, { feedback: `Inicio de sesión con ${label} listo.` });
+    return;
+  }
+  ensurePlannerState();
+  const timestamp = Date.now();
+  const email = `${provider}-${timestamp}@chefy.app`;
+  const displayMap = { google: 'Cuenta Google', apple: 'Cuenta Apple' };
+  let superAdminEmail = storage.getSuperAdminEmail();
+  const newUser = {
+    email,
+    provider,
+    displayName: displayMap[provider] ?? 'Cuenta Chefy',
+    restrictions: state.restrictions,
+    cuisines: state.selectedCuisines,
+    history: state.history,
+    ratings: state.userRatings,
+    weeklyPlans: JSON.parse(JSON.stringify(state.weeklyPlans)),
+    activePlanId: state.activePlanId,
+    role: superAdminEmail ? 'user' : 'super-admin',
+  };
+  storage.saveUsers([...users, newUser]);
+  if (!superAdminEmail) {
+    storage.setSuperAdminEmail(email);
+  }
+  const storedUser = findUserByEmail(email) ?? newUser;
+  const label = provider === 'apple' ? 'Apple' : 'Google';
+  applyUserSession(storedUser, { feedback: `Inicio de sesión con ${label} completado.` });
 }
 
 function updateAuthUI() {
@@ -3398,7 +4012,8 @@ function updateAuthUI() {
     DOM.logoutButton.hidden = false;
     DOM.logoutButton.setAttribute('aria-hidden', 'false');
     DOM.userWelcome.hidden = false;
-    DOM.userWelcome.textContent = `Hola, ${state.currentUser.email}`;
+    const displayName = state.currentUser.displayName || state.currentUser.email;
+    DOM.userWelcome.textContent = `Hola, ${displayName}`;
   } else {
     DOM.authToggle.hidden = false;
     DOM.authToggle.setAttribute('aria-hidden', 'false');
@@ -3413,6 +4028,7 @@ function updateAuthUI() {
 function handleLogout() {
   storage.setCurrentUserEmail(null);
   state.currentUser = null;
+  state.userRatings = storage.getGuestRatings();
   closeAllShareMenus();
   closeDialog(DOM.adminDialog);
   state.adminSelectedRecipeId = '';
@@ -3451,6 +4067,7 @@ function hydrateFromStorage() {
 
       state.selectedCuisines = Array.isArray(user.cuisines) ? user.cuisines : [];
       state.history = Array.isArray(user.history) ? user.history : [];
+      state.userRatings = normalizeRatings(user.ratings);
       plannerState = normalizePlannerState(
         user.weeklyPlans ? { plans: user.weeklyPlans, activePlanId: user.activePlanId } : user.weeklyPlan,
       );
@@ -3460,6 +4077,7 @@ function hydrateFromStorage() {
       state.restrictions = storage.getGuestRestrictions();
       state.selectedCuisines = storage.getGuestCuisines();
       state.history = storage.getGuestHistory();
+      state.userRatings = storage.getGuestRatings();
       plannerState = storage.getGuestPlanner();
     }
   } else {
@@ -3467,6 +4085,7 @@ function hydrateFromStorage() {
     state.restrictions = storage.getGuestRestrictions();
     state.selectedCuisines = storage.getGuestCuisines();
     state.history = storage.getGuestHistory();
+    state.userRatings = storage.getGuestRatings();
     plannerState = storage.getGuestPlanner();
 
   }
@@ -3496,12 +4115,6 @@ function hydrateFromStorage() {
     updateAdminControls();
   }
 
-  if (DOM.adminDialog?.open) {
-    renderAdminRecipeList();
-    renderAdminUserList();
-    updateAdminControls();
-  }
-
 }
 
 function registerEventListeners() {
@@ -3520,6 +4133,26 @@ function registerEventListeners() {
   DOM.loginButton.addEventListener('click', handleLogin);
   DOM.logoutButton.addEventListener('click', handleLogout);
   DOM.authToggle.addEventListener('click', () => openAuthDialog('login'));
+  DOM.ratingControls?.addEventListener('click', handleRatingClick);
+  DOM.ratingControls?.addEventListener('keydown', handleRatingKeydown);
+  DOM.ratingResetButton?.addEventListener('click', handleRatingReset);
+  DOM.googleLoginButton?.addEventListener('click', () => handleProviderLogin('google'));
+  DOM.appleLoginButton?.addEventListener('click', () => handleProviderLogin('apple'));
+  DOM.phoneLoginToggle?.addEventListener('click', togglePhoneLogin);
+  DOM.phoneSendCodeButton?.addEventListener('click', handleSendPhoneCode);
+  DOM.phoneVerifyButton?.addEventListener('click', handleVerifyPhoneCode);
+  DOM.phoneNumberInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSendPhoneCode();
+    }
+  });
+  DOM.phoneCodeInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleVerifyPhoneCode();
+    }
+  });
 
   if (DOM.shareButton && DOM.shareMenu) {
     DOM.shareButton.addEventListener('click', () => toggleShareMenu(DOM.shareMenu, DOM.shareButton));
