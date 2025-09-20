@@ -2749,8 +2749,6 @@ function formatIngredients(list) {
     .filter(Boolean)
     .join('\n');
 }
-
-l 
 function parseIngredientPrices(value) {
   const lines = parseLines(value);
   const result = {};
