@@ -54,29 +54,55 @@
   </header>
 
   <main class="layout" id="mainContent">
-    <section class="hero" aria-labelledby="heroTitle">
-      <div>
-        <h1 id="heroTitle">Descubre recetas adaptadas a ti</h1>
-        <p class="hero__subtitle">
-          Genera desayunos, comidas o cenas inspiradas en tus gustos, al instante y sin ingredientes que no quieres ver ni en pintura.
-        </p>
-      </div>
-      <div class="hero__cta">
-        <button id="generateButton" class="cta-button" type="button">
-          Generar receta
-        </button>
-        <p class="meal-hint" id="mealHint">Preparado para sorprenderte en cualquier momento del día.</p>
-      </div>
-    </section>
+    <nav class="primary-tabs" role="tablist" aria-label="Vistas principales">
+      <button
+        type="button"
+        class="primary-tabs__tab primary-tabs__tab--active"
+        id="cookTab"
+        role="tab"
+        aria-selected="true"
+        aria-controls="cookPanel"
+        data-panel="cookPanel"
+      >
+        Cocinar
+      </button>
+      <button
+        type="button"
+        class="primary-tabs__tab"
+        id="discoverTab"
+        role="tab"
+        aria-selected="false"
+        aria-controls="discoverPanel"
+        data-panel="discoverPanel"
+      >
+        Descubrir
+      </button>
+    </nav>
+
+    <section id="cookPanel" class="primary-panel primary-panel--active" role="tabpanel" aria-labelledby="cookTab">
+      <section class="hero" aria-labelledby="heroTitle">
+        <div>
+          <h1 id="heroTitle">Descubre recetas adaptadas a ti</h1>
+          <p class="hero__subtitle">
+            Genera desayunos, comidas o cenas inspiradas en tus gustos, al instante y sin ingredientes que no quieres ver ni en pintura.
+          </p>
+        </div>
+        <div class="hero__cta">
+          <button id="generateButton" class="cta-button" type="button">
+            Generar receta
+          </button>
+          <p class="meal-hint" id="mealHint">Preparado para sorprenderte en cualquier momento del día.</p>
+        </div>
+      </section>
 
 
-    <section class="dashboard" aria-label="Panel culinario">
-      <div class="dashboard__main">
-        <section class="card result" aria-live="polite" aria-atomic="true">
-          <header class="result__header">
-            <div class="result__heading">
-              <h2 class="result__title" id="resultTitle">¿Qué vamos a cocinar?</h2>
-              <p class="result__subtitle" id="resultSubtitle">Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.</p>
+      <section class="dashboard" aria-label="Panel culinario">
+        <div class="dashboard__main">
+          <section class="card result" aria-live="polite" aria-atomic="true">
+            <header class="result__header">
+              <div class="result__heading">
+                <h2 class="result__title" id="resultTitle">¿Qué vamos a cocinar?</h2>
+                <p class="result__subtitle" id="resultSubtitle">Inicia sesión y pulsa el botón para que Chefy te recomiende una receta increíble.</p>
             </div>
             <div class="result__actions">
               <div class="share-control">
@@ -130,14 +156,24 @@
           </header>
           <div class="result__tags" id="resultTags" hidden></div>
           <p class="result__calories" id="resultCalories" hidden></p>
+ 
+          <p class="result__cost" id="resultCost" hidden></p>
+
+ 
           <p class="result__description" id="resultDescription"></p>
           <div class="result__layout" id="resultDetails" hidden>
             <section class="result__section">
               <h3>Ingredientes</h3>
               <ul id="resultIngredients" class="result__list"></ul>
             </section>
-            <section class="result__section">
-              <h3>Pasos guiados</h3>
+            <section class="result__section result__section--steps">
+              <div class="result__section-header">
+                <h3>Pasos guiados</h3>
+                <div id="stepModeToggle" class="steps-toggle" role="group" aria-label="Modo de preparación">
+                  <button type="button" class="steps-toggle__button steps-toggle__button--active" data-mode="tradicional">Modo casero</button>
+                  <button type="button" class="steps-toggle__button" data-mode="thermomix">Thermomix</button>
+                </div>
+              </div>
               <ol id="resultSteps" class="result__list"></ol>
             </section>
             <section class="result__section">
@@ -231,6 +267,61 @@
         </section>
       </aside>
 
+      </section>
+    </section>
+
+    <section id="discoverPanel" class="primary-panel" role="tabpanel" aria-labelledby="discoverTab" hidden>
+      <section class="card discover" aria-labelledby="discoverTitle">
+        <header class="card__header">
+          <div>
+            <h2 id="discoverTitle">Ideas de la comunidad</h2>
+            <p class="card__hint">Explora planificaciones y recetas compartidas por otros chefs caseros y súmalas a tu colección.</p>
+          </div>
+        </header>
+        <div id="discoverFeed" class="discover__list" aria-live="polite"></div>
+      </section>
+
+      <section class="card discover-form" aria-labelledby="discoverFormTitle">
+        <header class="card__header">
+          <div>
+            <h2 id="discoverFormTitle">Comparte tus ideas</h2>
+            <p class="card__hint">Publica tu última receta o plan semanal para inspirar a otros. Se guarda en este dispositivo.</p>
+          </div>
+        </header>
+        <form id="discoverForm" class="discover-form__body">
+          <div class="discover-form__grid">
+            <div class="discover-form__group">
+              <label for="discoverType">Tipo de publicación</label>
+              <select id="discoverType" name="discoverType">
+                <option value="recipe">Receta destacada</option>
+                <option value="plan">Planificación semanal</option>
+              </select>
+            </div>
+            <div class="discover-form__group">
+              <label for="discoverAuthor">Autor</label>
+              <input id="discoverAuthor" name="discoverAuthor" type="text" placeholder="Tu nombre o correo" autocomplete="off">
+            </div>
+          </div>
+          <div class="discover-form__group">
+            <label for="discoverTitleInput">Título</label>
+            <input id="discoverTitleInput" name="discoverTitleInput" type="text" required placeholder="Ej. Batch cooking sin gluten">
+          </div>
+          <div class="discover-form__group">
+            <label for="discoverSummary">Resumen breve</label>
+            <textarea id="discoverSummary" name="discoverSummary" rows="2" placeholder="Cuenta qué hace especial a tu propuesta"></textarea>
+          </div>
+          <div class="discover-form__group">
+            <label for="discoverDetails">Detalle o notas</label>
+            <textarea id="discoverDetails" name="discoverDetails" rows="5" placeholder="Incluye ingredientes clave, pasos o estructura del plan"></textarea>
+          </div>
+          <div class="discover-form__actions">
+            <button type="button" id="discoverPrefillRecipe" class="ghost">Usar mi última receta</button>
+            <button type="button" id="discoverPrefillPlan" class="ghost">Usar plan activo</button>
+            <button type="submit" class="primary">Compartir con la comunidad</button>
+          </div>
+          <p id="discoverFeedback" class="form-feedback" role="status"></p>
+        </form>
+      </section>
     </section>
   </main>
 
@@ -389,8 +480,34 @@
               <textarea id="adminRecipeIngredients" rows="6" placeholder="1 taza | arroz integral"></textarea>
             </div>
             <div class="admin-form__group">
-              <label for="adminRecipeSteps">Pasos (uno por línea)</label>
-              <textarea id="adminRecipeSteps" rows="6" placeholder="Describe cada paso en una línea."></textarea>
+ 
+              <label for="adminRecipeIngredientPrices">Precios de ingredientes ("ingrediente | precio en euros | formato o cantidad")</label>
+              <textarea
+                id="adminRecipeIngredientPrices"
+                rows="4"
+                placeholder="yogur griego natural | 1.35 | tarrina 200 g"
+              ></textarea>
+              <p class="form-hint">Usa punto decimal para los importes. El formato se mostrará junto al precio estimado.</p>
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeIngredientStores">Supermercados ("ingrediente | Mercadona:producto,precio | Carrefour:producto,precio ...")</label>
+              <textarea
+                id="adminRecipeIngredientStores"
+                rows="4"
+                placeholder="yogur griego natural | Mercadona:Yogur griego Hacendado 2x125 g,1.15 | Carrefour:Yogur Griego Carrefour 0%,1.25"
+              ></textarea>
+              <p class="form-hint">Incluye Mercadona, Carrefour, Alcampo o Lidl. El precio es opcional por comercio.</p>
+            </div>
+            <div class="admin-form__grid admin-form__grid--steps">
+              <div class="admin-form__group">
+                <label for="adminRecipeStepsCasero">Pasos modo casero (uno por línea)</label>
+                <textarea id="adminRecipeStepsCasero" rows="6" placeholder="Describe cada paso para cocina tradicional."></textarea>
+              </div>
+              <div class="admin-form__group">
+                <label for="adminRecipeStepsThermomix">Pasos para Thermomix (uno por línea)</label>
+                <textarea id="adminRecipeStepsThermomix" rows="6" placeholder="Incluye temperatura, velocidades y tiempos."></textarea>
+              </div>
+              
             </div>
             <div class="admin-form__group">
               <label for="adminRecipeSwaps">Alternativas (formato "ingrediente: opción 1, opción 2")</label>
