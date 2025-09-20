@@ -27,9 +27,27 @@
           <span class="icon" aria-hidden="true">🔑</span>
           <span class="label">Iniciar sesión</span>
         </button>
-        <button id="logoutButton" class="ghost icon-label" type="button">
-          <span class="icon" aria-hidden="true">🚪</span>
-          <span class="label">Cerrar sesión</span>
+        <button
+          id="adminButton"
+          class="ghost icon-only"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="adminDialog"
+          title="Panel de super admin"
+          hidden
+        >
+          <span aria-hidden="true">🛠️</span>
+          <span class="sr-only">Panel de super admin</span>
+        </button>
+        <button
+          id="logoutButton"
+          class="ghost icon-only"
+          type="button"
+          aria-label="Cerrar sesión"
+          title="Cerrar sesión"
+          hidden
+        >
+          <span aria-hidden="true">🚪</span>
         </button>
       </div>
     </nav>
@@ -111,6 +129,7 @@
             </div>
           </header>
           <div class="result__tags" id="resultTags" hidden></div>
+          <p class="result__calories" id="resultCalories" hidden></p>
           <p class="result__description" id="resultDescription"></p>
           <div class="result__layout" id="resultDetails" hidden>
             <section class="result__section">
@@ -287,6 +306,110 @@
         <button type="button" id="registerButton" class="primary">Registrarme</button>
       </div>
       <p class="form-feedback" id="authFeedback" role="alert"></p>
+    </form>
+  </dialog>
+
+  <dialog id="adminDialog" class="modal admin" aria-labelledby="adminTitle">
+    <form method="dialog" class="modal__content admin__content" id="adminShell">
+      <header class="modal__header">
+        <h2 id="adminTitle">Panel de super admin</h2>
+        <button type="submit" class="icon-button" aria-label="Cerrar panel de super admin">✕</button>
+      </header>
+      <div class="admin__layout">
+        <section class="admin__panel">
+          <div class="admin__panel-header">
+            <h3>Recetario activo</h3>
+            <p class="admin__hint">Selecciona una receta para editarla o crea una nueva.</p>
+          </div>
+          <div class="admin__catalog">
+            <ul id="adminRecipeList" class="admin-recipe-list" aria-live="polite"></ul>
+            <div class="admin__actions">
+              <button type="button" id="adminNewRecipeButton" class="ghost">Nueva receta</button>
+              <button type="button" id="adminDeleteRecipeButton" class="ghost danger" disabled>Eliminar</button>
+            </div>
+          </div>
+        </section>
+        <section class="admin__panel">
+          <div class="admin__panel-header">
+            <h3>Editor de receta</h3>
+            <p class="admin__hint">Completa los campos para guardar cambios o añadir una receta.</p>
+          </div>
+          <div class="admin-form" id="adminRecipeForm">
+            <div class="admin-form__group">
+              <label for="adminRecipeId">Identificador</label>
+              <input id="adminRecipeId" type="text" readonly>
+              <p class="form-hint">Se genera automáticamente a partir del nombre.</p>
+            </div>
+            <div class="admin-form__grid">
+              <div class="admin-form__group">
+                <label for="adminRecipeName">Nombre</label>
+                <input id="adminRecipeName" type="text" required>
+              </div>
+              <div class="admin-form__group">
+                <label for="adminRecipeMeal">Comida</label>
+                <select id="adminRecipeMeal">
+                  <option value="desayuno">Desayuno</option>
+                  <option value="comida">Comida</option>
+                  <option value="cena">Cena</option>
+                </select>
+              </div>
+              <div class="admin-form__group">
+                <label for="adminRecipeCalories">Calorías</label>
+                <input id="adminRecipeCalories" type="number" min="0" step="1" placeholder="480">
+              </div>
+            </div>
+            <div class="admin-form__grid">
+              <div class="admin-form__group">
+                <label for="adminRecipeTime">Tiempo</label>
+                <input id="adminRecipeTime" type="text" placeholder="20 minutos">
+              </div>
+              <div class="admin-form__group">
+                <label for="adminRecipeServings">Raciones</label>
+                <input id="adminRecipeServings" type="text" placeholder="2 raciones">
+              </div>
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeCuisines">Cocinas (separadas por comas)</label>
+              <input id="adminRecipeCuisines" type="text" placeholder="mediterranea, fusion">
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeTags">Etiquetas (separadas por comas)</label>
+              <input id="adminRecipeTags" type="text" placeholder="alto en proteínas, sin gluten">
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeKeywords">Palabras clave (separadas por comas)</label>
+              <input id="adminRecipeKeywords" type="text" placeholder="pasta, tomate, albahaca">
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeDescription">Descripción corta</label>
+              <textarea id="adminRecipeDescription" rows="3" placeholder="Describe brevemente la receta."></textarea>
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeIngredients">Ingredientes (uno por línea, formato "cantidad | ingrediente")</label>
+              <textarea id="adminRecipeIngredients" rows="6" placeholder="1 taza | arroz integral"></textarea>
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeSteps">Pasos (uno por línea)</label>
+              <textarea id="adminRecipeSteps" rows="6" placeholder="Describe cada paso en una línea."></textarea>
+            </div>
+            <div class="admin-form__group">
+              <label for="adminRecipeSwaps">Alternativas (formato "ingrediente: opción 1, opción 2")</label>
+              <textarea id="adminRecipeSwaps" rows="4" placeholder="queso: tofu, levadura nutricional"></textarea>
+            </div>
+            <div class="admin-form__actions">
+              <button type="button" id="adminSaveRecipeButton" class="primary">Guardar cambios</button>
+            </div>
+          </div>
+        </section>
+        <aside class="admin__panel admin__panel--users">
+          <div class="admin__panel-header">
+            <h3>Usuarios registrados</h3>
+            <p class="admin__hint">Consulta los accesos creados en este navegador.</p>
+          </div>
+          <ul id="adminUserList" class="admin-user-list" aria-live="polite"></ul>
+        </aside>
+      </div>
+      <p class="form-feedback" id="adminFeedback" role="status"></p>
     </form>
   </dialog>
 

@@ -5,6 +5,7 @@ const DOM = {
   resultSubtitle: document.getElementById('resultSubtitle'),
   resultDescription: document.getElementById('resultDescription'),
   resultTags: document.getElementById('resultTags'),
+  resultCalories: document.getElementById('resultCalories'),
 
   resultDetails: document.getElementById('resultDetails'),
   resultIngredients: document.getElementById('resultIngredients'),
@@ -53,6 +54,27 @@ const DOM = {
   copyShoppingButton: document.getElementById('copyShoppingButton'),
   cuisineChips: document.getElementById('cuisineChips'),
   cuisineQuickFilters: document.getElementById('cuisineQuickFilters'),
+  adminButton: document.getElementById('adminButton'),
+  adminDialog: document.getElementById('adminDialog'),
+  adminRecipeList: document.getElementById('adminRecipeList'),
+  adminRecipeId: document.getElementById('adminRecipeId'),
+  adminRecipeName: document.getElementById('adminRecipeName'),
+  adminRecipeMeal: document.getElementById('adminRecipeMeal'),
+  adminRecipeCalories: document.getElementById('adminRecipeCalories'),
+  adminRecipeTime: document.getElementById('adminRecipeTime'),
+  adminRecipeServings: document.getElementById('adminRecipeServings'),
+  adminRecipeCuisines: document.getElementById('adminRecipeCuisines'),
+  adminRecipeTags: document.getElementById('adminRecipeTags'),
+  adminRecipeDescription: document.getElementById('adminRecipeDescription'),
+  adminRecipeIngredients: document.getElementById('adminRecipeIngredients'),
+  adminRecipeSteps: document.getElementById('adminRecipeSteps'),
+  adminRecipeSwaps: document.getElementById('adminRecipeSwaps'),
+  adminRecipeKeywords: document.getElementById('adminRecipeKeywords'),
+  adminSaveRecipeButton: document.getElementById('adminSaveRecipeButton'),
+  adminNewRecipeButton: document.getElementById('adminNewRecipeButton'),
+  adminDeleteRecipeButton: document.getElementById('adminDeleteRecipeButton'),
+  adminFeedback: document.getElementById('adminFeedback'),
+  adminUserList: document.getElementById('adminUserList'),
 };
 
 const DEFAULT_RESULT = {
@@ -121,7 +143,7 @@ const HISTORY_FORMATTER = new Intl.DateTimeFormat('es-ES', {
 });
 
 
-const RECIPES = [
+const BASE_RECIPES = [
   {
     id: 'sunrise-bowl',
     name: 'Bowl energizante de amanecer',
@@ -130,6 +152,7 @@ const RECIPES = [
     cuisines: ['mediterranea', 'plant-based'],
     time: '10 minutos',
     servings: '1 ración',
+    calories: 420,
     description:
       'Yogur griego con granola casera, frutas frescas de temporada y un toque de miel cítrica para comenzar el día con energía.',
     tags: ['alto en proteínas', 'sin gluten'],
@@ -161,6 +184,7 @@ const RECIPES = [
     cuisines: ['japonesa', 'fusion'],
     time: '20 minutos',
     servings: '2 raciones',
+    calories: 510,
     description: 'Tortitas esponjosas con té verde matcha y sirope de arce para un brunch vibrante.',
     tags: ['antioxidantes', 'brunch'],
     ingredients: [
@@ -193,6 +217,7 @@ const RECIPES = [
     cuisines: ['tailandesa', 'plant-based'],
     time: '15 minutos + reposo',
     servings: '2 raciones',
+    calories: 380,
     description: 'Semillas de chía infusionadas en leche de coco con mango y lima para un desayuno listo desde la noche anterior.',
     tags: ['sin lácteos', 'meal prep'],
     ingredients: [
@@ -225,6 +250,7 @@ const RECIPES = [
     cuisines: ['japonesa', 'plant-based'],
     time: '25 minutos',
     servings: '2 raciones',
+    calories: 560,
     description: 'Quinoa esponjosa con tofu glaseado en salsa tamari, verduras al vapor y encurtidos asiáticos.',
     tags: ['alto en proteínas', 'meal prep'],
     ingredients: [
@@ -259,6 +285,7 @@ const RECIPES = [
     cuisines: ['mediterranea'],
     time: '30 minutos',
     servings: '2 raciones',
+    calories: 540,
     description:
       'Filete de salmón al horno con glaseado de naranja y jengibre, acompañado de espárragos y couscous integral.',
     tags: ['omega 3', 'horno'],
@@ -291,6 +318,7 @@ const RECIPES = [
     cuisines: ['tailandesa', 'fusion'],
     time: '20 minutos',
     servings: '2 raciones',
+    calories: 430,
     description:
       'Fideos de arroz con verduras frescas, hierbas aromáticas y aliño cremoso de cacahuete y lima.',
     tags: ['refrescante', 'sin gluten'],
@@ -326,6 +354,7 @@ const RECIPES = [
     cuisines: ['mexicana', 'plant-based'],
     time: '35 minutos',
     servings: '2 raciones',
+    calories: 600,
     description:
       'Jackfruit deshebrado con achiote servido con arroz integral, frijoles negros y pico de gallo cítrico.',
     tags: ['alto en fibra', 'meal prep'],
@@ -359,6 +388,7 @@ const RECIPES = [
     cuisines: ['mediterranea', 'plant-based'],
     time: '20 minutos',
     servings: '2 raciones',
+    calories: 520,
     description:
       'Farro con garbanzos especiados, hojas verdes, pepino crujiente y aderezo de limón tahini.',
     tags: ['rico en fibra', 'listo en 20 minutos'],
@@ -393,6 +423,7 @@ const RECIPES = [
     cuisines: ['japonesa'],
     time: '25 minutos',
     servings: '2 raciones',
+    calories: 580,
     description:
       'Caldo ligero con fideos integrales, pak choi y huevo marinado con perfume de sésamo tostado.',
     tags: ['confort', 'rápido'],
@@ -427,6 +458,7 @@ const RECIPES = [
     cuisines: ['india', 'plant-based'],
     time: '30 minutos',
     servings: '3 raciones',
+    calories: 640,
     description:
       'Curry suave de berenjena y garbanzos en leche de coco con arroz jazmín aromático.',
     tags: ['sin gluten', 'confort nocturno'],
@@ -460,6 +492,7 @@ const RECIPES = [
     cuisines: ['mexicana', 'plant-based'],
     time: '25 minutos',
     servings: '3 raciones',
+    calories: 490,
     description:
       'Tortillas de maíz con calabaza asada al chipotle, cebolla encurtida y crema de anacardos.',
     tags: ['sin lácteos', 'street food'],
@@ -493,6 +526,7 @@ const RECIPES = [
     cuisines: ['tailandesa', 'fusion', 'plant-based'],
     time: '30 minutos',
     servings: '2 raciones',
+    calories: 540,
     description:
       'Tofu marinado en citronela y lima, salteado con verduras y servido con fideos crujientes.',
     tags: ['aromático', 'alto en proteínas'],
@@ -530,6 +564,8 @@ const STORAGE_KEYS = {
   GUEST_CUISINES: 'chefyGuestCuisines',
   GUEST_HISTORY: 'chefyGuestHistory',
   GUEST_WEEKLY_PLAN: 'chefyGuestWeeklyPlan',
+  ADMIN_RECIPES: 'chefyRecipeCatalog',
+  SUPER_ADMIN_EMAIL: 'chefySuperAdminEmail',
 };
 
 function toKey(value) {
@@ -645,7 +681,7 @@ function buildPlanShareSummary(plan, planName) {
     MEALS.forEach((meal) => {
       const slot = plan?.[day.id]?.[meal];
       if (!slot?.recipeId) return;
-      const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+      const recipe = getRecipeById(slot.recipeId);
       if (recipe) {
         entries.push(`• ${MEAL_DISPLAY[meal]}: ${recipe.name}`);
       } else {
@@ -672,6 +708,101 @@ function buildPlanShareSummary(plan, planName) {
   return lines.join('\n');
 }
 
+function cleanString(value) {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return '';
+}
+
+function normalizeUserRole(user, superAdminEmail) {
+  if (!user || typeof user !== 'object') return null;
+  const normalized = { ...user };
+  const isSuper = normalized.role === 'super-admin' || (superAdminEmail && normalized.email === superAdminEmail);
+  normalized.role = isSuper ? 'super-admin' : 'user';
+  return normalized;
+}
+
+function normalizeRecipes(rawRecipes) {
+  const source = Array.isArray(rawRecipes) ? rawRecipes : [];
+  const seen = new Set();
+  const normalized = [];
+  source.forEach((recipe, index) => {
+    if (!recipe || typeof recipe !== 'object') return;
+    const fallbackId = `receta-${index + 1}`;
+    const baseId = cleanString(recipe.id) || fallbackId;
+    let id = baseId;
+    let counter = 2;
+    while (seen.has(id)) {
+      id = `${baseId}-${counter}`;
+      counter += 1;
+    }
+    seen.add(id);
+
+    const meal = MEALS.includes(recipe.meal) ? recipe.meal : 'comida';
+    const caloriesValue = Number.parseInt(recipe.calories, 10);
+    const calories = Number.isFinite(caloriesValue) && caloriesValue > 0 ? caloriesValue : null;
+    const cuisines = (Array.isArray(recipe.cuisines) ? recipe.cuisines : [])
+      .map((cuisine) => toKey(cuisine))
+      .filter(Boolean);
+    const tags = (Array.isArray(recipe.tags) ? recipe.tags : []).map((tag) => cleanString(tag)).filter(Boolean);
+    const ingredients = (Array.isArray(recipe.ingredients) ? recipe.ingredients : [])
+      .map((ingredient) => {
+        if (ingredient && typeof ingredient === 'object') {
+          const quantity = cleanString(ingredient.quantity);
+          const item = cleanString(ingredient.item);
+          if (!item) return null;
+          return quantity ? { quantity, item } : { quantity: '', item };
+        }
+        const item = cleanString(ingredient);
+        if (!item) return null;
+        return { quantity: '', item };
+      })
+      .filter(Boolean)
+      .map((ingredient) => ({
+        quantity: cleanString(ingredient.quantity),
+        item: cleanString(ingredient.item),
+      }));
+    const steps = (Array.isArray(recipe.steps) ? recipe.steps : []).map((step) => cleanString(step)).filter(Boolean);
+    const swaps = (Array.isArray(recipe.swaps) ? recipe.swaps : [])
+      .map((swap) => {
+        if (!swap || typeof swap !== 'object') return null;
+        const ingredient = cleanString(swap.ingredient);
+        const alternatives = (Array.isArray(swap.alternatives) ? swap.alternatives : [])
+          .map((alt) => cleanString(alt))
+          .filter(Boolean);
+        if (!ingredient) return null;
+        return { ingredient, alternatives };
+      })
+      .filter(Boolean);
+    const keywords = (Array.isArray(recipe.keywords) ? recipe.keywords : [])
+      .map((keyword) => toKey(keyword))
+      .filter(Boolean);
+
+    normalized.push({
+      ...recipe,
+      id,
+      name: cleanString(recipe.name) || 'Receta sin título',
+      meal,
+      time: cleanString(recipe.time),
+      servings: cleanString(recipe.servings),
+      description: cleanString(recipe.description),
+      calories,
+      cuisines,
+      tags,
+      ingredients,
+      steps,
+      swaps,
+      keywords,
+    });
+  });
+
+  if (!normalized.length && rawRecipes !== BASE_RECIPES) {
+    return normalizeRecipes(BASE_RECIPES);
+  }
+
+  return normalized;
+}
+
 const storage = {
   readJSON(key, fallback) {
     try {
@@ -686,10 +817,18 @@ const storage = {
     localStorage.setItem(key, JSON.stringify(value));
   },
   getUsers() {
-    return this.readJSON(STORAGE_KEYS.USERS, []);
+    const users = this.readJSON(STORAGE_KEYS.USERS, []);
+    const superAdminEmail = this.getSuperAdminEmail();
+    return users
+      .map((user) => normalizeUserRole(user, superAdminEmail))
+      .filter(Boolean);
   },
   saveUsers(users) {
-    this.writeJSON(STORAGE_KEYS.USERS, users);
+    const superAdminEmail = this.getSuperAdminEmail();
+    const normalized = (Array.isArray(users) ? users : [])
+      .map((user) => normalizeUserRole(user, superAdminEmail))
+      .filter(Boolean);
+    this.writeJSON(STORAGE_KEYS.USERS, normalized);
 
   },
   getCurrentUserEmail() {
@@ -728,6 +867,27 @@ const storage = {
     this.writeJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, planner);
 
   },
+  getRecipeCatalog() {
+    return this.readJSON(STORAGE_KEYS.ADMIN_RECIPES, []);
+  },
+  saveRecipeCatalog(recipes) {
+    this.writeJSON(STORAGE_KEYS.ADMIN_RECIPES, recipes);
+  },
+  getSuperAdminEmail() {
+    return localStorage.getItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL) || '';
+  },
+  setSuperAdminEmail(email) {
+    if (email) {
+      localStorage.setItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL, email);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL);
+    }
+    const users = this.getUsers();
+    this.writeJSON(
+      STORAGE_KEYS.USERS,
+      users.map((user) => normalizeUserRole(user, email || '')),
+    );
+  },
 };
 
 const state = {
@@ -743,12 +903,33 @@ const state = {
   shoppingSummaryText: '',
   planShareText: '',
   planShareSubject: 'Planificación semanal de Chefy',
+  recipes: normalizeRecipes(BASE_RECIPES),
+  superAdminEmail: '',
+  adminSelectedRecipeId: '',
+  adminFeedbackTimeout: null,
 
 };
 
 const defaultPlannerState = createInitialPlannerState();
 state.weeklyPlans = defaultPlannerState.plans;
 state.activePlanId = defaultPlannerState.activePlanId;
+
+function loadRecipeCatalog() {
+  const previousSelection = state.adminSelectedRecipeId;
+  state.recipes = normalizeRecipes(storage.getRecipeCatalog());
+  if (previousSelection && !getRecipeById(previousSelection)) {
+    state.adminSelectedRecipeId = '';
+  }
+}
+
+function persistRecipeCatalog() {
+  storage.saveRecipeCatalog(state.recipes);
+}
+
+function getRecipeById(id) {
+  if (!id) return null;
+  return state.recipes.find((recipe) => recipe.id === id) ?? null;
+}
 
 function detectMealType(date = new Date()) {
   const hour = date.getHours();
@@ -984,6 +1165,8 @@ function clearResultCard() {
   DOM.resultDescription.textContent = DEFAULT_RESULT.description;
   DOM.resultTags.hidden = true;
   DOM.resultTags.innerHTML = '';
+  DOM.resultCalories.hidden = true;
+  DOM.resultCalories.textContent = '';
   DOM.resultDetails.hidden = true;
   DOM.resultIngredients.innerHTML = '';
   DOM.resultSteps.innerHTML = '';
@@ -1011,13 +1194,29 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
 
   DOM.resultTags.hidden = false;
   DOM.resultTags.innerHTML = '';
-  const tagValues = [MEAL_DISPLAY[meal], ...cuisineLabels, recipe.time, recipe.servings, ...(recipe.tags ?? [])];
+  const calorieTag = recipe.calories ? `${recipe.calories} kcal` : '';
+  const tagValues = [
+    MEAL_DISPLAY[meal],
+    ...cuisineLabels,
+    recipe.time,
+    recipe.servings,
+    calorieTag,
+    ...(recipe.tags ?? []),
+  ];
   tagValues.filter(Boolean).forEach((text) => {
     const span = document.createElement('span');
     span.className = 'tag';
     span.textContent = text;
     DOM.resultTags.appendChild(span);
   });
+
+  if (recipe.calories) {
+    DOM.resultCalories.hidden = false;
+    DOM.resultCalories.textContent = `Calorías aproximadas: ${recipe.calories} kcal`;
+  } else {
+    DOM.resultCalories.hidden = true;
+    DOM.resultCalories.textContent = '';
+  }
 
   DOM.resultDetails.hidden = false;
   DOM.resultIngredients.innerHTML = '';
@@ -1086,7 +1285,7 @@ function renderHistory() {
   }
 
   state.history.forEach((entry) => {
-    const recipe = RECIPES.find((item) => item.id === entry.recipeId);
+    const recipe = getRecipeById(entry.recipeId);
     if (!recipe) return;
     const item = document.createElement('li');
     item.className = 'history__item';
@@ -1341,7 +1540,7 @@ function renderWeeklyPlan() {
       const slot = plan[day.id]?.[meal];
       if (slot?.recipeId) {
         hasEntries = true;
-        const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+        const recipe = getRecipeById(slot.recipeId);
         if (recipe) {
           const container = document.createElement('div');
           container.className = 'planner__meal';
@@ -1420,7 +1619,7 @@ function aggregatePlanIngredients(plan) {
     MEALS.forEach((meal) => {
       const slot = plan[day.id]?.[meal];
       if (!slot?.recipeId) return;
-      const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+      const recipe = getRecipeById(slot.recipeId);
       if (!recipe) return;
       (recipe.ingredients ?? []).forEach((ingredient) => {
         const itemName = typeof ingredient === 'object' ? ingredient.item : ingredient;
@@ -1514,6 +1713,443 @@ function updatePlanShareSummary() {
   }
 }
 
+function isSuperAdmin(user) {
+  if (!user) return false;
+  const superAdminEmail = state.superAdminEmail || storage.getSuperAdminEmail();
+  return user.role === 'super-admin' || (!!superAdminEmail && user.email === superAdminEmail);
+}
+
+function updateAdminAvailability() {
+  if (!DOM.adminButton) return;
+  const available = isSuperAdmin(state.currentUser);
+  DOM.adminButton.hidden = !available;
+  if (!available) {
+    closeDialog(DOM.adminDialog);
+  }
+}
+
+function clearAdminFeedback() {
+  if (state.adminFeedbackTimeout) {
+    clearTimeout(state.adminFeedbackTimeout);
+    state.adminFeedbackTimeout = null;
+  }
+  if (!DOM.adminFeedback) return;
+  DOM.adminFeedback.textContent = '';
+  DOM.adminFeedback.classList.remove('form-feedback--error', 'form-feedback--success');
+}
+
+function setAdminFeedback(message, type = 'info') {
+  if (!DOM.adminFeedback) return;
+  clearAdminFeedback();
+  if (!message) return;
+  DOM.adminFeedback.textContent = message;
+  if (type === 'error') {
+    DOM.adminFeedback.classList.add('form-feedback--error');
+  } else if (type === 'success') {
+    DOM.adminFeedback.classList.add('form-feedback--success');
+  }
+  state.adminFeedbackTimeout = setTimeout(() => {
+    if (DOM.adminFeedback.textContent === message) {
+      clearAdminFeedback();
+    }
+  }, 3500);
+}
+
+function parseCommaList(value) {
+  return value
+    .split(',')
+    .map((item) => cleanString(item))
+    .filter(Boolean);
+}
+
+function formatCommaList(list) {
+  return (Array.isArray(list) ? list : []).filter(Boolean).join(', ');
+}
+
+function parseLines(value) {
+  return value
+    .split('\n')
+    .map((line) => cleanString(line))
+    .filter(Boolean);
+}
+
+function formatLines(list) {
+  return (Array.isArray(list) ? list : []).map((line) => cleanString(line)).filter(Boolean).join('\n');
+}
+
+function parseIngredients(value) {
+  return parseLines(value).map((line) => {
+    const [first, ...rest] = line.split('|');
+    const quantity = rest.length ? cleanString(first) : '';
+    const item = rest.length ? cleanString(rest.join('|')) : cleanString(first);
+    return { quantity, item };
+  });
+}
+
+function formatIngredients(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((ingredient) => {
+      if (!ingredient || typeof ingredient !== 'object') {
+        const item = cleanString(ingredient);
+        return item;
+      }
+      const quantity = cleanString(ingredient.quantity);
+      const item = cleanString(ingredient.item);
+      if (!item) return '';
+      return quantity ? `${quantity} | ${item}` : item;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+function parseSwaps(value) {
+  return parseLines(value)
+    .map((line) => {
+      const [first, ...rest] = line.split(':');
+      const ingredient = cleanString(first);
+      const alternatives = rest.length
+        ? rest
+            .join(':')
+            .split(',')
+            .map((alt) => cleanString(alt))
+            .filter(Boolean)
+        : [];
+      if (!ingredient) return null;
+      return { ingredient, alternatives };
+    })
+    .filter(Boolean);
+}
+
+function formatSwaps(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((swap) => {
+      if (!swap || typeof swap !== 'object') return '';
+      const ingredient = cleanString(swap.ingredient);
+      if (!ingredient) return '';
+      const alternatives = (Array.isArray(swap.alternatives) ? swap.alternatives : [])
+        .map((alt) => cleanString(alt))
+        .filter(Boolean);
+      return alternatives.length ? `${ingredient}: ${alternatives.join(', ')}` : ingredient;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+function slugifyRecipeName(name) {
+  return toKey(name)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+function generateRecipeId(name) {
+  const base = slugifyRecipeName(name) || `receta-${Date.now()}`;
+  let candidate = base;
+  let counter = 2;
+  const existing = new Set(state.recipes.map((recipe) => recipe.id));
+  while (existing.has(candidate)) {
+    candidate = `${base}-${counter}`;
+    counter += 1;
+  }
+  return candidate;
+}
+
+function populateAdminForm(recipe) {
+  if (!DOM.adminRecipeName) return;
+  DOM.adminRecipeId.value = recipe?.id ?? '';
+  DOM.adminRecipeName.value = recipe?.name ?? '';
+  DOM.adminRecipeMeal.value = MEALS.includes(recipe?.meal) ? recipe.meal : 'comida';
+  DOM.adminRecipeCalories.value = recipe?.calories ? String(recipe.calories) : '';
+  DOM.adminRecipeTime.value = recipe?.time ?? '';
+  DOM.adminRecipeServings.value = recipe?.servings ?? '';
+  DOM.adminRecipeCuisines.value = formatCommaList(recipe?.cuisines);
+  DOM.adminRecipeTags.value = formatCommaList(recipe?.tags);
+  DOM.adminRecipeKeywords.value = formatCommaList(recipe?.keywords);
+  DOM.adminRecipeDescription.value = recipe?.description ?? '';
+  DOM.adminRecipeIngredients.value = formatIngredients(recipe?.ingredients);
+  DOM.adminRecipeSteps.value = formatLines(recipe?.steps);
+  DOM.adminRecipeSwaps.value = formatSwaps(recipe?.swaps);
+}
+
+function clearAdminForm() {
+  if (!DOM.adminRecipeName) return;
+  DOM.adminRecipeId.value = '';
+  DOM.adminRecipeName.value = '';
+  DOM.adminRecipeMeal.value = 'comida';
+  DOM.adminRecipeCalories.value = '';
+  DOM.adminRecipeTime.value = '';
+  DOM.adminRecipeServings.value = '';
+  DOM.adminRecipeCuisines.value = '';
+  DOM.adminRecipeTags.value = '';
+  DOM.adminRecipeKeywords.value = '';
+  DOM.adminRecipeDescription.value = '';
+  DOM.adminRecipeIngredients.value = '';
+  DOM.adminRecipeSteps.value = '';
+  DOM.adminRecipeSwaps.value = '';
+}
+
+function updateAdminControls() {
+  if (DOM.adminDeleteRecipeButton) {
+    DOM.adminDeleteRecipeButton.disabled = !state.adminSelectedRecipeId;
+  }
+}
+
+function renderAdminRecipeList() {
+  if (!DOM.adminRecipeList) return;
+  const recipes = [...state.recipes].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  const selectedId = state.adminSelectedRecipeId && getRecipeById(state.adminSelectedRecipeId) ? state.adminSelectedRecipeId : '';
+  if (!selectedId) {
+    state.adminSelectedRecipeId = '';
+  }
+  DOM.adminRecipeList.innerHTML = '';
+  if (!recipes.length) {
+    const empty = document.createElement('li');
+    empty.className = 'admin-recipe-list__empty';
+    empty.textContent = 'Todavía no hay recetas registradas.';
+    DOM.adminRecipeList.appendChild(empty);
+    return;
+  }
+  recipes.forEach((recipe) => {
+    const li = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    const meta = [];
+    if (recipe.meal && MEAL_DISPLAY[recipe.meal]) {
+      meta.push(MEAL_DISPLAY[recipe.meal]);
+    }
+    if (recipe.calories) {
+      meta.push(`${recipe.calories} kcal`);
+    }
+    button.textContent = meta.length ? `${recipe.name} · ${meta.join(' · ')}` : recipe.name;
+    const isSelected = recipe.id === selectedId;
+    button.dataset.selected = String(isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+    button.addEventListener('click', () => {
+      selectAdminRecipe(recipe.id);
+    });
+    li.appendChild(button);
+    DOM.adminRecipeList.appendChild(li);
+  });
+}
+
+function renderAdminUserList() {
+  if (!DOM.adminUserList) return;
+  const users = storage.getUsers();
+  DOM.adminUserList.innerHTML = '';
+  if (!users.length) {
+    const empty = document.createElement('li');
+    empty.className = 'admin-user-list__empty';
+    empty.textContent = 'Todavía no hay usuarios registrados.';
+    DOM.adminUserList.appendChild(empty);
+    return;
+  }
+  users
+    .slice()
+    .sort((a, b) => a.email.localeCompare(b.email, 'es'))
+    .forEach((user) => {
+      const li = document.createElement('li');
+      const title = document.createElement('strong');
+      title.textContent = user.email;
+      const role = document.createElement('span');
+      role.textContent = `Rol: ${user.role === 'super-admin' ? 'Super admin' : 'Usuario'}`;
+      const historyCount = Array.isArray(user.history) ? user.history.length : 0;
+      const planCount = user.weeklyPlans ? Object.keys(user.weeklyPlans).length : user.weeklyPlan ? 1 : 0;
+      const summary = document.createElement('span');
+      summary.textContent = `Historial guardado: ${historyCount} · Planes: ${planCount}`;
+      li.append(title, role, summary);
+      DOM.adminUserList.appendChild(li);
+    });
+}
+
+function selectAdminRecipe(recipeId) {
+  state.adminSelectedRecipeId = recipeId;
+  const recipe = getRecipeById(recipeId);
+  if (recipe) {
+    populateAdminForm(recipe);
+  } else {
+    clearAdminForm();
+  }
+  clearAdminFeedback();
+  renderAdminRecipeList();
+  updateAdminControls();
+}
+
+function handleAdminNewRecipe() {
+  state.adminSelectedRecipeId = '';
+  clearAdminForm();
+  clearAdminFeedback();
+  renderAdminRecipeList();
+  updateAdminControls();
+  DOM.adminRecipeName?.focus();
+}
+
+function handleAdminRecipeNameInput() {
+  if (state.adminSelectedRecipeId) return;
+  DOM.adminRecipeId.value = slugifyRecipeName(DOM.adminRecipeName.value);
+}
+
+function buildRecipePayload() {
+  const name = cleanString(DOM.adminRecipeName.value);
+  if (!name) {
+    setAdminFeedback('Introduce un nombre para la receta.', 'error');
+    DOM.adminRecipeName?.focus();
+    return null;
+  }
+  const mealValue = cleanString(DOM.adminRecipeMeal.value);
+  const meal = MEALS.includes(mealValue) ? mealValue : 'comida';
+  const caloriesValue = Number.parseInt(DOM.adminRecipeCalories.value, 10);
+  const calories = Number.isFinite(caloriesValue) && caloriesValue > 0 ? caloriesValue : null;
+  const cuisines = parseCommaList(DOM.adminRecipeCuisines.value).map(toKey).filter(Boolean);
+  const tags = parseCommaList(DOM.adminRecipeTags.value);
+  const keywords = parseCommaList(DOM.adminRecipeKeywords.value).map(toKey).filter(Boolean);
+  const ingredients = parseIngredients(DOM.adminRecipeIngredients.value);
+  const steps = parseLines(DOM.adminRecipeSteps.value);
+  const swaps = parseSwaps(DOM.adminRecipeSwaps.value);
+  return {
+    id: cleanString(DOM.adminRecipeId.value) || state.adminSelectedRecipeId || generateRecipeId(name),
+    name,
+    meal,
+    calories,
+    time: cleanString(DOM.adminRecipeTime.value),
+    servings: cleanString(DOM.adminRecipeServings.value),
+    cuisines,
+    tags,
+    keywords,
+    description: cleanString(DOM.adminRecipeDescription.value),
+    ingredients,
+    steps,
+    swaps,
+  };
+}
+
+function handleAdminSaveRecipe() {
+  if (!isSuperAdmin(state.currentUser)) {
+    setAdminFeedback('Necesitas permisos de super admin para editar el recetario.', 'error');
+    return;
+  }
+  const payload = buildRecipePayload();
+  if (!payload) return;
+  const existingIndex = state.recipes.findIndex((recipe) => recipe.id === payload.id);
+  if (existingIndex >= 0) {
+    state.recipes[existingIndex] = { ...state.recipes[existingIndex], ...payload };
+  } else {
+    state.recipes = [...state.recipes, payload];
+  }
+  state.recipes = normalizeRecipes(state.recipes);
+  state.adminSelectedRecipeId = payload.id;
+  persistRecipeCatalog();
+  populateAdminForm(getRecipeById(payload.id));
+  renderAdminRecipeList();
+  updateAdminControls();
+  refreshCatalogDependents(payload.id);
+  setAdminFeedback('Receta guardada correctamente.', 'success');
+}
+
+function handleAdminDeleteRecipe() {
+  if (!isSuperAdmin(state.currentUser)) {
+    setAdminFeedback('Necesitas permisos de super admin para editar el recetario.', 'error');
+    return;
+  }
+  if (!state.adminSelectedRecipeId) {
+    setAdminFeedback('Selecciona una receta para eliminarla.', 'error');
+    return;
+  }
+  const recipeId = state.adminSelectedRecipeId;
+  if (!getRecipeById(recipeId)) {
+    setAdminFeedback('La receta seleccionada ya no existe.', 'error');
+    return;
+  }
+  state.recipes = state.recipes.filter((recipe) => recipe.id !== recipeId);
+  state.recipes = normalizeRecipes(state.recipes);
+  persistRecipeCatalog();
+  state.adminSelectedRecipeId = '';
+  clearAdminForm();
+  renderAdminRecipeList();
+  updateAdminControls();
+  removeRecipeFromCollections(recipeId);
+  refreshCatalogDependents();
+  setAdminFeedback('Receta eliminada del recetario.', 'success');
+}
+
+function refreshCatalogDependents(updatedRecipeId) {
+  renderHistory();
+  renderWeeklyPlan();
+  updateShoppingList();
+  updatePlanShareSummary();
+  if (updatedRecipeId) {
+    const updatedRecipe = getRecipeById(updatedRecipeId);
+    if (updatedRecipe && state.lastRecipe?.id === updatedRecipeId) {
+      const meal = state.lastMeal ?? updatedRecipe.meal;
+      renderRecipe(updatedRecipe, meal, { recordHistory: false });
+    }
+  } else if (state.lastRecipe && !getRecipeById(state.lastRecipe.id)) {
+    clearResultCard();
+  }
+}
+
+function removeRecipeFromCollections(recipeId) {
+  if (!recipeId) return;
+  const historyChanged = state.history.some((entry) => entry.recipeId === recipeId);
+  state.history = state.history.filter((entry) => entry.recipeId !== recipeId);
+  if (historyChanged) {
+    persistHistory();
+  } else {
+    renderHistory();
+  }
+
+  let plannerChanged = false;
+  Object.entries(state.weeklyPlans).forEach(([planId, plan]) => {
+    const slots = normalizeWeeklyPlan(plan.slots);
+    let changed = false;
+    WEEK_DAYS.forEach((day) => {
+      MEALS.forEach((meal) => {
+        if (slots[day.id]?.[meal]?.recipeId === recipeId) {
+          slots[day.id][meal] = null;
+          changed = true;
+        }
+      });
+    });
+    if (changed) {
+      state.weeklyPlans = {
+        ...state.weeklyPlans,
+        [planId]: { ...plan, slots },
+      };
+      plannerChanged = true;
+    }
+  });
+
+  if (plannerChanged) {
+    persistPlanner();
+  } else {
+    renderWeeklyPlan();
+    updateShoppingList();
+    updatePlanShareSummary();
+  }
+
+  if (state.lastRecipe?.id === recipeId) {
+    clearResultCard();
+  }
+}
+
+function openAdminPanel() {
+  if (!isSuperAdmin(state.currentUser)) return;
+  state.superAdminEmail = storage.getSuperAdminEmail();
+  clearAdminFeedback();
+  if (!state.adminSelectedRecipeId && state.recipes.length) {
+    state.adminSelectedRecipeId = state.recipes[0].id;
+  }
+  const recipe = getRecipeById(state.adminSelectedRecipeId);
+  if (recipe) {
+    populateAdminForm(recipe);
+  } else {
+    clearAdminForm();
+  }
+  renderAdminRecipeList();
+  renderAdminUserList();
+  updateAdminControls();
+  showDialog(DOM.adminDialog);
+}
+
 function matchesRestrictions(recipe, restricted) {
   const ingredientNames = (recipe.ingredients ?? []).map((ingredient) =>
     typeof ingredient === 'object' ? ingredient.item : ingredient,
@@ -1545,7 +2181,7 @@ function generateRecipe() {
   const restricted = new Set(state.restrictions.map(toKey));
 
   const selected = new Set(state.selectedCuisines.map(toKey));
-  const available = RECIPES.filter((recipe) => {
+  const available = state.recipes.filter((recipe) => {
     if (recipe.meal !== meal) return false;
     if (selected.size && !recipe.cuisines.some((cuisine) => selected.has(toKey(cuisine)))) {
       return false;
@@ -1617,6 +2253,11 @@ function handleRegister() {
     return;
   }
   const users = storage.getUsers();
+  let superAdminEmail = storage.getSuperAdminEmail();
+  if (!superAdminEmail) {
+    storage.setSuperAdminEmail(email);
+    superAdminEmail = email;
+  }
 
   const planner = createInitialPlannerState();
   const newUser = {
@@ -1627,10 +2268,12 @@ function handleRegister() {
     history: [],
     weeklyPlans: planner.plans,
     activePlanId: planner.activePlanId,
+    role: superAdminEmail === email ? 'super-admin' : 'user',
   };
   storage.saveUsers([...users, newUser]);
   storage.setCurrentUserEmail(email);
-  state.currentUser = newUser;
+  state.superAdminEmail = superAdminEmail;
+  state.currentUser = findUserByEmail(email) ?? newUser;
   state.history = [];
   state.weeklyPlans = planner.plans;
   state.activePlanId = planner.activePlanId;
@@ -1660,6 +2303,7 @@ function handleLogin() {
     setAuthFeedback('Correo o contraseña incorrectos.', 'error');
     return;
   }
+  state.superAdminEmail = storage.getSuperAdminEmail();
   storage.setCurrentUserEmail(email);
   state.currentUser = user;
   state.restrictions = Array.isArray(user.restrictions) ? user.restrictions : [];
@@ -1688,21 +2332,30 @@ function handleLogin() {
 function updateAuthUI() {
   if (state.currentUser) {
     DOM.authToggle.hidden = true;
+    DOM.authToggle.setAttribute('aria-hidden', 'true');
     DOM.logoutButton.hidden = false;
+    DOM.logoutButton.setAttribute('aria-hidden', 'false');
     DOM.userWelcome.hidden = false;
     DOM.userWelcome.textContent = `Hola, ${state.currentUser.email}`;
   } else {
     DOM.authToggle.hidden = false;
+    DOM.authToggle.setAttribute('aria-hidden', 'false');
     DOM.logoutButton.hidden = true;
+    DOM.logoutButton.setAttribute('aria-hidden', 'true');
     DOM.userWelcome.hidden = true;
     DOM.userWelcome.textContent = '';
   }
+  updateAdminAvailability();
 }
 
 function handleLogout() {
   storage.setCurrentUserEmail(null);
   state.currentUser = null;
   closeAllShareMenus();
+  closeDialog(DOM.adminDialog);
+  state.adminSelectedRecipeId = '';
+  clearAdminForm();
+  clearAdminFeedback();
 
   hydrateFromStorage();
   clearResultCard();
@@ -1724,6 +2377,8 @@ function handleSettingsOpen() {
 }
 
 function hydrateFromStorage() {
+  state.superAdminEmail = storage.getSuperAdminEmail();
+  loadRecipeCatalog();
   const email = storage.getCurrentUserEmail();
   let plannerState;
   if (email) {
@@ -1760,6 +2415,7 @@ function hydrateFromStorage() {
   state.activePlanId = plannerState.activePlanId;
   ensurePlannerState();
   updateAuthUI();
+  updateAdminAvailability();
   renderDefaultChips();
   renderActiveRestrictions();
 
@@ -1770,6 +2426,12 @@ function hydrateFromStorage() {
   updateShoppingList();
   updatePlanShareSummary();
   closeAllShareMenus();
+
+  if (DOM.adminDialog?.open) {
+    renderAdminRecipeList();
+    renderAdminUserList();
+    updateAdminControls();
+  }
 
 }
 
@@ -1804,6 +2466,11 @@ function registerEventListeners() {
   DOM.copyShoppingButton.addEventListener('click', copyShoppingList);
   DOM.planSelect?.addEventListener('change', handlePlanSelectChange);
   DOM.addPlanButton?.addEventListener('click', handleAddPlan);
+  DOM.adminButton?.addEventListener('click', openAdminPanel);
+  DOM.adminSaveRecipeButton?.addEventListener('click', handleAdminSaveRecipe);
+  DOM.adminNewRecipeButton?.addEventListener('click', handleAdminNewRecipe);
+  DOM.adminDeleteRecipeButton?.addEventListener('click', handleAdminDeleteRecipe);
+  DOM.adminRecipeName?.addEventListener('input', handleAdminRecipeNameInput);
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleDocumentKeydown);
 
