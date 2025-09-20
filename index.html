@@ -82,9 +82,9 @@
     <section id="cookPanel" class="primary-panel primary-panel--active" role="tabpanel" aria-labelledby="cookTab">
       <section class="hero" aria-labelledby="heroTitle">
         <div>
-          <h1 id="heroTitle">Descubre recetas adaptadas a ti</h1>
+          <h1 id="heroTitle">Tu sous-chef personal, siempre listo</h1>
           <p class="hero__subtitle">
-            Genera desayunos, comidas o cenas inspiradas en tus gustos, al instante y sin ingredientes que no quieres ver ni en pintura.
+            Genera desayunos, comidas o cenas inspiradas en tus gustos, valora tus favoritas y comparte planes completos con la comunidad.
           </p>
         </div>
         <div class="hero__cta">
@@ -156,10 +156,22 @@
           </header>
           <div class="result__tags" id="resultTags" hidden></div>
           <p class="result__calories" id="resultCalories" hidden></p>
- 
-          <p class="result__cost" id="resultCost" hidden></p>
+          <section class="result__rating" id="ratingPanel" aria-live="polite" hidden>
+            <div class="rating__summary">
+              <span class="rating__score" id="ratingAverage">0.0</span>
+              <span class="rating__count" id="ratingCount">Sin valoraciones</span>
+            </div>
+            <div class="rating__controls" id="ratingControls" role="radiogroup" aria-label="Tu valoración">
+              <button type="button" class="rating__star" data-score="1" aria-label="1 estrella">★</button>
+              <button type="button" class="rating__star" data-score="2" aria-label="2 estrellas">★</button>
+              <button type="button" class="rating__star" data-score="3" aria-label="3 estrellas">★</button>
+              <button type="button" class="rating__star" data-score="4" aria-label="4 estrellas">★</button>
+              <button type="button" class="rating__star" data-score="5" aria-label="5 estrellas">★</button>
+            </div>
+            <button type="button" id="ratingResetButton" class="rating__reset" hidden>Quitar valoración</button>
+            <p class="rating__note" id="ratingNote"></p>
+          </section>
 
- 
           <p class="result__description" id="resultDescription"></p>
           <div class="result__layout" id="resultDetails" hidden>
             <section class="result__section">
@@ -275,7 +287,7 @@
         <header class="card__header">
           <div>
             <h2 id="discoverTitle">Ideas de la comunidad</h2>
-            <p class="card__hint">Explora planificaciones y recetas compartidas por otros chefs caseros y súmalas a tu colección.</p>
+            <p class="card__hint">Explora planificaciones y recetas con mejor valoración, compartidas por otros chefs caseros.</p>
           </div>
         </header>
         <div id="discoverFeed" class="discover__list" aria-live="polite"></div>
@@ -285,7 +297,7 @@
         <header class="card__header">
           <div>
             <h2 id="discoverFormTitle">Comparte tus ideas</h2>
-            <p class="card__hint">Publica tu última receta o plan semanal para inspirar a otros. Se guarda en este dispositivo.</p>
+            <p class="card__hint">Publica tu última receta o plan semanal para inspirar a otros. Las valoraciones ayudan a destacar contenido.</p>
           </div>
         </header>
         <form id="discoverForm" class="discover-form__body">
@@ -376,6 +388,38 @@
           ✕
         </button>
       </header>
+      <div class="quick-auth" id="quickAuth">
+        <p class="quick-auth__title">Acceso rápido</p>
+        <div class="quick-auth__buttons">
+          <button type="button" id="googleLoginButton" class="social-button social-button--google">
+            <span aria-hidden="true">🟢</span>
+            <span>Continuar con Google</span>
+          </button>
+          <button type="button" id="appleLoginButton" class="social-button social-button--apple">
+            <span aria-hidden="true">🍎</span>
+            <span>Continuar con Apple</span>
+          </button>
+          <button type="button" id="phoneLoginToggle" class="social-button social-button--phone">
+            <span aria-hidden="true">📱</span>
+            <span>Usar número de teléfono</span>
+          </button>
+        </div>
+        <div id="phoneLoginContainer" class="phone-auth" hidden>
+          <label for="phoneNumberInput">Número de teléfono</label>
+          <div class="phone-auth__row">
+            <input type="tel" id="phoneNumberInput" name="phoneNumberInput" autocomplete="tel" placeholder="Ej. +34 600 000 000">
+            <button type="button" id="phoneSendCodeButton" class="ghost">Enviar código</button>
+          </div>
+          <div id="phoneCodeContainer" class="phone-auth__code" hidden>
+            <label for="phoneCodeInput">Introduce el código</label>
+            <div class="phone-auth__row">
+              <input type="text" id="phoneCodeInput" name="phoneCodeInput" inputmode="numeric" maxlength="6" placeholder="123456">
+              <button type="button" id="phoneVerifyButton" class="primary">Verificar y entrar</button>
+            </div>
+          </div>
+          <p id="phoneLoginStatus" class="form-feedback"></p>
+        </div>
+      </div>
       <div class="tabs" role="tablist" aria-label="Método de acceso">
         <button class="tab tab--active" role="tab" id="loginTab" aria-controls="loginPanel" aria-selected="true">Iniciar sesión</button>
         <button class="tab" role="tab" id="registerTab" aria-controls="registerPanel" aria-selected="false">Crear cuenta</button>
@@ -393,7 +437,7 @@
         <input type="email" id="registerEmail" autocomplete="username" required>
         <label for="registerPassword">Contraseña</label>
         <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
-        <p class="form-hint">Tu cuenta guardará tus configuraciones y restricciones de ingredientes.</p>
+        <p class="form-hint">Tu cuenta guardará tus configuraciones, valoraciones y restricciones de ingredientes.</p>
         <button type="button" id="registerButton" class="primary">Registrarme</button>
       </div>
       <p class="form-feedback" id="authFeedback" role="alert"></p>
@@ -480,23 +524,28 @@
               <textarea id="adminRecipeIngredients" rows="6" placeholder="1 taza | arroz integral"></textarea>
             </div>
             <div class="admin-form__group">
- 
-              <label for="adminRecipeIngredientPrices">Precios de ingredientes ("ingrediente | precio en euros | formato o cantidad")</label>
+              <label for="adminRecipeIngredientUnits">Formato sugerido ("ingrediente | formato recomendado")</label>
               <textarea
-                id="adminRecipeIngredientPrices"
+                id="adminRecipeIngredientUnits"
                 rows="4"
-                placeholder="yogur griego natural | 1.35 | tarrina 200 g"
+                placeholder="granola casera | bolsa 300 g"
               ></textarea>
-              <p class="form-hint">Usa punto decimal para los importes. El formato se mostrará junto al precio estimado.</p>
+              <p class="form-hint">Se mostrará como recomendación de compra general en la ficha.</p>
             </div>
             <div class="admin-form__group">
-              <label for="adminRecipeIngredientStores">Supermercados ("ingrediente | Mercadona:producto,precio | Carrefour:producto,precio ...")</label>
+              <label
+                for="adminRecipeIngredientStores"
+                >Guía de supermercados ("ingrediente | Mercadona:producto ~ formato | Carrefour:producto")</label
+              >
               <textarea
                 id="adminRecipeIngredientStores"
                 rows="4"
-                placeholder="yogur griego natural | Mercadona:Yogur griego Hacendado 2x125 g,1.15 | Carrefour:Yogur Griego Carrefour 0%,1.25"
+                placeholder="yogur griego natural | Mercadona:Yogur griego Hacendado ~ pack 4x125 g | Carrefour:Yogur Griego Carrefour 0%"
               ></textarea>
-              <p class="form-hint">Incluye Mercadona, Carrefour, Alcampo o Lidl. El precio es opcional por comercio.</p>
+              <p class="form-hint">
+                Incluye Mercadona, Carrefour, Alcampo o Lidl. Usa "~" para indicar el formato sugerido por tienda (ej.
+                Mercadona:Yogur griego ~ pack 4x125 g).
+              </p>
             </div>
             <div class="admin-form__grid admin-form__grid--steps">
               <div class="admin-form__group">
