@@ -5,11 +5,14 @@ const DOM = {
   resultSubtitle: document.getElementById('resultSubtitle'),
   resultDescription: document.getElementById('resultDescription'),
   resultTags: document.getElementById('resultTags'),
+  resultCalories: document.getElementById('resultCalories'),
+  resultCost: document.getElementById('resultCost'),
 
   resultDetails: document.getElementById('resultDetails'),
   resultIngredients: document.getElementById('resultIngredients'),
   resultSteps: document.getElementById('resultSteps'),
   resultAlternatives: document.getElementById('resultAlternatives'),
+  stepModeToggle: document.getElementById('stepModeToggle'),
   chefTip: document.getElementById('chefTip'),
 
   currentYear: document.getElementById('currentYear'),
@@ -51,8 +54,46 @@ const DOM = {
   planShareMenu: document.getElementById('planShareMenu'),
   shoppingList: document.getElementById('shoppingList'),
   copyShoppingButton: document.getElementById('copyShoppingButton'),
+  cookTab: document.getElementById('cookTab'),
+  discoverTab: document.getElementById('discoverTab'),
+  cookPanel: document.getElementById('cookPanel'),
+  discoverPanel: document.getElementById('discoverPanel'),
+  discoverFeed: document.getElementById('discoverFeed'),
+  discoverForm: document.getElementById('discoverForm'),
+  discoverType: document.getElementById('discoverType'),
+  discoverAuthor: document.getElementById('discoverAuthor'),
+  discoverTitleInput: document.getElementById('discoverTitleInput'),
+  discoverSummary: document.getElementById('discoverSummary'),
+  discoverDetails: document.getElementById('discoverDetails'),
+  discoverPrefillRecipe: document.getElementById('discoverPrefillRecipe'),
+  discoverPrefillPlan: document.getElementById('discoverPrefillPlan'),
+  discoverFeedback: document.getElementById('discoverFeedback'),
   cuisineChips: document.getElementById('cuisineChips'),
   cuisineQuickFilters: document.getElementById('cuisineQuickFilters'),
+  adminButton: document.getElementById('adminButton'),
+  adminDialog: document.getElementById('adminDialog'),
+  adminRecipeList: document.getElementById('adminRecipeList'),
+  adminRecipeId: document.getElementById('adminRecipeId'),
+  adminRecipeName: document.getElementById('adminRecipeName'),
+  adminRecipeMeal: document.getElementById('adminRecipeMeal'),
+  adminRecipeCalories: document.getElementById('adminRecipeCalories'),
+  adminRecipeTime: document.getElementById('adminRecipeTime'),
+  adminRecipeServings: document.getElementById('adminRecipeServings'),
+  adminRecipeCuisines: document.getElementById('adminRecipeCuisines'),
+  adminRecipeTags: document.getElementById('adminRecipeTags'),
+  adminRecipeDescription: document.getElementById('adminRecipeDescription'),
+  adminRecipeIngredients: document.getElementById('adminRecipeIngredients'),
+  adminRecipeIngredientPrices: document.getElementById('adminRecipeIngredientPrices'),
+  adminRecipeIngredientStores: document.getElementById('adminRecipeIngredientStores'),
+  adminRecipeStepsCasero: document.getElementById('adminRecipeStepsCasero'),
+  adminRecipeStepsThermomix: document.getElementById('adminRecipeStepsThermomix'),
+  adminRecipeSwaps: document.getElementById('adminRecipeSwaps'),
+  adminRecipeKeywords: document.getElementById('adminRecipeKeywords'),
+  adminSaveRecipeButton: document.getElementById('adminSaveRecipeButton'),
+  adminNewRecipeButton: document.getElementById('adminNewRecipeButton'),
+  adminDeleteRecipeButton: document.getElementById('adminDeleteRecipeButton'),
+  adminFeedback: document.getElementById('adminFeedback'),
+  adminUserList: document.getElementById('adminUserList'),
 };
 
 const DEFAULT_RESULT = {
@@ -112,6 +153,31 @@ const MEAL_DISPLAY = {
   cena: 'Cena',
 };
 
+const STEP_MODES = ['tradicional', 'thermomix'];
+
+const STEP_MODE_LABELS = {
+  tradicional: 'Modo casero',
+  thermomix: 'Thermomix',
+};
+
+const SUPERMARKETS = [
+  { id: 'mercadona', label: 'Mercadona', brand: 'Hacendado', priceFactor: 0.96 },
+  { id: 'carrefour', label: 'Carrefour', brand: 'Carrefour', priceFactor: 1.02 },
+  { id: 'alcampo', label: 'Alcampo', brand: 'Auchan', priceFactor: 0.94 },
+  { id: 'lidl', label: 'Lidl', brand: 'Chef Select', priceFactor: 0.9 },
+];
+
+const SUPERMARKET_LABELS = Object.fromEntries(SUPERMARKETS.map((store) => [store.id, store.label]));
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+  maximumFractionDigits: 2,
+});
+
+const RELATIVE_TIME_FORMAT = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' });
+const DATE_FORMATTER = new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' });
+
 const HISTORY_LIMIT = 20;
 
 const HISTORY_FORMATTER = new Intl.DateTimeFormat('es-ES', {
@@ -121,7 +187,7 @@ const HISTORY_FORMATTER = new Intl.DateTimeFormat('es-ES', {
 });
 
 
-const RECIPES = [
+const BASE_RECIPES = [
   {
     id: 'sunrise-bowl',
     name: 'Bowl energizante de amanecer',
@@ -130,6 +196,7 @@ const RECIPES = [
     cuisines: ['mediterranea', 'plant-based'],
     time: '10 minutos',
     servings: '1 ración',
+    calories: 420,
     description:
       'Yogur griego con granola casera, frutas frescas de temporada y un toque de miel cítrica para comenzar el día con energía.',
     tags: ['alto en proteínas', 'sin gluten'],
@@ -141,12 +208,20 @@ const RECIPES = [
       { quantity: '1 cdita', item: 'semillas de chía' },
       { quantity: '1/4 cdita', item: 'ralladura de naranja' },
     ],
-    steps: [
-      'Coloca el yogur en un bol ancho y suavízalo con una cuchara.',
-      'Distribuye la granola por encima creando capas crujientes.',
-      'Añade los frutos rojos y espolvorea la chía.',
-      'Termina con la miel y la ralladura de naranja para perfumar.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Coloca el yogur en un bol ancho y suavízalo con una cuchara.',
+        'Distribuye la granola por encima creando capas crujientes.',
+        'Añade los frutos rojos y espolvorea la chía.',
+        'Termina con la miel y la ralladura de naranja para perfumar.',
+      ],
+      thermomix: [
+        'Pon la granola en el vaso y trocea 4 seg/vel 4 si prefieres piezas más finas. Reserva.',
+        'Añade el yogur al vaso y mezcla 10 seg/vel 2 para airearlo. Sirve en un bol ancho.',
+        'Introduce los frutos rojos y la miel y mezcla 5 seg/giro inverso/vel 2 para glasearlos suavemente.',
+        'Reparte la fruta sobre el yogur, añade la granola reservada, la chía y la ralladura de naranja.',
+      ],
+    },
     swaps: [
       { ingredient: 'yogur griego natural', alternatives: ['yogur vegetal de coco', 'queso fresco batido'] },
       { ingredient: 'granola de frutos secos', alternatives: ['muesli crujiente', 'avena tostada con semillas'] },
@@ -161,6 +236,7 @@ const RECIPES = [
     cuisines: ['japonesa', 'fusion'],
     time: '20 minutos',
     servings: '2 raciones',
+    calories: 510,
     description: 'Tortitas esponjosas con té verde matcha y sirope de arce para un brunch vibrante.',
     tags: ['antioxidantes', 'brunch'],
     ingredients: [
@@ -173,12 +249,20 @@ const RECIPES = [
       { quantity: '1 cda', item: 'sirope de arce' },
       { quantity: '1 taza', item: 'frutos rojos' },
     ],
-    steps: [
-      'Mezcla la harina, el matcha y el polvo de hornear en un bol.',
-      'Incorpora el plátano, el huevo y la leche hasta obtener una masa homogénea.',
-      'Engrasa una sartén antiadherente y vierte porciones de masa.',
-      'Cocina dos minutos por lado, sirve con sirope de arce y frutos rojos.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Mezcla la harina, el matcha y el polvo de hornear en un bol.',
+        'Incorpora el plátano triturado, el huevo, la leche y el sirope hasta obtener una masa homogénea.',
+        'Engrasa una sartén antiadherente y vierte porciones de masa.',
+        'Cocina dos minutos por lado y sirve con sirope de arce y frutos rojos.',
+      ],
+      thermomix: [
+        'Añade al vaso la harina, el matcha y el polvo de hornear. Mezcla 5 seg/vel 5.',
+        'Incorpora el plátano en trozos, el huevo, la leche y el sirope. Programa 15 seg/vel 4.',
+        'Deja reposar la masa en el vaso 5 minutos mientras calientas una sartén ligeramente engrasada.',
+        'Vierte porciones de masa y cocina 2 minutos por cada lado a fuego medio antes de servir con frutos rojos.',
+      ],
+    },
     swaps: [
       { ingredient: 'huevo', alternatives: ['1 cda de semillas de lino + 3 cdas de agua', 'puré de manzana'] },
       { ingredient: 'leche de almendras', alternatives: ['leche de avena', 'leche tradicional'] },
@@ -193,6 +277,7 @@ const RECIPES = [
     cuisines: ['tailandesa', 'plant-based'],
     time: '15 minutos + reposo',
     servings: '2 raciones',
+    calories: 380,
     description: 'Semillas de chía infusionadas en leche de coco con mango y lima para un desayuno listo desde la noche anterior.',
     tags: ['sin lácteos', 'meal prep'],
     ingredients: [
@@ -203,12 +288,20 @@ const RECIPES = [
       { quantity: '1', item: 'lima (zumo y ralladura)' },
       { quantity: '2 cdas', item: 'coco tostado en láminas' },
     ],
-    steps: [
-      'Mezcla la leche de coco con el sirope y la ralladura de lima.',
-      'Añade la chía, remueve y deja reposar diez minutos; vuelve a mezclar.',
-      'Refrigera mínimo dos horas o durante la noche.',
-      'Sirve con el mango fresco, jugo de lima y coco tostado.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Mezcla la leche de coco con el sirope y la ralladura de lima.',
+        'Añade la chía, remueve y deja reposar diez minutos; vuelve a mezclar.',
+        'Refrigera mínimo dos horas o durante la noche.',
+        'Sirve con el mango fresco, jugo de lima y coco tostado.',
+      ],
+      thermomix: [
+        'Vierte en el vaso la leche de coco, el sirope y la ralladura. Mezcla 10 seg/vel 3.',
+        'Añade las semillas de chía y mezcla 5 seg/vel 2. Deja reposar 10 minutos y vuelve a mezclar 5 seg/vel 2.',
+        'Reparte la mezcla en vasos y refrigera al menos dos horas o toda la noche.',
+        'Coloca el mango en cubos en el vaso limpio y pica 3 seg/giro inverso/vel 4. Sirve sobre el pudin con zumo de lima y coco tostado.',
+      ],
+    },
     swaps: [
       { ingredient: 'leche de coco ligera', alternatives: ['leche de almendras', 'leche de anacardos'] },
       { ingredient: 'mango', alternatives: ['piña fresca', 'papaya madura'] },
@@ -225,6 +318,7 @@ const RECIPES = [
     cuisines: ['japonesa', 'plant-based'],
     time: '25 minutos',
     servings: '2 raciones',
+    calories: 560,
     description: 'Quinoa esponjosa con tofu glaseado en salsa tamari, verduras al vapor y encurtidos asiáticos.',
     tags: ['alto en proteínas', 'meal prep'],
     ingredients: [
@@ -237,12 +331,20 @@ const RECIPES = [
       { quantity: '1/2 taza', item: 'zanahoria rallada' },
       { quantity: '1/4 taza', item: 'encurtidos japoneses' },
     ],
-    steps: [
-      'Cuece la quinoa en el caldo durante quince minutos y airea con un tenedor.',
-      'Dora el tofu en cubos con aceite de sésamo y glasea con tamari.',
-      'Prepara las verduras al vapor y escurre los encurtidos.',
-      'Monta el bento con capas de quinoa, tofu y verduras, espolvorea semillas de sésamo.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Cuece la quinoa en el caldo durante quince minutos y airea con un tenedor.',
+        'Dora el tofu en cubos con aceite de sésamo y glasea con tamari.',
+        'Prepara las verduras al vapor y escurre los encurtidos.',
+        'Monta el bento con capas de quinoa, tofu y verduras, espolvorea semillas de sésamo.',
+      ],
+      thermomix: [
+        'Coloca la quinoa en el cestillo, vierte el caldo en el vaso e introduce el cestillo. Cocina 15 min/100 °C/vel 2. Retira y airea con un tenedor.',
+        'Mezcla en el vaso limpio la salsa tamari y el aceite 5 seg/vel 3. Vierte sobre el tofu en cubos colocado en el recipiente Varoma.',
+        'Añade 500 ml de agua al vaso, sitúa el Varoma con el tofu y cocina 8 min/Varoma/vel 1. Incorpora el pak choi al Varoma en los últimos 3 minutos.',
+        'Monta el bento con la quinoa, el tofu glaseado, el pak choi, la zanahoria y los encurtidos. Termina con semillas de sésamo.',
+      ],
+    },
     swaps: [
       { ingredient: 'quinoa', alternatives: ['arroz integral', 'bulgur'] },
       { ingredient: 'tofu firme', alternatives: ['tempeh', 'pollo a la plancha'] },
@@ -259,6 +361,7 @@ const RECIPES = [
     cuisines: ['mediterranea'],
     time: '30 minutos',
     servings: '2 raciones',
+    calories: 540,
     description:
       'Filete de salmón al horno con glaseado de naranja y jengibre, acompañado de espárragos y couscous integral.',
     tags: ['omega 3', 'horno'],
@@ -271,12 +374,20 @@ const RECIPES = [
       { quantity: '1 taza', item: 'couscous integral' },
       { quantity: '1 cda', item: 'aceite de oliva' },
     ],
-    steps: [
-      'Precalienta el horno a 200 °C y coloca el salmón en una bandeja.',
-      'Mezcla el zumo de naranja, miel y jengibre; pincela el salmón.',
-      'Hornea doce minutos y saltea los espárragos con aceite de oliva.',
-      'Hidrata el couscous con agua caliente, suelta con un tenedor y sirve todo junto.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Precalienta el horno a 200 °C y coloca el salmón en una bandeja con papel sulfurizado.',
+        'Mezcla el zumo de naranja, la miel y el jengibre rallado; pincela los lomos con el glaseado.',
+        'Hornea durante doce minutos y saltea los espárragos en una sartén con aceite de oliva hasta que queden tiernos.',
+        'Hidrata el couscous con agua caliente, airea con un tenedor y sirve todo junto con el jugo del asado.',
+      ],
+      thermomix: [
+        'Precalienta el horno a 200 °C. Coloca en el vaso el zumo de naranja, la miel y el jengibre; mezcla 10 seg/vel 4.',
+        'Sitúa los lomos en una fuente, báñalos con la mezcla y hornea 12 minutos mientras continúas con la guarnición.',
+        'Sin lavar el vaso, añade 500 ml de agua, coloca los espárragos en el Varoma y cocina 8 min/Varoma/vel 1. Reserva.',
+        'Retira el agua, pon 250 ml de agua limpia y calienta 4 min/100 °C/vel 1. Vierte sobre el couscous en un bol, deja reposar 3 minutos, suelta con un tenedor y sirve con el salmón, los espárragos y el glaseado.',
+      ],
+    },
     swaps: [
       { ingredient: 'salmón', alternatives: ['trucha', 'tofu ahumado'] },
       { ingredient: 'couscous integral', alternatives: ['quinua', 'bulgur'] },
@@ -291,6 +402,7 @@ const RECIPES = [
     cuisines: ['tailandesa', 'fusion'],
     time: '20 minutos',
     servings: '2 raciones',
+    calories: 430,
     description:
       'Fideos de arroz con verduras frescas, hierbas aromáticas y aliño cremoso de cacahuete y lima.',
     tags: ['refrescante', 'sin gluten'],
@@ -306,12 +418,21 @@ const RECIPES = [
       { quantity: '2 cdas', item: 'zumo de lima' },
       { quantity: '1 cda', item: 'salsa de soja ligera' },
     ],
-    steps: [
-      'Hidrata los fideos siguiendo las instrucciones y enjuaga con agua fría.',
-      'Mezcla la crema de cacahuete con el zumo de lima y la salsa de soja hasta lograr un aliño suave.',
-      'Combina los fideos con las verduras y las hierbas.',
-      'Añade el aliño y termina con los cacahuetes tostados triturados.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Hidrata los fideos de arroz siguiendo el paquete, enfría bajo el grifo y escurre bien.',
+        'Bate la crema de cacahuete con el zumo de lima y la salsa de soja hasta obtener un aliño sedoso.',
+        'Corta la zanahoria, el pepino y el pimiento en tiras finas y mézclalos con los brotes y las hierbas.',
+        'Incorpora los fideos, añade el aliño y termina con los cacahuetes tostados ligeramente picados.',
+      ],
+      thermomix: [
+        'Coloca los cacahuetes en el vaso y trocea 3 seg/vel 5. Reserva.',
+        'Hidrata los fideos según el paquete, enjuágalos con agua fría y escúrrelos muy bien.',
+        'Sin lavar el vaso, añade la crema de cacahuete, el zumo de lima, la salsa de soja y 10 g de agua; mezcla 15 seg/vel 4.',
+        'Agrega al vaso la zanahoria en trozos, el pepino sin semillas y el pimiento. Pica 4 seg/giro inverso/vel 4, añade las hierbas y mezcla 5 seg/giro inverso/vel 2.',
+        'Combina en un bol grande los fideos con las verduras, los brotes de soja, el aliño y termina con los cacahuetes reservados.',
+      ],
+    },
     swaps: [
       { ingredient: 'crema de cacahuete', alternatives: ['tahini', 'mantequilla de almendra'] },
       { ingredient: 'fideos de arroz', alternatives: ['fideos de trigo sarraceno', 'espirales de calabacín'] },
@@ -326,6 +447,7 @@ const RECIPES = [
     cuisines: ['mexicana', 'plant-based'],
     time: '35 minutos',
     servings: '2 raciones',
+    calories: 600,
     description:
       'Jackfruit deshebrado con achiote servido con arroz integral, frijoles negros y pico de gallo cítrico.',
     tags: ['alto en fibra', 'meal prep'],
@@ -339,12 +461,20 @@ const RECIPES = [
       { quantity: '1', item: 'aguacate en láminas' },
       { quantity: '1', item: 'lima en gajos' },
     ],
-    steps: [
-      'Deshilacha el jackfruit con un tenedor y sofríelo con ajo.',
-      'Añade la pasta de achiote disuelta en un poco de agua y cocina diez minutos.',
-      'Sirve el jackfruit sobre el arroz con los frijoles, el pico de gallo y el aguacate.',
-      'Exprime la lima antes de comer para potenciar los sabores.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Deshilacha el jackfruit con dos tenedores y sofríelo en una sartén con el ajo picado y un chorrito de aceite.',
+        'Disuelve la pasta de achiote en 50 ml de agua, incorpórala al jackfruit y cocina a fuego medio diez minutos hasta que reduzca.',
+        'Calienta el arroz integral y los frijoles negros, y prepara el pico de gallo fresco.',
+        'Sirve el jackfruit achiotado sobre el arroz con frijoles, pico de gallo, aguacate y gajos de lima para exprimir al final.',
+      ],
+      thermomix: [
+        'Escurre el jackfruit, colócalo en el vaso y trocea 4 seg/vel 4. Añade el ajo y 15 g de aceite y sofríe 6 min/120 °C/giro inverso/vel cuchara.',
+        'Agrega la pasta de achiote disuelta en 50 ml de agua y cocina 12 min/100 °C/giro inverso/vel cuchara sin cubilete, colocando el cestillo para evitar salpicaduras.',
+        'Calienta el arroz y los frijoles en el Varoma durante 6 min/Varoma/vel 1 y prepara el pico de gallo mientras tanto.',
+        'Reparte en cuencos el arroz, los frijoles y el jackfruit jugoso, añade pico de gallo, aguacate y termina con lima exprimida.',
+      ],
+    },
     swaps: [
       { ingredient: 'jackfruit', alternatives: ['setas deshebradas', 'pollo desmenuzado'] },
       { ingredient: 'arroz integral', alternatives: ['quinua', 'coliflor rallada salteada'] },
@@ -359,6 +489,7 @@ const RECIPES = [
     cuisines: ['mediterranea', 'plant-based'],
     time: '20 minutos',
     servings: '2 raciones',
+    calories: 520,
     description:
       'Farro con garbanzos especiados, hojas verdes, pepino crujiente y aderezo de limón tahini.',
     tags: ['rico en fibra', 'listo en 20 minutos'],
@@ -373,12 +504,20 @@ const RECIPES = [
       { quantity: '2 cdas', item: 'zumo de limón' },
       { quantity: '1 cda', item: 'aceite de oliva virgen extra' },
     ],
-    steps: [
-      'Saltea los garbanzos con aceite y ras el hanout hasta dorarlos.',
-      'Mezcla el tahini con limón y agua hasta lograr un aderezo cremoso.',
-      'Combina el farro con los brotes, el pepino y los tomates.',
-      'Corona con los garbanzos crujientes y baña con el aderezo.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Seca los garbanzos, mézclalos con aceite y ras el hanout y saltéalos en una sartén hasta dorarlos.',
+        'Bate el tahini con el zumo de limón, agua y una pizca de sal hasta lograr un aderezo cremoso.',
+        'Combina el farro con los brotes verdes, el pepino y los tomates cherry.',
+        'Añade los garbanzos crujientes, aliña con la salsa y termina con aceite de oliva virgen extra.',
+      ],
+      thermomix: [
+        'Coloca los garbanzos escurridos en el vaso con el aceite y el ras el hanout. Sofríe 8 min/120 °C/giro inverso/vel cuchara con el cestillo sobre la tapa.',
+        'Retira los garbanzos crujientes y, sin lavar el vaso, añade el tahini, el zumo de limón, 40 g de agua y una pizca de sal; mezcla 12 seg/vel 4.',
+        'Prepara un bol con el farro, los brotes, el pepino y los tomates.',
+        'Incorpora los garbanzos y baña con el aderezo de tahini antes de servir.',
+      ],
+    },
     swaps: [
       { ingredient: 'farro', alternatives: ['cuscús perlado', 'arroz integral'] },
       { ingredient: 'tahini', alternatives: ['yogur natural', 'mantequilla de anacardo'] },
@@ -393,6 +532,7 @@ const RECIPES = [
     cuisines: ['japonesa'],
     time: '25 minutos',
     servings: '2 raciones',
+    calories: 580,
     description:
       'Caldo ligero con fideos integrales, pak choi y huevo marinado con perfume de sésamo tostado.',
     tags: ['confort', 'rápido'],
@@ -405,12 +545,20 @@ const RECIPES = [
       { quantity: '1 cda', item: 'aceite de sésamo tostado' },
       { quantity: '1', item: 'cebolleta picada' },
     ],
-    steps: [
-      'Calienta el caldo con la salsa de soja hasta que hierva suavemente.',
-      'Cocina los fideos según el paquete y escurre.',
-      'Blanquea el pak choi un minuto en el caldo.',
-      'Sirve los fideos con el caldo, el pak choi, los huevos y aceite de sésamo.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Calienta el caldo con la salsa de soja en una olla hasta que hierva suavemente.',
+        'Cocina los fideos según el paquete en agua abundante, escurre y reserva.',
+        'Blanquea el pak choi en el caldo durante un minuto para que quede tierno.',
+        'Sirve los fideos en cuencos con el caldo caliente, el pak choi, los huevos marinados y un hilo de aceite de sésamo.',
+      ],
+      thermomix: [
+        'Vierte el caldo y la salsa de soja en el vaso y calienta 10 min/100 °C/vel 1.',
+        'Introduce el cestillo con los fideos y cocina 4 min/100 °C/vel 1. Retira el cestillo, enjuaga los fideos y reserva.',
+        'Coloca el pak choi en el Varoma y cocina 3 min/Varoma/vel 1 aprovechando el calor del caldo. Retira el Varoma.',
+        'Reparte los fideos en cuencos, vierte el caldo, añade pak choi, huevos y termina con aceite de sésamo y cebolleta.',
+      ],
+    },
     swaps: [
       { ingredient: 'caldo dashi ligero', alternatives: ['caldo vegetal', 'caldo de pollo ligero'] },
       { ingredient: 'huevos marinados', alternatives: ['tofu suave', 'setas shiitake salteadas'] },
@@ -427,6 +575,7 @@ const RECIPES = [
     cuisines: ['india', 'plant-based'],
     time: '30 minutos',
     servings: '3 raciones',
+    calories: 640,
     description:
       'Curry suave de berenjena y garbanzos en leche de coco con arroz jazmín aromático.',
     tags: ['sin gluten', 'confort nocturno'],
@@ -440,12 +589,20 @@ const RECIPES = [
       { quantity: '1 taza', item: 'arroz jazmín cocido' },
       { quantity: '1 puñado', item: 'hojas de cilantro fresco' },
     ],
-    steps: [
-      'Dora la berenjena con un poco de aceite hasta que esté dorada y reserva.',
-      'Sofríe la cebolla y el ajo, añade la pasta de curry y cocina dos minutos.',
-      'Incorpora la leche de coco, los garbanzos y la berenjena; cocina doce minutos.',
-      'Sirve sobre arroz jazmín y decora con cilantro.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Dora la berenjena en cubos en una sartén amplia con un poco de aceite hasta que quede tierna y reserva.',
+        'Sofríe la cebolla y el ajo, incorpora la pasta de curry y cocina dos minutos para perfumar.',
+        'Añade la leche de coco y los garbanzos, devuelve la berenjena y deja cocer doce minutos a fuego medio.',
+        'Sirve el curry sobre arroz jazmín caliente y decora con hojas de cilantro fresco.',
+      ],
+      thermomix: [
+        'Pon en el vaso la cebolla y el ajo, trocea 4 seg/vel 5 y sofríe 6 min/120 °C/vel 1 con 15 g de aceite.',
+        'Añade la pasta de curry y sofríe 2 min/120 °C/vel 1.',
+        'Incorpora la berenjena en cubos, los garbanzos y la leche de coco. Cocina 15 min/100 °C/giro inverso/vel cuchara con el cestillo sobre la tapa.',
+        'Calienta el arroz jazmín en el Varoma durante los últimos 5 minutos y sirve el curry con cilantro fresco.',
+      ],
+    },
     swaps: [
       { ingredient: 'pasta de curry amarillo', alternatives: ['curry rojo suave', 'garam masala con leche de coco'] },
       { ingredient: 'leche de coco', alternatives: ['leche evaporada', 'leche de almendra espesa'] },
@@ -460,6 +617,7 @@ const RECIPES = [
     cuisines: ['mexicana', 'plant-based'],
     time: '25 minutos',
     servings: '3 raciones',
+    calories: 490,
     description:
       'Tortillas de maíz con calabaza asada al chipotle, cebolla encurtida y crema de anacardos.',
     tags: ['sin lácteos', 'street food'],
@@ -473,12 +631,20 @@ const RECIPES = [
       { quantity: '1/4 taza', item: 'cilantro fresco picado' },
       { quantity: '1', item: 'limón verde' },
     ],
-    steps: [
-      'Mezcla la calabaza con chipotle y aceite y hornea dieciocho minutos a 200 °C.',
-      'Calienta las tortillas en una plancha hasta que estén flexibles.',
-      'Rellena con la calabaza, añade crema de anacardos y cebolla encurtida.',
-      'Finaliza con cilantro y unas gotas de limón.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Precalienta el horno a 200 °C, mezcla la calabaza con el adobo de chipotle y el aceite y hornea 18 minutos.',
+        'Calienta las tortillas de maíz en una plancha o sartén hasta que estén flexibles.',
+        'Rellena cada tortilla con la calabaza asada, añade crema de anacardos y cebolla morada encurtida.',
+        'Termina con cilantro picado y unas gotas de limón antes de servir.',
+      ],
+      thermomix: [
+        'Precalienta el horno a 200 °C. Pon en el vaso el adobo de chipotle, el aceite y 20 g de agua; mezcla 12 seg/vel 4.',
+        'Añade la calabaza en cubos y mezcla 10 seg/giro inverso/vel 2 para impregnarla. Extiéndela en una bandeja y hornea 18 minutos.',
+        'Vierte 250 ml de agua en el vaso limpio, coloca las tortillas en el Varoma envueltas en un paño húmedo y calienta 5 min/Varoma/vel 1.',
+        'Monta los tacos con la calabaza asada, la crema de anacardos, la cebolla encurtida, el cilantro y el jugo de limón.',
+      ],
+    },
     swaps: [
       { ingredient: 'calabaza', alternatives: ['boniato', 'coliflor asada'] },
       { ingredient: 'crema de anacardos', alternatives: ['yogur vegetal', 'crema agria tradicional'] },
@@ -493,6 +659,7 @@ const RECIPES = [
     cuisines: ['tailandesa', 'fusion', 'plant-based'],
     time: '30 minutos',
     servings: '2 raciones',
+    calories: 540,
     description:
       'Tofu marinado en citronela y lima, salteado con verduras y servido con fideos crujientes.',
     tags: ['aromático', 'alto en proteínas'],
@@ -507,12 +674,20 @@ const RECIPES = [
       { quantity: '150 g', item: 'fideos de arroz finos' },
       { quantity: '1 cda', item: 'cacahuetes tostados' },
     ],
-    steps: [
-      'Marina el tofu en cubos con citronela, lima y salsa de soja durante quince minutos.',
-      'Fríe brevemente los fideos para que queden crujientes y reserva.',
-      'Saltea el tofu marinado con aceite de coco hasta dorar, añade las verduras y cocina cinco minutos.',
-      'Sirve sobre los fideos crujientes y espolvorea cacahuetes.',
-    ],
+    stepModes: {
+      tradicional: [
+        'Pica la citronela y mezcla con la ralladura y el zumo de lima, la salsa de soja y el tofu en cubos para marinar 15 minutos.',
+        'Fríe brevemente los fideos de arroz en abundante aceite caliente hasta que se inflen y queden crujientes. Escurre y reserva.',
+        'Saltea el tofu escurrido con aceite de coco hasta dorar, añade las verduras y cocina cinco minutos manteniendo el punto crujiente.',
+        'Sirve sobre los fideos crujientes, espolvorea cacahuetes tostados y añade más lima al gusto.',
+      ],
+      thermomix: [
+        'Coloca los cacahuetes en el vaso y trocea 3 seg/vel 6. Reserva.',
+        'Añade al vaso la citronela, la ralladura de lima y la salsa de soja; pica 5 seg/vel 7 y mezcla con el zumo de lima y el tofu en cubos. Marina 15 minutos.',
+        'Calienta aceite abundante en una sartén y fríe los fideos hasta que se inflen. Escurre en papel absorbente.',
+        'Pon el aceite de coco en el vaso, incorpora el tofu escurrido y las verduras. Cocina 8 min/120 °C/giro inverso/vel cuchara con el cestillo sobre la tapa y sirve sobre los fideos con los cacahuetes reservados.',
+      ],
+    },
     swaps: [
       { ingredient: 'tofu firme', alternatives: ['seitán', 'pollo a la plancha'] },
       { ingredient: 'judías verdes', alternatives: ['espárragos', 'brócoli en tiras'] },
@@ -530,12 +705,170 @@ const STORAGE_KEYS = {
   GUEST_CUISINES: 'chefyGuestCuisines',
   GUEST_HISTORY: 'chefyGuestHistory',
   GUEST_WEEKLY_PLAN: 'chefyGuestWeeklyPlan',
+  ADMIN_RECIPES: 'chefyRecipeCatalog',
+  SUPER_ADMIN_EMAIL: 'chefySuperAdminEmail',
+  DISCOVER_ENTRIES: 'chefyDiscoverEntries',
 };
 
 function toKey(value) {
   return (value ?? '').toString().trim().toLowerCase();
 }
 
+function trimText(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function formatGuideBaseLabel(name) {
+  return trimText(name).replace(/\s*\(.*?\)\s*/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function buildStoreProductName(label, store, unit) {
+  const base = formatGuideBaseLabel(label);
+  const words = base.split(' ').filter(Boolean);
+  const title = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  const unitText = trimText(unit);
+  return `${store.brand} ${title}${unitText ? ` (${unitText})` : ''}`;
+}
+
+function createIngredientGuideConfig(name, config = {}) {
+  const label = trimText(config.label) || formatGuideBaseLabel(name);
+  const unit = trimText(config.unit);
+  const amountRaw = typeof config.amount === 'string' ? config.amount.replace(',', '.') : config.amount;
+  const amountValue = Number.parseFloat(amountRaw);
+  const amount = Number.isFinite(amountValue) ? Number.parseFloat(amountValue.toFixed(2)) : null;
+  const stores = {};
+  const overrides = config.overrides && typeof config.overrides === 'object' ? config.overrides : {};
+
+  SUPERMARKETS.forEach((store) => {
+    const overrideEntry = Object.entries(overrides).find(([key]) => toKey(key) === store.id);
+    const override = overrideEntry ? overrideEntry[1] : null;
+    const overrideLabel = trimText(override?.label);
+    const product =
+      trimText(override?.product) || buildStoreProductName(overrideLabel || label, store, override?.unit ?? unit);
+    let priceValue = override?.price;
+    if (typeof priceValue === 'string') {
+      priceValue = priceValue.replace(',', '.');
+    }
+    let price = Number.parseFloat(priceValue);
+    if (Number.isFinite(price)) {
+      price = Number.parseFloat(price.toFixed(2));
+    } else if (amount) {
+      const multiplierRaw = override?.multiplier;
+      let multiplier = Number.parseFloat(
+        typeof multiplierRaw === 'string' ? multiplierRaw.replace(',', '.') : multiplierRaw,
+      );
+      if (!Number.isFinite(multiplier)) {
+        multiplier = store.priceFactor ?? 1;
+      }
+      price = Number.parseFloat((amount * multiplier).toFixed(2));
+    } else {
+      price = null;
+    }
+    stores[store.id] = { product, price };
+  });
+
+  return { price: amount ? { amount, unit } : null, stores };
+}
+
+function createMarketGuide(definitions = {}) {
+  const guide = {};
+  Object.entries(definitions).forEach(([name, config]) => {
+    const key = toKey(name);
+    if (!key) return;
+    guide[key] = createIngredientGuideConfig(name, config);
+  });
+  return guide;
+}
+
+const MARKET_GUIDE_PRESETS = createMarketGuide({
+  'aceite de coco': { amount: 3.85, unit: 'tarro 200 ml', label: 'Aceite de coco virgen' },
+  'aceite de oliva': { amount: 5.5, unit: 'botella 1 l', label: 'Aceite de oliva suave' },
+  'aceite de oliva virgen extra': { amount: 5.8, unit: 'botella 500 ml', label: 'Aceite de oliva virgen extra' },
+  'aceite de sésamo': { amount: 4.6, unit: 'botella 250 ml', label: 'Aceite de sésamo' },
+  'aceite de sésamo tostado': { amount: 4.9, unit: 'botella 250 ml', label: 'Aceite de sésamo tostado' },
+  'adobo de chipotle': { amount: 2.95, unit: 'lata 200 g', label: 'Adobo de chipotle' },
+  'aguacate en láminas': { amount: 2.5, unit: 'bandeja 2 uds', label: 'Aguacate maduro' },
+  'arroz integral cocido': { amount: 1.8, unit: 'pack 2x125 g', label: 'Arroz integral vasitos' },
+  'arroz jazmín cocido': { amount: 2.1, unit: 'pack 250 g', label: 'Arroz jazmín vaporizado' },
+  'berenjenas pequeñas en cubos': { amount: 2.3, unit: 'bandeja 2 uds', label: 'Berenjenas mini' },
+  'brotes de soja': { amount: 1.65, unit: 'tarro 330 g', label: 'Brotes de soja' },
+  'brotes verdes': { amount: 1.75, unit: 'bolsa 150 g', label: 'Brotes verdes mixtos' },
+  'cacahuetes tostados': { amount: 2.1, unit: 'bolsa 200 g', label: 'Cacahuetes tostados' },
+  'calabaza en cubos': { amount: 2.2, unit: 'bandeja 600 g', label: 'Calabaza cortada' },
+  'caldo dashi ligero': { amount: 3.5, unit: 'pack 4 sobres', label: 'Caldo dashi' },
+  'caldo vegetal': { amount: 1.6, unit: 'brick 1 l', label: 'Caldo vegetal' },
+  'cebolla morada encurtida': { amount: 2.2, unit: 'tarro 300 g', label: 'Cebolla morada encurtida' },
+  'cebolla morada picada': { amount: 1, unit: 'pieza', label: 'Cebolla morada fresca' },
+  'cebolleta picada': { amount: 1.2, unit: 'manojo', label: 'Cebolleta fresca' },
+  'cilantro fresco picado': { amount: 0.95, unit: 'manojo', label: 'Cilantro fresco' },
+  'citronela picada': { amount: 1.6, unit: 'pack 3 tallos', label: 'Citronela fresca' },
+  'coco tostado en láminas': { amount: 1.9, unit: 'bolsa 125 g', label: 'Coco tostado' },
+  'couscous integral': { amount: 2.5, unit: 'caja 500 g', label: 'Cuscús integral' },
+  'crema de anacardos': { amount: 5.7, unit: 'tarro 170 g', label: 'Crema de anacardos' },
+  'crema de cacahuete': { amount: 3.1, unit: 'tarro 340 g', label: 'Crema de cacahuete' },
+  'diente de ajo picado': { amount: 0.9, unit: 'malla 3 cabezas', label: 'Ajo morado' },
+  'dientes de ajo laminados': { amount: 1.9, unit: 'tarro 110 g', label: 'Ajo laminado' },
+  'encurtidos japoneses': { amount: 4.3, unit: 'tarro 250 g', label: 'Encurtidos estilo japonés' },
+  'especias ras el hanout': { amount: 2.4, unit: 'tarro 45 g', label: 'Ras el hanout' },
+  'espárragos verdes': { amount: 2.8, unit: 'manojo 300 g', label: 'Espárragos verdes' },
+  'farro cocido': { amount: 2.6, unit: 'pack 250 g', label: 'Farro cocido' },
+  'fideos de arroz': { amount: 2.3, unit: 'paquete 340 g', label: 'Fideos de arroz' },
+  'fideos de arroz finos': { amount: 2, unit: 'paquete 250 g', label: 'Fideos de arroz finos' },
+  'fideos ramen integrales': { amount: 3.2, unit: 'pack 2 raciones', label: 'Ramen integral' },
+  'frijoles negros cocidos': { amount: 1.4, unit: 'tarro 400 g', label: 'Frijoles negros cocidos' },
+  'frutos rojos': { amount: 2.6, unit: 'tarrina 150 g', label: 'Frutos rojos' },
+  'frutos rojos frescos': { amount: 2.9, unit: 'tarrina 200 g', label: 'Frutos rojos frescos' },
+  'garbanzos cocidos': { amount: 1.25, unit: 'tarro 400 g', label: 'Garbanzos cocidos' },
+  'granola de frutos secos': { amount: 3.8, unit: 'bolsa 375 g', label: 'Granola frutos secos' },
+  'harina de avena': { amount: 1.8, unit: 'bolsa 500 g', label: 'Harina de avena' },
+  'hojas de cilantro fresco': { amount: 0.95, unit: 'manojo', label: 'Cilantro' },
+  'hojas de menta y cilantro': { amount: 1.6, unit: 'pack mixto', label: 'Menta y cilantro frescos' },
+  'huevo': { amount: 2.4, unit: 'docena', label: 'Huevos camperos' },
+  'huevos marinados': { amount: 2.8, unit: 'pack 2 uds', label: 'Huevos marinados' },
+  'jackfruit en salmuera escurrido': { amount: 2.7, unit: 'lata 400 g', label: 'Jackfruit en salmuera' },
+  'jengibre fresco rallado': { amount: 1.2, unit: 'raíz 150 g', label: 'Jengibre fresco' },
+  'judías verdes troceadas': { amount: 2.1, unit: 'bolsa 400 g', label: 'Judías verdes troceadas' },
+  'leche de almendras': { amount: 1.9, unit: 'brick 1 l', label: 'Bebida de almendras' },
+  'leche de coco': { amount: 2.25, unit: 'lata 400 ml', label: 'Leche de coco' },
+  'leche de coco ligera': { amount: 2.05, unit: 'lata 400 ml', label: 'Leche de coco ligera' },
+  'lima (zumo y ralladura)': { amount: 1.4, unit: 'malla 3 uds', label: 'Limas frescas' },
+  'lima en gajos': { amount: 1, unit: '2 uds', label: 'Limas' },
+  'limón verde': { amount: 1, unit: '2 uds', label: 'Limón verde' },
+  'lomos de salmón': { amount: 7.5, unit: 'pack 2 lomos', label: 'Lomos de salmón fresco' },
+  'mango maduro en cubos': { amount: 2.5, unit: 'pieza', label: 'Mango maduro' },
+  'matcha en polvo': { amount: 9.8, unit: 'lata 30 g', label: 'Matcha ceremonial' },
+  'miel': { amount: 4.2, unit: 'tarro 500 g', label: 'Miel multifloral' },
+  'miel de azahar': { amount: 4.6, unit: 'tarro 250 g', label: 'Miel de azahar' },
+  'naranja (zumo y ralladura)': { amount: 1.5, unit: 'malla 3 uds', label: 'Naranjas de mesa' },
+  'pak choi al vapor': { amount: 2.6, unit: '2 piezas', label: 'Pak choi fresco' },
+  'pak choi cortados': { amount: 2.3, unit: 'bolsa 300 g', label: 'Pak choi cortado' },
+  'pasta de achiote': { amount: 2.3, unit: 'tableta 100 g', label: 'Pasta de achiote' },
+  'pasta de curry amarillo': { amount: 3.4, unit: 'tarro 114 g', label: 'Pasta de curry amarillo' },
+  'pepino en medias lunas': { amount: 1, unit: 'pieza', label: 'Pepino fresco' },
+  'pepino en tiras': { amount: 1, unit: 'pieza', label: 'Pepino' },
+  'pico de gallo': { amount: 2.7, unit: 'tarrina 250 g', label: 'Pico de gallo fresco' },
+  'pimiento amarillo en tiras': { amount: 1.4, unit: 'pieza', label: 'Pimiento amarillo' },
+  'pimiento rojo en láminas': { amount: 1.5, unit: 'pieza', label: 'Pimiento rojo' },
+  'plátano maduro triturado': { amount: 1.5, unit: 'manojo 4 uds', label: 'Plátano maduro' },
+  'polvo de hornear': { amount: 1.6, unit: 'bote 200 g', label: 'Polvo de hornear' },
+  'quinoa enjuagada': { amount: 3.5, unit: 'bolsa 500 g', label: 'Quinoa blanca' },
+  'ralladura de naranja': { amount: 1.5, unit: 'malla 3 uds', label: 'Naranja de postre' },
+  'salsa de soja': { amount: 1.9, unit: 'botella 150 ml', label: 'Salsa de soja' },
+  'salsa de soja ligera': { amount: 2.1, unit: 'botella 150 ml', label: 'Salsa de soja ligera' },
+  'salsa tamari': { amount: 3.5, unit: 'botella 250 ml', label: 'Salsa tamari' },
+  'semillas de chía': { amount: 3.6, unit: 'bolsa 250 g', label: 'Semillas de chía' },
+  'sirope de arce': { amount: 6.8, unit: 'botella 250 ml', label: 'Sirope de arce' },
+  'sirope de coco': { amount: 5.4, unit: 'botella 250 ml', label: 'Sirope de coco' },
+  'tahini': { amount: 3.9, unit: 'tarro 300 g', label: 'Tahini' },
+  'tofu firme': { amount: 2.6, unit: 'bloque 400 g', label: 'Tofu firme' },
+  'tomates cherry': { amount: 2.2, unit: 'tarrina 250 g', label: 'Tomates cherry' },
+  'tortillas de maíz': { amount: 1.9, unit: 'pack 10 uds', label: 'Tortillas de maíz' },
+  'yogur griego natural': { amount: 1.6, unit: 'pack 4x125 g', label: 'Yogur griego natural' },
+  'zanahoria en juliana': { amount: 1.3, unit: 'bolsa 200 g', label: 'Zanahoria en tiras' },
+  'zanahoria rallada': { amount: 1.2, unit: 'bolsa 200 g', label: 'Zanahoria rallada' },
+  'zumo de lima': { amount: 1.4, unit: 'botella 200 ml', label: 'Zumo de lima' },
+  'zumo de limón': { amount: 1.3, unit: 'botella 200 ml', label: 'Zumo de limón' },
+});
 function createEmptyWeeklyPlan() {
   return WEEK_DAYS.reduce((plan, day) => {
     plan[day.id] = { desayuno: null, comida: null, cena: null };
@@ -574,6 +907,51 @@ function createInitialPlannerState() {
     },
   };
 }
+
+const featuredPlanTemplate = createEmptyWeeklyPlan();
+featuredPlanTemplate.lunes.comida = { recipeId: 'garden-bowl', addedAt: Date.now() - 4 * 86400000 };
+featuredPlanTemplate.martes.cena = { recipeId: 'midnight-ramen', addedAt: Date.now() - 3 * 86400000 };
+featuredPlanTemplate.miércoles.comida = { recipeId: 'bangkok-salad', addedAt: Date.now() - 2 * 86400000 };
+featuredPlanTemplate.jueves.cena = { recipeId: 'lemongrass-tofu', addedAt: Date.now() - 86400000 };
+
+const DISCOVER_FEATURED = [
+  {
+    id: 'featured-plan-verde',
+    type: 'plan',
+    title: 'Batch cooking verde en tres tandas',
+    summary: 'Una planificación vegetal para las cenas entre semana con bases adelantadas.',
+    details:
+      'Asa calabaza y pak choi el domingo, cuece quinoa y deja listos los adobos. Cada noche solo tendrás que regenerar y emplatar.',
+    author: 'Equipo Chefy',
+    createdAt: Date.parse('2024-04-12T09:00:00Z'),
+    planSnapshot: {
+      name: 'Plan verde exprés',
+      slots: normalizeWeeklyPlan(featuredPlanTemplate),
+    },
+  },
+  {
+    id: 'featured-hotcakes-matcha',
+    type: 'recipe',
+    title: 'Hotcakes de matcha para brunch',
+    summary: 'Nuestra mezcla favorita para sorprender en el desayuno con contraste ácido-dulce.',
+    details: 'Sírvelos con yogur griego frío, frutos rojos y un hilo de miel de azahar para equilibrar.',
+    author: 'Equipo Chefy',
+    createdAt: Date.parse('2024-04-05T10:30:00Z'),
+    recipeId: 'matcha-hotcakes',
+    meal: 'desayuno',
+  },
+  {
+    id: 'featured-salmon-citrico',
+    type: 'recipe',
+    title: 'Cena exprés de salmón cítrico',
+    summary: 'Listo en 20 minutos con salsa de soja ligera y guarnición de arroz jazmín.',
+    details: 'Marina los lomos mientras cueces el arroz y termina con pak choi al vapor y gajos de lima.',
+    author: 'Equipo Chefy',
+    createdAt: Date.parse('2024-04-25T18:15:00Z'),
+    recipeId: 'citrus-salmon',
+    meal: 'cena',
+  },
+];
 
 function normalizePlannerState(raw) {
   if (!raw || typeof raw !== 'object') {
@@ -645,7 +1023,7 @@ function buildPlanShareSummary(plan, planName) {
     MEALS.forEach((meal) => {
       const slot = plan?.[day.id]?.[meal];
       if (!slot?.recipeId) return;
-      const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+      const recipe = getRecipeById(slot.recipeId);
       if (recipe) {
         entries.push(`• ${MEAL_DISPLAY[meal]}: ${recipe.name}`);
       } else {
@@ -672,6 +1050,224 @@ function buildPlanShareSummary(plan, planName) {
   return lines.join('\n');
 }
 
+function cleanString(value) {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return '';
+}
+
+function normalizeStepModes(recipe = {}) {
+  const modes = {};
+  STEP_MODES.forEach((mode) => {
+    modes[mode] = [];
+  });
+
+  const rawStepModes = recipe.stepModes;
+  if (rawStepModes && typeof rawStepModes === 'object' && !Array.isArray(rawStepModes)) {
+    STEP_MODES.forEach((mode) => {
+      const steps = rawStepModes[mode];
+      if (Array.isArray(steps)) {
+        modes[mode] = steps.map((step) => cleanString(step)).filter(Boolean);
+      } else if (typeof steps === 'string') {
+        modes[mode] = [cleanString(steps)].filter(Boolean);
+      }
+    });
+  } else if (Array.isArray(rawStepModes)) {
+    modes.tradicional = rawStepModes.map((step) => cleanString(step)).filter(Boolean);
+  }
+
+  if (!modes.tradicional.length && Array.isArray(recipe.steps)) {
+    modes.tradicional = recipe.steps.map((step) => cleanString(step)).filter(Boolean);
+  }
+
+  const available = STEP_MODES.filter((mode) => modes[mode]?.length);
+  const defaultMode = available.length ? available[0] : STEP_MODES[0];
+  return { modes, defaultMode };
+}
+
+function normalizeIngredientGuides(rawGuides, ingredients = []) {
+  if (!rawGuides || typeof rawGuides !== 'object') return {};
+  const ingredientKeys = new Set(ingredients.map((ingredient) => toKey(ingredient.item)));
+  const guides = {};
+
+  Object.entries(rawGuides).forEach(([name, guide]) => {
+    if (!guide || typeof guide !== 'object') return;
+    const key = toKey(name);
+    if (!key || (ingredientKeys.size && !ingredientKeys.has(key))) return;
+
+    const normalized = {};
+    if (guide.price) {
+      const amountRaw =
+        typeof guide.price === 'object' ? guide.price.amount : typeof guide.price === 'string' ? guide.price : guide.price;
+      const unitValue =
+        typeof guide.price === 'object' ? guide.price.unit : typeof guide.unit === 'string' ? guide.unit : guide.price?.unit;
+      const amountValue = Number.parseFloat(
+        typeof amountRaw === 'string' ? amountRaw.replace(',', '.') : amountRaw,
+      );
+      if (Number.isFinite(amountValue)) {
+        normalized.price = {
+          amount: Number.parseFloat(amountValue.toFixed(2)),
+          unit: cleanString(unitValue),
+        };
+      }
+    }
+
+    if (guide.stores && typeof guide.stores === 'object') {
+      const stores = {};
+      Object.entries(guide.stores).forEach(([storeKey, storeValue]) => {
+        const storeId = toKey(storeKey);
+        if (!SUPERMARKET_LABELS[storeId]) return;
+        if (!storeValue || typeof storeValue !== 'object') return;
+        const product = cleanString(storeValue.product) || cleanString(storeValue.label);
+        let priceValue = storeValue.price;
+        if (typeof priceValue === 'string') {
+          priceValue = priceValue.replace(',', '.');
+        }
+        const price = Number.parseFloat(priceValue);
+        stores[storeId] = {
+          product,
+          price: Number.isFinite(price) ? Number.parseFloat(price.toFixed(2)) : null,
+        };
+      });
+      if (Object.keys(stores).length) {
+        normalized.stores = stores;
+      }
+    }
+
+    if (normalized.price || normalized.stores) {
+      guides[key] = normalized;
+    }
+  });
+
+  return guides;
+}
+
+function normalizeUserRole(user, superAdminEmail) {
+  if (!user || typeof user !== 'object') return null;
+  const normalized = { ...user };
+  const isSuper = normalized.role === 'super-admin' || (superAdminEmail && normalized.email === superAdminEmail);
+  normalized.role = isSuper ? 'super-admin' : 'user';
+  return normalized;
+}
+
+function normalizeRecipes(rawRecipes) {
+  const source = Array.isArray(rawRecipes) ? rawRecipes : [];
+  const seen = new Set();
+  const normalized = [];
+  source.forEach((recipe, index) => {
+    if (!recipe || typeof recipe !== 'object') return;
+    const fallbackId = `receta-${index + 1}`;
+    const baseId = cleanString(recipe.id) || fallbackId;
+    let id = baseId;
+    let counter = 2;
+    while (seen.has(id)) {
+      id = `${baseId}-${counter}`;
+      counter += 1;
+    }
+    seen.add(id);
+
+    const meal = MEALS.includes(recipe.meal) ? recipe.meal : 'comida';
+    const caloriesValue = Number.parseInt(recipe.calories, 10);
+    const calories = Number.isFinite(caloriesValue) && caloriesValue > 0 ? caloriesValue : null;
+    const cuisines = (Array.isArray(recipe.cuisines) ? recipe.cuisines : [])
+      .map((cuisine) => toKey(cuisine))
+      .filter(Boolean);
+    const tags = (Array.isArray(recipe.tags) ? recipe.tags : []).map((tag) => cleanString(tag)).filter(Boolean);
+    const ingredients = (Array.isArray(recipe.ingredients) ? recipe.ingredients : [])
+      .map((ingredient) => {
+        if (ingredient && typeof ingredient === 'object') {
+          const quantity = cleanString(ingredient.quantity);
+          const item = cleanString(ingredient.item);
+          if (!item) return null;
+          return quantity ? { quantity, item } : { quantity: '', item };
+        }
+        const item = cleanString(ingredient);
+        if (!item) return null;
+        return { quantity: '', item };
+      })
+      .filter(Boolean)
+      .map((ingredient) => ({
+        quantity: cleanString(ingredient.quantity),
+        item: cleanString(ingredient.item),
+      }));
+    const { modes: stepModes, defaultMode } = normalizeStepModes(recipe);
+    const ingredientGuides = normalizeIngredientGuides(recipe.ingredientGuides, ingredients);
+    const swaps = (Array.isArray(recipe.swaps) ? recipe.swaps : [])
+      .map((swap) => {
+        if (!swap || typeof swap !== 'object') return null;
+        const ingredient = cleanString(swap.ingredient);
+        const alternatives = (Array.isArray(swap.alternatives) ? swap.alternatives : [])
+          .map((alt) => cleanString(alt))
+          .filter(Boolean);
+        if (!ingredient) return null;
+        return { ingredient, alternatives };
+      })
+      .filter(Boolean);
+    const keywords = (Array.isArray(recipe.keywords) ? recipe.keywords : [])
+      .map((keyword) => toKey(keyword))
+      .filter(Boolean);
+
+    normalized.push({
+      ...recipe,
+      id,
+      name: cleanString(recipe.name) || 'Receta sin título',
+      meal,
+      time: cleanString(recipe.time),
+      servings: cleanString(recipe.servings),
+      description: cleanString(recipe.description),
+      calories,
+      cuisines,
+      tags,
+      ingredients,
+      steps: stepModes[defaultMode] ?? [],
+      stepModes,
+      defaultStepMode: defaultMode,
+      ingredientGuides,
+      swaps,
+      keywords,
+    });
+  });
+
+  if (!normalized.length && rawRecipes !== BASE_RECIPES) {
+    return normalizeRecipes(BASE_RECIPES);
+  }
+
+  return normalized;
+}
+
+function normalizeDiscoverEntries(entries) {
+  const list = Array.isArray(entries) ? entries : [];
+  return list
+    .map((entry, index) => {
+      if (!entry || typeof entry !== 'object') return null;
+      const id = cleanString(entry.id) || `idea-${index + 1}`;
+      const type = entry.type === 'plan' ? 'plan' : 'recipe';
+      const title = cleanString(entry.title) || 'Idea sin título';
+      const summary = cleanString(entry.summary);
+      const details = cleanString(entry.details);
+      const author = cleanString(entry.author) || 'Anónimo';
+      const createdAtValue = Number.parseInt(entry.createdAt, 10);
+      const createdAt = Number.isFinite(createdAtValue) ? createdAtValue : Date.now();
+      const normalized = { id, type, title, summary, details, author, createdAt };
+      if (type === 'recipe') {
+        const recipeId = cleanString(entry.recipeId);
+        if (recipeId) {
+          normalized.recipeId = recipeId;
+        }
+        const meal = cleanString(entry.meal);
+        if (MEALS.includes(meal)) {
+          normalized.meal = meal;
+        }
+      } else if (type === 'plan') {
+        const snapshotName = cleanString(entry.planSnapshot?.name ?? entry.name) || title;
+        const slots = normalizeWeeklyPlan(entry.planSnapshot?.slots ?? entry.slots ?? {});
+        normalized.planSnapshot = { name: snapshotName, slots };
+      }
+      return normalized;
+    })
+    .filter(Boolean);
+}
+
 const storage = {
   readJSON(key, fallback) {
     try {
@@ -686,10 +1282,18 @@ const storage = {
     localStorage.setItem(key, JSON.stringify(value));
   },
   getUsers() {
-    return this.readJSON(STORAGE_KEYS.USERS, []);
+    const users = this.readJSON(STORAGE_KEYS.USERS, []);
+    const superAdminEmail = this.getSuperAdminEmail();
+    return users
+      .map((user) => normalizeUserRole(user, superAdminEmail))
+      .filter(Boolean);
   },
   saveUsers(users) {
-    this.writeJSON(STORAGE_KEYS.USERS, users);
+    const superAdminEmail = this.getSuperAdminEmail();
+    const normalized = (Array.isArray(users) ? users : [])
+      .map((user) => normalizeUserRole(user, superAdminEmail))
+      .filter(Boolean);
+    this.writeJSON(STORAGE_KEYS.USERS, normalized);
 
   },
   getCurrentUserEmail() {
@@ -728,6 +1332,34 @@ const storage = {
     this.writeJSON(STORAGE_KEYS.GUEST_WEEKLY_PLAN, planner);
 
   },
+  getRecipeCatalog() {
+    return this.readJSON(STORAGE_KEYS.ADMIN_RECIPES, []);
+  },
+  saveRecipeCatalog(recipes) {
+    this.writeJSON(STORAGE_KEYS.ADMIN_RECIPES, recipes);
+  },
+  getDiscoverEntries() {
+    return this.readJSON(STORAGE_KEYS.DISCOVER_ENTRIES, []);
+  },
+  saveDiscoverEntries(entries) {
+    const list = Array.isArray(entries) ? entries.filter((entry) => entry && typeof entry === 'object') : [];
+    this.writeJSON(STORAGE_KEYS.DISCOVER_ENTRIES, list);
+  },
+  getSuperAdminEmail() {
+    return localStorage.getItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL) || '';
+  },
+  setSuperAdminEmail(email) {
+    if (email) {
+      localStorage.setItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL, email);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL);
+    }
+    const users = this.getUsers();
+    this.writeJSON(
+      STORAGE_KEYS.USERS,
+      users.map((user) => normalizeUserRole(user, email || '')),
+    );
+  },
 };
 
 const state = {
@@ -740,15 +1372,59 @@ const state = {
   activePlanId: '',
   lastRecipe: null,
   lastMeal: null,
+  activeStepMode: 'tradicional',
   shoppingSummaryText: '',
   planShareText: '',
   planShareSubject: 'Planificación semanal de Chefy',
+  recipes: normalizeRecipes(BASE_RECIPES),
+  superAdminEmail: '',
+  adminSelectedRecipeId: '',
+  adminFeedbackTimeout: null,
+  discoverUserEntries: [],
+  discoverEntries: [],
+  discoverFeedbackTimeout: null,
+  discoverDraftRecipeId: '',
+  discoverDraftMeal: '',
+  discoverDraftPlan: null,
 
 };
 
 const defaultPlannerState = createInitialPlannerState();
 state.weeklyPlans = defaultPlannerState.plans;
 state.activePlanId = defaultPlannerState.activePlanId;
+
+function loadRecipeCatalog() {
+  const previousSelection = state.adminSelectedRecipeId;
+  state.recipes = normalizeRecipes(storage.getRecipeCatalog());
+  if (previousSelection && !getRecipeById(previousSelection)) {
+    state.adminSelectedRecipeId = '';
+  }
+}
+
+function persistRecipeCatalog() {
+  storage.saveRecipeCatalog(state.recipes);
+}
+
+function loadDiscoverEntries() {
+  state.discoverUserEntries = normalizeDiscoverEntries(storage.getDiscoverEntries());
+  refreshDiscoverEntries();
+}
+
+function persistDiscoverEntries() {
+  storage.saveDiscoverEntries(state.discoverUserEntries);
+}
+
+function refreshDiscoverEntries() {
+  const combined = [...DISCOVER_FEATURED, ...state.discoverUserEntries];
+  combined.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  state.discoverEntries = combined;
+  renderDiscoverFeed();
+}
+
+function getRecipeById(id) {
+  if (!id) return null;
+  return state.recipes.find((recipe) => recipe.id === id) ?? null;
+}
 
 function detectMealType(date = new Date()) {
   const hour = date.getHours();
@@ -984,6 +1660,10 @@ function clearResultCard() {
   DOM.resultDescription.textContent = DEFAULT_RESULT.description;
   DOM.resultTags.hidden = true;
   DOM.resultTags.innerHTML = '';
+  DOM.resultCalories.hidden = true;
+  DOM.resultCalories.textContent = '';
+  DOM.resultCost.hidden = true;
+  DOM.resultCost.textContent = '';
   DOM.resultDetails.hidden = true;
   DOM.resultIngredients.innerHTML = '';
   DOM.resultSteps.innerHTML = '';
@@ -998,6 +1678,108 @@ function clearResultCard() {
 function getCuisineLabels(cuisines = []) {
   return cuisines.map((id) => CUISINE_LABELS[id] ?? id);
 }
+
+function formatCurrency(value) {
+  if (!Number.isFinite(value)) return '';
+  return CURRENCY_FORMATTER.format(value);
+}
+
+function resolveIngredientGuide(ingredient, recipe) {
+  const key = toKey(ingredient.item);
+  const custom = recipe?.ingredientGuides?.[key];
+  const preset = MARKET_GUIDE_PRESETS[key];
+  const price = custom?.price ?? preset?.price ?? null;
+  const stores = [];
+  SUPERMARKETS.forEach((store) => {
+    const storeData = custom?.stores?.[store.id] ?? preset?.stores?.[store.id];
+    if (!storeData) return;
+    const product = cleanString(storeData.product) || buildStoreProductName(ingredient.item, store, price?.unit);
+    let priceValue = storeData.price;
+    if (typeof priceValue === 'string') {
+      priceValue = priceValue.replace(',', '.');
+    }
+    let amount = Number.parseFloat(priceValue);
+    if (!Number.isFinite(amount) && price?.amount) {
+      amount = Number.parseFloat((price.amount * (store.priceFactor ?? 1)).toFixed(2));
+    }
+    stores.push({ store: store.label, product, price: Number.isFinite(amount) ? amount : null });
+  });
+  return { price, stores };
+}
+
+function calculateRecipeCost(recipe) {
+  if (!recipe) return null;
+  const amounts = (recipe.ingredients ?? [])
+    .map((ingredient) => {
+      const guide = resolveIngredientGuide(ingredient, recipe);
+      return guide.price?.amount;
+    })
+    .filter((value) => Number.isFinite(value));
+
+  if (!amounts.length) return null;
+  const total = amounts.reduce((sum, value) => sum + value, 0);
+  return { total: Number.parseFloat(total.toFixed(2)), items: amounts.length };
+}
+
+function formatRelativeTimeLabel(timestamp) {
+  if (!Number.isFinite(timestamp)) return '';
+  const now = Date.now();
+  const diff = timestamp - now;
+  if (Math.abs(diff) < 60000) {
+    return 'hace un momento';
+  }
+  const units = [
+    { unit: 'day', ms: 86400000 },
+    { unit: 'hour', ms: 3600000 },
+    { unit: 'minute', ms: 60000 },
+  ];
+  for (const { unit, ms } of units) {
+    const value = Math.round(diff / ms);
+    if (Math.abs(value) >= 1) {
+      return RELATIVE_TIME_FORMAT.format(value, unit);
+    }
+  }
+  return DATE_FORMATTER.format(new Date(timestamp));
+}
+
+function updateStepModeControls(recipe, preferredMode) {
+  if (!DOM.stepModeToggle) return;
+  const available = new Set(
+    STEP_MODES.filter((mode) => Array.isArray(recipe.stepModes?.[mode]) && recipe.stepModes[mode].length),
+  );
+  const buttons = DOM.stepModeToggle.querySelectorAll('.steps-toggle__button');
+  let activeMode = preferredMode && available.has(preferredMode) ? preferredMode : recipe.defaultStepMode;
+  if (!available.has(activeMode)) {
+    activeMode = available.values().next()?.value ?? STEP_MODES[0];
+  }
+  state.activeStepMode = activeMode;
+  DOM.stepModeToggle.hidden = available.size <= 1;
+  buttons.forEach((button) => {
+    const mode = button.dataset.mode;
+    if (!mode) return;
+    const isAvailable = available.has(mode);
+    button.disabled = !isAvailable;
+    button.classList.toggle('steps-toggle__button--disabled', !isAvailable);
+    button.classList.toggle('steps-toggle__button--active', mode === state.activeStepMode);
+    button.setAttribute('aria-pressed', mode === state.activeStepMode ? 'true' : 'false');
+  });
+}
+
+function renderRecipeStepsForMode(recipe, mode) {
+  DOM.resultSteps.innerHTML = '';
+  const steps = recipe.stepModes?.[mode] ?? [];
+  if (!steps.length) {
+    const li = document.createElement('li');
+    li.textContent = 'Todavía no hay pasos disponibles para este modo.';
+    DOM.resultSteps.appendChild(li);
+    return;
+  }
+  steps.forEach((step) => {
+    const li = document.createElement('li');
+    li.textContent = step;
+    DOM.resultSteps.appendChild(li);
+  });
+}
 function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false } = {}) {
   if (!recipe) return;
   state.lastRecipe = recipe;
@@ -1011,7 +1793,15 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
 
   DOM.resultTags.hidden = false;
   DOM.resultTags.innerHTML = '';
-  const tagValues = [MEAL_DISPLAY[meal], ...cuisineLabels, recipe.time, recipe.servings, ...(recipe.tags ?? [])];
+  const calorieTag = recipe.calories ? `${recipe.calories} kcal` : '';
+  const tagValues = [
+    MEAL_DISPLAY[meal],
+    ...cuisineLabels,
+    recipe.time,
+    recipe.servings,
+    calorieTag,
+    ...(recipe.tags ?? []),
+  ];
   tagValues.filter(Boolean).forEach((text) => {
     const span = document.createElement('span');
     span.className = 'tag';
@@ -1019,27 +1809,90 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
     DOM.resultTags.appendChild(span);
   });
 
+  if (recipe.calories) {
+    DOM.resultCalories.hidden = false;
+    DOM.resultCalories.textContent = `Calorías aproximadas: ${recipe.calories} kcal`;
+  } else {
+    DOM.resultCalories.hidden = true;
+    DOM.resultCalories.textContent = '';
+  }
+
   DOM.resultDetails.hidden = false;
   DOM.resultIngredients.innerHTML = '';
   DOM.resultSteps.innerHTML = '';
   DOM.resultAlternatives.innerHTML = '';
 
+  const cost = calculateRecipeCost(recipe);
+  if (cost) {
+    DOM.resultCost.hidden = false;
+    DOM.resultCost.textContent = `Coste estimado de la compra: ${formatCurrency(cost.total)} (aprox.)`;
+  } else {
+    DOM.resultCost.hidden = true;
+    DOM.resultCost.textContent = '';
+  }
+
   (recipe.ingredients ?? []).forEach((ingredient) => {
     const item = document.createElement('li');
+    item.className = 'ingredient';
+    const header = document.createElement('div');
+    header.className = 'ingredient__header';
+    const label = document.createElement('span');
+    label.className = 'ingredient__label';
     if (ingredient && typeof ingredient === 'object') {
       const quantity = ingredient.quantity ? `${ingredient.quantity} · ` : '';
-      item.textContent = `${quantity}${ingredient.item}`;
+      label.textContent = `${quantity}${ingredient.item}`;
     } else {
-      item.textContent = ingredient;
+      label.textContent = ingredient;
     }
+    header.appendChild(label);
+
+    const guide = resolveIngredientGuide(ingredient, recipe);
+    if (guide.price?.amount) {
+      const price = document.createElement('span');
+      price.className = 'ingredient__price';
+      const formatted = formatCurrency(guide.price.amount);
+      const unitText = guide.price.unit ? ` · ${guide.price.unit}` : '';
+      price.textContent = `${formatted}${unitText}`;
+      header.appendChild(price);
+    }
+
+    item.appendChild(header);
+
+    if (guide.stores?.length) {
+      const details = document.createElement('details');
+      details.className = 'ingredient__markets';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Ver en supermercados';
+      details.appendChild(summary);
+      const list = document.createElement('ul');
+      list.className = 'ingredient__market-list';
+      guide.stores.forEach((storeInfo) => {
+        const storeItem = document.createElement('li');
+        storeItem.className = 'ingredient__market';
+        const storeName = document.createElement('span');
+        storeName.className = 'ingredient__market-store';
+        storeName.textContent = storeInfo.store;
+        const product = document.createElement('span');
+        product.className = 'ingredient__market-product';
+        product.textContent = storeInfo.product;
+        storeItem.append(storeName, product);
+        if (Number.isFinite(storeInfo.price)) {
+          const price = document.createElement('span');
+          price.className = 'ingredient__market-price';
+          price.textContent = formatCurrency(storeInfo.price);
+          storeItem.appendChild(price);
+        }
+        list.appendChild(storeItem);
+      });
+      details.appendChild(list);
+      item.appendChild(details);
+    }
+
     DOM.resultIngredients.appendChild(item);
   });
 
-  (recipe.steps ?? []).forEach((step) => {
-    const li = document.createElement('li');
-    li.textContent = step;
-    DOM.resultSteps.appendChild(li);
-  });
+  updateStepModeControls(recipe, recipe.defaultStepMode);
+  renderRecipeStepsForMode(recipe, state.activeStepMode);
 
   const swaps = recipe.swaps ?? [];
   if (swaps.length) {
@@ -1068,6 +1921,16 @@ function renderRecipe(recipe, meal, { recordHistory: shouldRecordHistory = false
   }
 }
 
+function handleStepModeToggle(event) {
+  const button = event.target.closest('.steps-toggle__button');
+  if (!button || button.disabled) return;
+  const mode = button.dataset.mode;
+  if (!STEP_MODES.includes(mode)) return;
+  if (!state.lastRecipe) return;
+  updateStepModeControls(state.lastRecipe, mode);
+  renderRecipeStepsForMode(state.lastRecipe, state.activeStepMode);
+}
+
 function saveRecipeToHistory(recipe, meal) {
   const entry = { recipeId: recipe.id, meal, timestamp: Date.now() };
   const filtered = state.history.filter((item) => item.recipeId !== recipe.id || item.meal !== meal);
@@ -1086,7 +1949,7 @@ function renderHistory() {
   }
 
   state.history.forEach((entry) => {
-    const recipe = RECIPES.find((item) => item.id === entry.recipeId);
+    const recipe = getRecipeById(entry.recipeId);
     if (!recipe) return;
     const item = document.createElement('li');
     item.className = 'history__item';
@@ -1112,6 +1975,252 @@ function renderHistory() {
   });
 }
 
+function switchPrimaryPanel(targetPanelId) {
+  const panels = [
+    { tab: DOM.cookTab, panel: DOM.cookPanel, id: 'cookPanel' },
+    { tab: DOM.discoverTab, panel: DOM.discoverPanel, id: 'discoverPanel' },
+  ];
+  panels.forEach(({ tab, panel, id }) => {
+    const isActive = id === targetPanelId;
+    if (tab) {
+      tab.classList.toggle('primary-tabs__tab--active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    }
+    if (panel) {
+      panel.classList.toggle('primary-panel--active', isActive);
+      panel.hidden = !isActive;
+    }
+  });
+}
+
+function handlePrimaryTabClick(event) {
+  const button = event.target.closest('.primary-tabs__tab');
+  if (!button) return;
+  const targetPanel = button.dataset.panel;
+  if (!targetPanel) return;
+  switchPrimaryPanel(targetPanel);
+}
+
+function renderDiscoverFeed() {
+  if (!DOM.discoverFeed) return;
+  DOM.discoverFeed.innerHTML = '';
+  if (!state.discoverEntries.length) {
+    const empty = document.createElement('p');
+    empty.className = 'discover__empty';
+    empty.textContent = 'Todavía no hay publicaciones. ¡Comparte la primera desde el formulario!';
+    DOM.discoverFeed.appendChild(empty);
+    return;
+  }
+
+  state.discoverEntries.forEach((entry) => {
+    const card = document.createElement('article');
+    card.className = `discover-card discover-card--${entry.type}`;
+    card.dataset.entryId = entry.id;
+    card.dataset.type = entry.type;
+
+    const header = document.createElement('header');
+    header.className = 'discover-card__header';
+    const typeBadge = document.createElement('span');
+    typeBadge.className = 'discover-card__type';
+    typeBadge.textContent = entry.type === 'plan' ? 'Plan semanal' : 'Receta destacada';
+    const title = document.createElement('h3');
+    title.textContent = entry.title;
+    header.append(typeBadge, title);
+    card.appendChild(header);
+
+    if (entry.summary) {
+      const summary = document.createElement('p');
+      summary.className = 'discover-card__summary';
+      summary.textContent = entry.summary;
+      card.appendChild(summary);
+    }
+
+    if (entry.details) {
+      const details = document.createElement('details');
+      details.className = 'discover-card__details';
+      const summaryToggle = document.createElement('summary');
+      summaryToggle.textContent = 'Leer detalle';
+      const body = document.createElement('p');
+      body.textContent = entry.details;
+      details.append(summaryToggle, body);
+      card.appendChild(details);
+    }
+
+    const meta = document.createElement('p');
+    meta.className = 'discover-card__meta';
+    meta.textContent = `${entry.author} · ${formatRelativeTimeLabel(entry.createdAt)}`;
+    card.appendChild(meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'discover-card__actions';
+    if (entry.type === 'recipe' && entry.recipeId && getRecipeById(entry.recipeId)) {
+      const viewBtn = document.createElement('button');
+      viewBtn.type = 'button';
+      viewBtn.className = 'ghost';
+      viewBtn.dataset.action = 'load-recipe';
+      viewBtn.dataset.entryId = entry.id;
+      viewBtn.textContent = 'Ver en Chefy';
+      actions.appendChild(viewBtn);
+    }
+    if (entry.type === 'plan' && entry.planSnapshot?.slots) {
+      const adoptBtn = document.createElement('button');
+      adoptBtn.type = 'button';
+      adoptBtn.className = 'ghost';
+      adoptBtn.dataset.action = 'adopt-plan';
+      adoptBtn.dataset.entryId = entry.id;
+      adoptBtn.textContent = 'Añadir a mis planes';
+      actions.appendChild(adoptBtn);
+    }
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'ghost';
+    copyBtn.dataset.action = 'copy-entry';
+    copyBtn.dataset.entryId = entry.id;
+    copyBtn.textContent = 'Copiar detalle';
+    actions.appendChild(copyBtn);
+    card.appendChild(actions);
+
+    DOM.discoverFeed.appendChild(card);
+  });
+}
+
+function clearDiscoverFeedback() {
+  if (state.discoverFeedbackTimeout) {
+    clearTimeout(state.discoverFeedbackTimeout);
+    state.discoverFeedbackTimeout = null;
+  }
+  if (DOM.discoverFeedback) {
+    DOM.discoverFeedback.textContent = '';
+    DOM.discoverFeedback.classList.remove('form-feedback--error', 'form-feedback--success');
+  }
+}
+
+function setDiscoverFeedback(message, type = 'success') {
+  clearDiscoverFeedback();
+  if (!DOM.discoverFeedback || !message) return;
+  DOM.discoverFeedback.textContent = message;
+  DOM.discoverFeedback.classList.add(type === 'error' ? 'form-feedback--error' : 'form-feedback--success');
+  state.discoverFeedbackTimeout = setTimeout(clearDiscoverFeedback, 4000);
+}
+
+function handleDiscoverSubmit(event) {
+  event.preventDefault();
+  const typeValue = cleanString(DOM.discoverType.value);
+  const type = typeValue === 'plan' ? 'plan' : 'recipe';
+  const title = cleanString(DOM.discoverTitleInput.value);
+  if (!title) {
+    setDiscoverFeedback('Añade un título inspirador para tu publicación.', 'error');
+    DOM.discoverTitleInput?.focus();
+    return;
+  }
+  const summary = cleanString(DOM.discoverSummary.value);
+  const details = cleanString(DOM.discoverDetails.value);
+  const author = cleanString(DOM.discoverAuthor.value) || state.currentUser?.email || 'Anónimo';
+  const entry = {
+    id: `idea-${Date.now()}`,
+    type,
+    title,
+    summary,
+    details,
+    author,
+    createdAt: Date.now(),
+  };
+
+  if (type === 'recipe') {
+    const recipeId = state.discoverDraftRecipeId || state.lastRecipe?.id || '';
+    if (recipeId) {
+      entry.recipeId = recipeId;
+      entry.meal = MEALS.includes(state.discoverDraftMeal) ? state.discoverDraftMeal : getRecipeById(recipeId)?.meal;
+    }
+  } else if (type === 'plan') {
+    if (state.discoverDraftPlan) {
+      entry.planSnapshot = state.discoverDraftPlan;
+    }
+  }
+
+  state.discoverUserEntries = [entry, ...state.discoverUserEntries];
+  persistDiscoverEntries();
+  refreshDiscoverEntries();
+  DOM.discoverForm?.reset();
+  DOM.discoverType.value = 'recipe';
+  state.discoverDraftRecipeId = '';
+  state.discoverDraftMeal = '';
+  state.discoverDraftPlan = null;
+  setDiscoverFeedback('Tu publicación se ha añadido a la pestaña Descubrir.', 'success');
+}
+
+function prefillDiscoverFromRecipe() {
+  if (!state.lastRecipe) {
+    setDiscoverFeedback('Genera o abre una receta antes de compartirla.', 'error');
+    return;
+  }
+  const recipe = state.lastRecipe;
+  const meal = state.lastMeal ?? recipe.meal;
+  DOM.discoverType.value = 'recipe';
+  DOM.discoverTitleInput.value = `Mi versión de ${recipe.name}`;
+  DOM.discoverSummary.value = `Perfecta para ${MEAL_DISPLAY[meal]} con ${getCuisineLabels(recipe.cuisines).join(', ') || 'sabor global'}.`;
+  const payload = buildRecipeSharePayload(recipe, meal);
+  DOM.discoverDetails.value = payload.message;
+  state.discoverDraftRecipeId = recipe.id;
+  state.discoverDraftMeal = meal;
+  state.discoverDraftPlan = null;
+  setDiscoverFeedback('Hemos cargado tu última receta en el formulario.', 'success');
+}
+
+function prefillDiscoverFromPlan() {
+  const activePlan = ensureActivePlan();
+  if (!planHasEntries(activePlan.slots)) {
+    setDiscoverFeedback('Tu planificador está vacío. Añade recetas antes de compartirlo.', 'error');
+    return;
+  }
+  DOM.discoverType.value = 'plan';
+  const planName = activePlan.name || 'Plan semanal de Chefy';
+  DOM.discoverTitleInput.value = `Plan destacado: ${planName}`;
+  DOM.discoverSummary.value = 'Incluye recetas variadas listas para reutilizar durante la semana.';
+  DOM.discoverDetails.value = buildPlanShareSummary(normalizeWeeklyPlan(activePlan.slots), planName);
+  state.discoverDraftPlan = {
+    name: planName,
+    slots: normalizeWeeklyPlan(activePlan.slots),
+  };
+  state.discoverDraftRecipeId = '';
+  state.discoverDraftMeal = '';
+  setDiscoverFeedback('El plan activo se ha añadido al formulario para compartir.', 'success');
+}
+
+function handleDiscoverFeedClick(event) {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+  const entryId = button.dataset.entryId;
+  const entry = state.discoverEntries.find((item) => item.id === entryId);
+  if (!entry) return;
+  const action = button.dataset.action;
+  if (action === 'load-recipe' && entry.recipeId) {
+    const recipe = getRecipeById(entry.recipeId);
+    if (!recipe) {
+      setDiscoverFeedback('No encontramos la receta compartida en tu catálogo actual.', 'error');
+      return;
+    }
+    switchPrimaryPanel('cookPanel');
+    renderRecipe(recipe, entry.meal && MEALS.includes(entry.meal) ? entry.meal : recipe.meal);
+    setDiscoverFeedback('Receta cargada en el panel principal.', 'success');
+  } else if (action === 'adopt-plan' && entry.planSnapshot?.slots) {
+    const newId = generateNextPlanId();
+    state.weeklyPlans[newId] = createPlan(newId, entry.planSnapshot.name || 'Plan compartido', entry.planSnapshot.slots);
+    state.activePlanId = newId;
+    persistPlanner();
+    renderPlanSelector();
+    renderWeeklyPlan();
+    updateShoppingList();
+    updatePlanShareSummary();
+    switchPrimaryPanel('cookPanel');
+    setDiscoverFeedback('Plan copiado a tu planificador semanal.', 'success');
+  } else if (action === 'copy-entry') {
+    const text = entry.details || entry.summary || entry.title;
+    if (!text) return;
+    copyShareText(text, button);
+  }
+}
+
 function buildRecipeSharePayload(recipe, meal) {
   const intro = `¡Hola! Chefy me recomendó "${recipe.name}" para ${MEAL_LABELS[meal]}.`;
   const ingredients = (recipe.ingredients ?? [])
@@ -1123,10 +2232,19 @@ function buildRecipeSharePayload(recipe, meal) {
       return `• ${ingredient}`;
     })
     .join('\n');
-  const steps = (recipe.steps ?? [])
-    .map((step, index) => `${index + 1}. ${step}`)
-    .join('\n');
-  const message = `${intro}\n\nIngredientes:\n${ingredients}\n\nPasos:\n${steps}\n\nGenerado con Chefy 🍳`;
+  const cost = calculateRecipeCost(recipe);
+  const stepSections = STEP_MODES.map((mode) => {
+    const steps = recipe.stepModes?.[mode] ?? [];
+    if (!steps.length) return '';
+    const label = STEP_MODE_LABELS[mode] ?? mode;
+    const lines = steps.map((step, index) => `${index + 1}. ${step}`).join('\n');
+    return `${label}:\n${lines}`;
+  })
+    .filter(Boolean)
+    .join('\n\n');
+  const costLine = cost ? `\n\nCoste aproximado: ${formatCurrency(cost.total)}` : '';
+  const stepsText = stepSections || 'Esta receta admite improvisación en ambos modos.';
+  const message = `${intro}\n\nIngredientes:\n${ingredients}${costLine}\n\nPasos:\n${stepsText}\n\nGenerado con Chefy 🍳`;
   const subject = `Receta de Chefy: ${recipe.name}`;
   return { message, subject };
 }
@@ -1341,7 +2459,7 @@ function renderWeeklyPlan() {
       const slot = plan[day.id]?.[meal];
       if (slot?.recipeId) {
         hasEntries = true;
-        const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+        const recipe = getRecipeById(slot.recipeId);
         if (recipe) {
           const container = document.createElement('div');
           container.className = 'planner__meal';
@@ -1420,7 +2538,7 @@ function aggregatePlanIngredients(plan) {
     MEALS.forEach((meal) => {
       const slot = plan[day.id]?.[meal];
       if (!slot?.recipeId) return;
-      const recipe = RECIPES.find((item) => item.id === slot.recipeId);
+      const recipe = getRecipeById(slot.recipeId);
       if (!recipe) return;
       (recipe.ingredients ?? []).forEach((ingredient) => {
         const itemName = typeof ingredient === 'object' ? ingredient.item : ingredient;
@@ -1514,6 +2632,549 @@ function updatePlanShareSummary() {
   }
 }
 
+function isSuperAdmin(user) {
+  if (!user) return false;
+  const superAdminEmail = state.superAdminEmail || storage.getSuperAdminEmail();
+  return user.role === 'super-admin' || (!!superAdminEmail && user.email === superAdminEmail);
+}
+
+function updateAdminAvailability() {
+  if (!DOM.adminButton) return;
+  const available = isSuperAdmin(state.currentUser);
+  DOM.adminButton.hidden = !available;
+  if (!available) {
+    closeDialog(DOM.adminDialog);
+  }
+}
+
+function clearAdminFeedback() {
+  if (state.adminFeedbackTimeout) {
+    clearTimeout(state.adminFeedbackTimeout);
+    state.adminFeedbackTimeout = null;
+  }
+  if (!DOM.adminFeedback) return;
+  DOM.adminFeedback.textContent = '';
+  DOM.adminFeedback.classList.remove('form-feedback--error', 'form-feedback--success');
+}
+
+function setAdminFeedback(message, type = 'info') {
+  if (!DOM.adminFeedback) return;
+  clearAdminFeedback();
+  if (!message) return;
+  DOM.adminFeedback.textContent = message;
+  if (type === 'error') {
+    DOM.adminFeedback.classList.add('form-feedback--error');
+  } else if (type === 'success') {
+    DOM.adminFeedback.classList.add('form-feedback--success');
+  }
+  state.adminFeedbackTimeout = setTimeout(() => {
+    if (DOM.adminFeedback.textContent === message) {
+      clearAdminFeedback();
+    }
+  }, 3500);
+}
+
+function parseCommaList(value) {
+  return value
+    .split(',')
+    .map((item) => cleanString(item))
+    .filter(Boolean);
+}
+
+function formatCommaList(list) {
+  return (Array.isArray(list) ? list : []).filter(Boolean).join(', ');
+}
+
+function parseLines(value) {
+  return value
+    .split('\n')
+    .map((line) => cleanString(line))
+    .filter(Boolean);
+}
+
+function formatLines(list) {
+  return (Array.isArray(list) ? list : []).map((line) => cleanString(line)).filter(Boolean).join('\n');
+}
+
+function parseIngredients(value) {
+  return parseLines(value).map((line) => {
+    const [first, ...rest] = line.split('|');
+    const quantity = rest.length ? cleanString(first) : '';
+    const item = rest.length ? cleanString(rest.join('|')) : cleanString(first);
+    return { quantity, item };
+  });
+}
+
+function formatIngredients(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((ingredient) => {
+      if (!ingredient || typeof ingredient !== 'object') {
+        const item = cleanString(ingredient);
+        return item;
+      }
+      const quantity = cleanString(ingredient.quantity);
+      const item = cleanString(ingredient.item);
+      if (!item) return '';
+      return quantity ? `${quantity} | ${item}` : item;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+function parseIngredientPrices(value) {
+  const lines = parseLines(value);
+  const result = {};
+  lines.forEach((line) => {
+    const [itemPart, amountPart, ...rest] = line.split('|');
+    const itemName = cleanString(itemPart);
+    if (!itemName) return;
+    const key = toKey(itemName);
+    const amountValue = Number.parseFloat(cleanString(amountPart).replace(',', '.'));
+    if (!Number.isFinite(amountValue)) return;
+    const unit = cleanString(rest.join('|'));
+    result[key] = result[key] || {};
+    result[key].price = { amount: Number.parseFloat(amountValue.toFixed(2)), unit };
+  });
+  return result;
+}
+
+function formatIngredientPrices(recipe) {
+  const ingredients = recipe?.ingredients ?? [];
+  const guides = recipe?.ingredientGuides ?? {};
+  const lines = ingredients
+    .map((ingredient) => {
+      const key = toKey(ingredient.item);
+      const price = guides[key]?.price;
+      if (!price || !Number.isFinite(price.amount)) return '';
+      const unit = cleanString(price.unit);
+      return unit ? `${ingredient.item} | ${price.amount} | ${unit}` : `${ingredient.item} | ${price.amount}`;
+    })
+    .filter(Boolean);
+  return lines.join('\n');
+}
+
+function parseIngredientStores(value) {
+  const lines = parseLines(value);
+  const result = {};
+  lines.forEach((line) => {
+    const [itemPart, ...storeEntries] = line.split('|');
+    const itemName = cleanString(itemPart);
+    if (!itemName || !storeEntries.length) return;
+    const key = toKey(itemName);
+    result[key] = result[key] || {};
+    result[key].stores = result[key].stores || {};
+    storeEntries.forEach((entry) => {
+      const [storePart, rest] = entry.split(':');
+      const storeId = toKey(storePart);
+      if (!SUPERMARKET_LABELS[storeId]) return;
+      const [productPart, pricePart] = (rest ?? '').split(',');
+      const product = cleanString(productPart);
+      let priceValue = pricePart ? pricePart.replace(',', '.') : '';
+      const price = Number.parseFloat(priceValue);
+      result[key].stores[storeId] = {
+        product,
+        price: Number.isFinite(price) ? Number.parseFloat(price.toFixed(2)) : null,
+      };
+    });
+  });
+  return result;
+}
+
+function formatIngredientStores(recipe) {
+  const ingredients = recipe?.ingredients ?? [];
+  const guides = recipe?.ingredientGuides ?? {};
+  const lines = ingredients
+    .map((ingredient) => {
+      const key = toKey(ingredient.item);
+      const stores = guides[key]?.stores;
+      if (!stores || typeof stores !== 'object') return '';
+      const entries = Object.entries(stores)
+        .filter(([storeId]) => SUPERMARKET_LABELS[storeId])
+        .map(([storeId, data]) => {
+          const product = cleanString(data.product);
+          const price = Number.isFinite(data.price) ? data.price : '';
+          const priceText = price !== '' ? `,${price}` : '';
+          return `${SUPERMARKET_LABELS[storeId]}:${product}${priceText}`;
+        })
+        .filter(Boolean);
+      if (!entries.length) return '';
+      return `${ingredient.item} | ${entries.join(' | ')}`;
+    })
+    .filter(Boolean);
+  return lines.join('\n');
+}
+
+function parseSwaps(value) {
+  return parseLines(value)
+    .map((line) => {
+      const [first, ...rest] = line.split(':');
+      const ingredient = cleanString(first);
+      const alternatives = rest.length
+        ? rest
+            .join(':')
+            .split(',')
+            .map((alt) => cleanString(alt))
+            .filter(Boolean)
+        : [];
+      if (!ingredient) return null;
+      return { ingredient, alternatives };
+    })
+    .filter(Boolean);
+}
+
+function formatSwaps(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((swap) => {
+      if (!swap || typeof swap !== 'object') return '';
+      const ingredient = cleanString(swap.ingredient);
+      if (!ingredient) return '';
+      const alternatives = (Array.isArray(swap.alternatives) ? swap.alternatives : [])
+        .map((alt) => cleanString(alt))
+        .filter(Boolean);
+      return alternatives.length ? `${ingredient}: ${alternatives.join(', ')}` : ingredient;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+function slugifyRecipeName(name) {
+  return toKey(name)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+function generateRecipeId(name) {
+  const base = slugifyRecipeName(name) || `receta-${Date.now()}`;
+  let candidate = base;
+  let counter = 2;
+  const existing = new Set(state.recipes.map((recipe) => recipe.id));
+  while (existing.has(candidate)) {
+    candidate = `${base}-${counter}`;
+    counter += 1;
+  }
+  return candidate;
+}
+
+function populateAdminForm(recipe) {
+  if (!DOM.adminRecipeName) return;
+  DOM.adminRecipeId.value = recipe?.id ?? '';
+  DOM.adminRecipeName.value = recipe?.name ?? '';
+  DOM.adminRecipeMeal.value = MEALS.includes(recipe?.meal) ? recipe.meal : 'comida';
+  DOM.adminRecipeCalories.value = recipe?.calories ? String(recipe.calories) : '';
+  DOM.adminRecipeTime.value = recipe?.time ?? '';
+  DOM.adminRecipeServings.value = recipe?.servings ?? '';
+  DOM.adminRecipeCuisines.value = formatCommaList(recipe?.cuisines);
+  DOM.adminRecipeTags.value = formatCommaList(recipe?.tags);
+  DOM.adminRecipeKeywords.value = formatCommaList(recipe?.keywords);
+  DOM.adminRecipeDescription.value = recipe?.description ?? '';
+  DOM.adminRecipeIngredients.value = formatIngredients(recipe?.ingredients);
+  DOM.adminRecipeIngredientPrices.value = formatIngredientPrices(recipe);
+  DOM.adminRecipeIngredientStores.value = formatIngredientStores(recipe);
+  DOM.adminRecipeStepsCasero.value = formatLines(recipe?.stepModes?.tradicional ?? recipe?.steps);
+  DOM.adminRecipeStepsThermomix.value = formatLines(recipe?.stepModes?.thermomix);
+  DOM.adminRecipeSwaps.value = formatSwaps(recipe?.swaps);
+}
+
+function clearAdminForm() {
+  if (!DOM.adminRecipeName) return;
+  DOM.adminRecipeId.value = '';
+  DOM.adminRecipeName.value = '';
+  DOM.adminRecipeMeal.value = 'comida';
+  DOM.adminRecipeCalories.value = '';
+  DOM.adminRecipeTime.value = '';
+  DOM.adminRecipeServings.value = '';
+  DOM.adminRecipeCuisines.value = '';
+  DOM.adminRecipeTags.value = '';
+  DOM.adminRecipeKeywords.value = '';
+  DOM.adminRecipeDescription.value = '';
+  DOM.adminRecipeIngredients.value = '';
+  DOM.adminRecipeIngredientPrices.value = '';
+  DOM.adminRecipeIngredientStores.value = '';
+  DOM.adminRecipeStepsCasero.value = '';
+  DOM.adminRecipeStepsThermomix.value = '';
+  DOM.adminRecipeSwaps.value = '';
+}
+
+function updateAdminControls() {
+  if (DOM.adminDeleteRecipeButton) {
+    DOM.adminDeleteRecipeButton.disabled = !state.adminSelectedRecipeId;
+  }
+}
+
+function renderAdminRecipeList() {
+  if (!DOM.adminRecipeList) return;
+  const recipes = [...state.recipes].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  const selectedId = state.adminSelectedRecipeId && getRecipeById(state.adminSelectedRecipeId) ? state.adminSelectedRecipeId : '';
+  if (!selectedId) {
+    state.adminSelectedRecipeId = '';
+  }
+  DOM.adminRecipeList.innerHTML = '';
+  if (!recipes.length) {
+    const empty = document.createElement('li');
+    empty.className = 'admin-recipe-list__empty';
+    empty.textContent = 'Todavía no hay recetas registradas.';
+    DOM.adminRecipeList.appendChild(empty);
+    return;
+  }
+  recipes.forEach((recipe) => {
+    const li = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    const meta = [];
+    if (recipe.meal && MEAL_DISPLAY[recipe.meal]) {
+      meta.push(MEAL_DISPLAY[recipe.meal]);
+    }
+    if (recipe.calories) {
+      meta.push(`${recipe.calories} kcal`);
+    }
+    button.textContent = meta.length ? `${recipe.name} · ${meta.join(' · ')}` : recipe.name;
+    const isSelected = recipe.id === selectedId;
+    button.dataset.selected = String(isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+    button.addEventListener('click', () => {
+      selectAdminRecipe(recipe.id);
+    });
+    li.appendChild(button);
+    DOM.adminRecipeList.appendChild(li);
+  });
+}
+
+function renderAdminUserList() {
+  if (!DOM.adminUserList) return;
+  const users = storage.getUsers();
+  DOM.adminUserList.innerHTML = '';
+  if (!users.length) {
+    const empty = document.createElement('li');
+    empty.className = 'admin-user-list__empty';
+    empty.textContent = 'Todavía no hay usuarios registrados.';
+    DOM.adminUserList.appendChild(empty);
+    return;
+  }
+  users
+    .slice()
+    .sort((a, b) => a.email.localeCompare(b.email, 'es'))
+    .forEach((user) => {
+      const li = document.createElement('li');
+      const title = document.createElement('strong');
+      title.textContent = user.email;
+      const role = document.createElement('span');
+      role.textContent = `Rol: ${user.role === 'super-admin' ? 'Super admin' : 'Usuario'}`;
+      const historyCount = Array.isArray(user.history) ? user.history.length : 0;
+      const planCount = user.weeklyPlans ? Object.keys(user.weeklyPlans).length : user.weeklyPlan ? 1 : 0;
+      const summary = document.createElement('span');
+      summary.textContent = `Historial guardado: ${historyCount} · Planes: ${planCount}`;
+      li.append(title, role, summary);
+      DOM.adminUserList.appendChild(li);
+    });
+}
+
+function selectAdminRecipe(recipeId) {
+  state.adminSelectedRecipeId = recipeId;
+  const recipe = getRecipeById(recipeId);
+  if (recipe) {
+    populateAdminForm(recipe);
+  } else {
+    clearAdminForm();
+  }
+  clearAdminFeedback();
+  renderAdminRecipeList();
+  updateAdminControls();
+}
+
+function handleAdminNewRecipe() {
+  state.adminSelectedRecipeId = '';
+  clearAdminForm();
+  clearAdminFeedback();
+  renderAdminRecipeList();
+  updateAdminControls();
+  DOM.adminRecipeName?.focus();
+}
+
+function handleAdminRecipeNameInput() {
+  if (state.adminSelectedRecipeId) return;
+  DOM.adminRecipeId.value = slugifyRecipeName(DOM.adminRecipeName.value);
+}
+
+function buildRecipePayload() {
+  const name = cleanString(DOM.adminRecipeName.value);
+  if (!name) {
+    setAdminFeedback('Introduce un nombre para la receta.', 'error');
+    DOM.adminRecipeName?.focus();
+    return null;
+  }
+  const mealValue = cleanString(DOM.adminRecipeMeal.value);
+  const meal = MEALS.includes(mealValue) ? mealValue : 'comida';
+  const caloriesValue = Number.parseInt(DOM.adminRecipeCalories.value, 10);
+  const calories = Number.isFinite(caloriesValue) && caloriesValue > 0 ? caloriesValue : null;
+  const cuisines = parseCommaList(DOM.adminRecipeCuisines.value).map(toKey).filter(Boolean);
+  const tags = parseCommaList(DOM.adminRecipeTags.value);
+  const keywords = parseCommaList(DOM.adminRecipeKeywords.value).map(toKey).filter(Boolean);
+  const ingredients = parseIngredients(DOM.adminRecipeIngredients.value);
+  const stepCasero = parseLines(DOM.adminRecipeStepsCasero.value);
+  const stepThermomix = parseLines(DOM.adminRecipeStepsThermomix.value);
+  const priceGuide = parseIngredientPrices(DOM.adminRecipeIngredientPrices.value);
+  const storeGuide = parseIngredientStores(DOM.adminRecipeIngredientStores.value);
+  const ingredientGuides = {};
+  ingredients.forEach((ingredient) => {
+    const key = toKey(ingredient.item);
+    if (!key) return;
+    const entry = { ...priceGuide[key], ...storeGuide[key] };
+    if (entry.price || (entry.stores && Object.keys(entry.stores).length)) {
+      ingredientGuides[key] = entry;
+    }
+  });
+  const swaps = parseSwaps(DOM.adminRecipeSwaps.value);
+  return {
+    id: cleanString(DOM.adminRecipeId.value) || state.adminSelectedRecipeId || generateRecipeId(name),
+    name,
+    meal,
+    calories,
+    time: cleanString(DOM.adminRecipeTime.value),
+    servings: cleanString(DOM.adminRecipeServings.value),
+    cuisines,
+    tags,
+    keywords,
+    description: cleanString(DOM.adminRecipeDescription.value),
+    ingredients,
+    steps: stepCasero,
+    stepModes: {
+      tradicional: stepCasero,
+      thermomix: stepThermomix,
+    },
+    ingredientGuides,
+    swaps,
+  };
+}
+
+function handleAdminSaveRecipe() {
+  if (!isSuperAdmin(state.currentUser)) {
+    setAdminFeedback('Necesitas permisos de super admin para editar el recetario.', 'error');
+    return;
+  }
+  const payload = buildRecipePayload();
+  if (!payload) return;
+  const existingIndex = state.recipes.findIndex((recipe) => recipe.id === payload.id);
+  if (existingIndex >= 0) {
+    state.recipes[existingIndex] = { ...state.recipes[existingIndex], ...payload };
+  } else {
+    state.recipes = [...state.recipes, payload];
+  }
+  state.recipes = normalizeRecipes(state.recipes);
+  state.adminSelectedRecipeId = payload.id;
+  persistRecipeCatalog();
+  populateAdminForm(getRecipeById(payload.id));
+  renderAdminRecipeList();
+  updateAdminControls();
+  refreshCatalogDependents(payload.id);
+  setAdminFeedback('Receta guardada correctamente.', 'success');
+}
+
+function handleAdminDeleteRecipe() {
+  if (!isSuperAdmin(state.currentUser)) {
+    setAdminFeedback('Necesitas permisos de super admin para editar el recetario.', 'error');
+    return;
+  }
+  if (!state.adminSelectedRecipeId) {
+    setAdminFeedback('Selecciona una receta para eliminarla.', 'error');
+    return;
+  }
+  const recipeId = state.adminSelectedRecipeId;
+  if (!getRecipeById(recipeId)) {
+    setAdminFeedback('La receta seleccionada ya no existe.', 'error');
+    return;
+  }
+  state.recipes = state.recipes.filter((recipe) => recipe.id !== recipeId);
+  state.recipes = normalizeRecipes(state.recipes);
+  persistRecipeCatalog();
+  state.adminSelectedRecipeId = '';
+  clearAdminForm();
+  renderAdminRecipeList();
+  updateAdminControls();
+  removeRecipeFromCollections(recipeId);
+  refreshCatalogDependents();
+  setAdminFeedback('Receta eliminada del recetario.', 'success');
+}
+
+function refreshCatalogDependents(updatedRecipeId) {
+  renderHistory();
+  renderWeeklyPlan();
+  updateShoppingList();
+  updatePlanShareSummary();
+  if (updatedRecipeId) {
+    const updatedRecipe = getRecipeById(updatedRecipeId);
+    if (updatedRecipe && state.lastRecipe?.id === updatedRecipeId) {
+      const meal = state.lastMeal ?? updatedRecipe.meal;
+      renderRecipe(updatedRecipe, meal, { recordHistory: false });
+    }
+  } else if (state.lastRecipe && !getRecipeById(state.lastRecipe.id)) {
+    clearResultCard();
+  }
+}
+
+function removeRecipeFromCollections(recipeId) {
+  if (!recipeId) return;
+  const historyChanged = state.history.some((entry) => entry.recipeId === recipeId);
+  state.history = state.history.filter((entry) => entry.recipeId !== recipeId);
+  if (historyChanged) {
+    persistHistory();
+  } else {
+    renderHistory();
+  }
+
+  let plannerChanged = false;
+  Object.entries(state.weeklyPlans).forEach(([planId, plan]) => {
+    const slots = normalizeWeeklyPlan(plan.slots);
+    let changed = false;
+    WEEK_DAYS.forEach((day) => {
+      MEALS.forEach((meal) => {
+        if (slots[day.id]?.[meal]?.recipeId === recipeId) {
+          slots[day.id][meal] = null;
+          changed = true;
+        }
+      });
+    });
+    if (changed) {
+      state.weeklyPlans = {
+        ...state.weeklyPlans,
+        [planId]: { ...plan, slots },
+      };
+      plannerChanged = true;
+    }
+  });
+
+  if (plannerChanged) {
+    persistPlanner();
+  } else {
+    renderWeeklyPlan();
+    updateShoppingList();
+    updatePlanShareSummary();
+  }
+
+  if (state.lastRecipe?.id === recipeId) {
+    clearResultCard();
+  }
+}
+
+function openAdminPanel() {
+  if (!isSuperAdmin(state.currentUser)) return;
+  state.superAdminEmail = storage.getSuperAdminEmail();
+  clearAdminFeedback();
+  if (!state.adminSelectedRecipeId && state.recipes.length) {
+    state.adminSelectedRecipeId = state.recipes[0].id;
+  }
+  const recipe = getRecipeById(state.adminSelectedRecipeId);
+  if (recipe) {
+    populateAdminForm(recipe);
+  } else {
+    clearAdminForm();
+  }
+  renderAdminRecipeList();
+  renderAdminUserList();
+  updateAdminControls();
+  showDialog(DOM.adminDialog);
+}
+
 function matchesRestrictions(recipe, restricted) {
   const ingredientNames = (recipe.ingredients ?? []).map((ingredient) =>
     typeof ingredient === 'object' ? ingredient.item : ingredient,
@@ -1545,7 +3206,7 @@ function generateRecipe() {
   const restricted = new Set(state.restrictions.map(toKey));
 
   const selected = new Set(state.selectedCuisines.map(toKey));
-  const available = RECIPES.filter((recipe) => {
+  const available = state.recipes.filter((recipe) => {
     if (recipe.meal !== meal) return false;
     if (selected.size && !recipe.cuisines.some((cuisine) => selected.has(toKey(cuisine)))) {
       return false;
@@ -1617,6 +3278,11 @@ function handleRegister() {
     return;
   }
   const users = storage.getUsers();
+  let superAdminEmail = storage.getSuperAdminEmail();
+  if (!superAdminEmail) {
+    storage.setSuperAdminEmail(email);
+    superAdminEmail = email;
+  }
 
   const planner = createInitialPlannerState();
   const newUser = {
@@ -1627,10 +3293,12 @@ function handleRegister() {
     history: [],
     weeklyPlans: planner.plans,
     activePlanId: planner.activePlanId,
+    role: superAdminEmail === email ? 'super-admin' : 'user',
   };
   storage.saveUsers([...users, newUser]);
   storage.setCurrentUserEmail(email);
-  state.currentUser = newUser;
+  state.superAdminEmail = superAdminEmail;
+  state.currentUser = findUserByEmail(email) ?? newUser;
   state.history = [];
   state.weeklyPlans = planner.plans;
   state.activePlanId = planner.activePlanId;
@@ -1660,6 +3328,7 @@ function handleLogin() {
     setAuthFeedback('Correo o contraseña incorrectos.', 'error');
     return;
   }
+  state.superAdminEmail = storage.getSuperAdminEmail();
   storage.setCurrentUserEmail(email);
   state.currentUser = user;
   state.restrictions = Array.isArray(user.restrictions) ? user.restrictions : [];
@@ -1688,21 +3357,30 @@ function handleLogin() {
 function updateAuthUI() {
   if (state.currentUser) {
     DOM.authToggle.hidden = true;
+    DOM.authToggle.setAttribute('aria-hidden', 'true');
     DOM.logoutButton.hidden = false;
+    DOM.logoutButton.setAttribute('aria-hidden', 'false');
     DOM.userWelcome.hidden = false;
     DOM.userWelcome.textContent = `Hola, ${state.currentUser.email}`;
   } else {
     DOM.authToggle.hidden = false;
+    DOM.authToggle.setAttribute('aria-hidden', 'false');
     DOM.logoutButton.hidden = true;
+    DOM.logoutButton.setAttribute('aria-hidden', 'true');
     DOM.userWelcome.hidden = true;
     DOM.userWelcome.textContent = '';
   }
+  updateAdminAvailability();
 }
 
 function handleLogout() {
   storage.setCurrentUserEmail(null);
   state.currentUser = null;
   closeAllShareMenus();
+  closeDialog(DOM.adminDialog);
+  state.adminSelectedRecipeId = '';
+  clearAdminForm();
+  clearAdminFeedback();
 
   hydrateFromStorage();
   clearResultCard();
@@ -1724,6 +3402,8 @@ function handleSettingsOpen() {
 }
 
 function hydrateFromStorage() {
+  state.superAdminEmail = storage.getSuperAdminEmail();
+  loadRecipeCatalog();
   const email = storage.getCurrentUserEmail();
   let plannerState;
   if (email) {
@@ -1760,6 +3440,7 @@ function hydrateFromStorage() {
   state.activePlanId = plannerState.activePlanId;
   ensurePlannerState();
   updateAuthUI();
+  updateAdminAvailability();
   renderDefaultChips();
   renderActiveRestrictions();
 
@@ -1770,6 +3451,13 @@ function hydrateFromStorage() {
   updateShoppingList();
   updatePlanShareSummary();
   closeAllShareMenus();
+  loadDiscoverEntries();
+
+  if (DOM.adminDialog?.open) {
+    renderAdminRecipeList();
+    renderAdminUserList();
+    updateAdminControls();
+  }
 
 }
 
@@ -1798,12 +3486,24 @@ function registerEventListeners() {
     DOM.sharePlanButton.addEventListener('click', () => toggleShareMenu(DOM.planShareMenu, DOM.sharePlanButton));
     DOM.planShareMenu.addEventListener('click', handleShareMenuClick);
   }
+  DOM.stepModeToggle?.addEventListener('click', handleStepModeToggle);
   DOM.addToPlanButton.addEventListener('click', addCurrentRecipeToPlan);
   DOM.clearHistoryButton.addEventListener('click', clearHistory);
   DOM.clearPlanButton.addEventListener('click', clearWeeklyPlan);
   DOM.copyShoppingButton.addEventListener('click', copyShoppingList);
   DOM.planSelect?.addEventListener('change', handlePlanSelectChange);
   DOM.addPlanButton?.addEventListener('click', handleAddPlan);
+  DOM.adminButton?.addEventListener('click', openAdminPanel);
+  DOM.adminSaveRecipeButton?.addEventListener('click', handleAdminSaveRecipe);
+  DOM.adminNewRecipeButton?.addEventListener('click', handleAdminNewRecipe);
+  DOM.adminDeleteRecipeButton?.addEventListener('click', handleAdminDeleteRecipe);
+  DOM.adminRecipeName?.addEventListener('input', handleAdminRecipeNameInput);
+  DOM.cookTab?.addEventListener('click', handlePrimaryTabClick);
+  DOM.discoverTab?.addEventListener('click', handlePrimaryTabClick);
+  DOM.discoverForm?.addEventListener('submit', handleDiscoverSubmit);
+  DOM.discoverPrefillRecipe?.addEventListener('click', prefillDiscoverFromRecipe);
+  DOM.discoverPrefillPlan?.addEventListener('click', prefillDiscoverFromPlan);
+  DOM.discoverFeed?.addEventListener('click', handleDiscoverFeedClick);
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleDocumentKeydown);
 
@@ -1826,6 +3526,7 @@ function init() {
   updateMealUI();
   hydrateFromStorage();
   registerEventListeners();
+  switchPrimaryPanel('cookPanel');
 
   clearResultCard();
 
