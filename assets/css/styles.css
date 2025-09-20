@@ -275,12 +275,15 @@ main.layout {
   color: var(--color-text);
 }
 
+ 
 .result__cost {
   margin: 0 0 0.75rem;
   font-weight: 500;
   color: var(--color-text);
 }
 
+
+ 
 .tag {
   display: inline-flex;
   align-items: center;
@@ -1310,11 +1313,14 @@ textarea:focus-visible {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+ 
 .admin-form__grid--steps {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
 }
 
+
+ 
 .admin-form textarea {
   resize: vertical;
 }

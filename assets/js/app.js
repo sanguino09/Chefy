@@ -6,7 +6,9 @@ const DOM = {
   resultDescription: document.getElementById('resultDescription'),
   resultTags: document.getElementById('resultTags'),
   resultCalories: document.getElementById('resultCalories'),
+ 
   resultCost: document.getElementById('resultCost'),
+
 
   resultDetails: document.getElementById('resultDetails'),
   resultIngredients: document.getElementById('resultIngredients'),
@@ -83,10 +85,14 @@ const DOM = {
   adminRecipeTags: document.getElementById('adminRecipeTags'),
   adminRecipeDescription: document.getElementById('adminRecipeDescription'),
   adminRecipeIngredients: document.getElementById('adminRecipeIngredients'),
+ 
   adminRecipeIngredientPrices: document.getElementById('adminRecipeIngredientPrices'),
   adminRecipeIngredientStores: document.getElementById('adminRecipeIngredientStores'),
   adminRecipeStepsCasero: document.getElementById('adminRecipeStepsCasero'),
   adminRecipeStepsThermomix: document.getElementById('adminRecipeStepsThermomix'),
+
+  
+ 
   adminRecipeSwaps: document.getElementById('adminRecipeSwaps'),
   adminRecipeKeywords: document.getElementById('adminRecipeKeywords'),
   adminSaveRecipeButton: document.getElementById('adminSaveRecipeButton'),
@@ -707,7 +713,10 @@ const STORAGE_KEYS = {
   GUEST_WEEKLY_PLAN: 'chefyGuestWeeklyPlan',
   ADMIN_RECIPES: 'chefyRecipeCatalog',
   SUPER_ADMIN_EMAIL: 'chefySuperAdminEmail',
+ 
   DISCOVER_ENTRIES: 'chefyDiscoverEntries',
+
+ 
 };
 
 function toKey(value) {
@@ -1056,6 +1065,7 @@ function cleanString(value) {
   return '';
 }
 
+ 
 function normalizeStepModes(recipe = {}) {
   const modes = {};
   STEP_MODES.forEach((mode) => {
@@ -1142,6 +1152,8 @@ function normalizeIngredientGuides(rawGuides, ingredients = []) {
   return guides;
 }
 
+
+ 
 function normalizeUserRole(user, superAdminEmail) {
   if (!user || typeof user !== 'object') return null;
   const normalized = { ...user };
@@ -1190,8 +1202,11 @@ function normalizeRecipes(rawRecipes) {
         quantity: cleanString(ingredient.quantity),
         item: cleanString(ingredient.item),
       }));
+ 
     const { modes: stepModes, defaultMode } = normalizeStepModes(recipe);
     const ingredientGuides = normalizeIngredientGuides(recipe.ingredientGuides, ingredients);
+
+   
     const swaps = (Array.isArray(recipe.swaps) ? recipe.swaps : [])
       .map((swap) => {
         if (!swap || typeof swap !== 'object') return null;
@@ -1219,10 +1234,14 @@ function normalizeRecipes(rawRecipes) {
       cuisines,
       tags,
       ingredients,
+ 
       steps: stepModes[defaultMode] ?? [],
       stepModes,
       defaultStepMode: defaultMode,
       ingredientGuides,
+
+      
+ 
       swaps,
       keywords,
     });
@@ -1235,6 +1254,7 @@ function normalizeRecipes(rawRecipes) {
   return normalized;
 }
 
+ 
 function normalizeDiscoverEntries(entries) {
   const list = Array.isArray(entries) ? entries : [];
   return list
@@ -1267,6 +1287,7 @@ function normalizeDiscoverEntries(entries) {
     })
     .filter(Boolean);
 }
+
 
 const storage = {
   readJSON(key, fallback) {
@@ -1338,6 +1359,7 @@ const storage = {
   saveRecipeCatalog(recipes) {
     this.writeJSON(STORAGE_KEYS.ADMIN_RECIPES, recipes);
   },
+ 
   getDiscoverEntries() {
     return this.readJSON(STORAGE_KEYS.DISCOVER_ENTRIES, []);
   },
@@ -1345,6 +1367,7 @@ const storage = {
     const list = Array.isArray(entries) ? entries.filter((entry) => entry && typeof entry === 'object') : [];
     this.writeJSON(STORAGE_KEYS.DISCOVER_ENTRIES, list);
   },
+
   getSuperAdminEmail() {
     return localStorage.getItem(STORAGE_KEYS.SUPER_ADMIN_EMAIL) || '';
   },
@@ -1380,12 +1403,14 @@ const state = {
   superAdminEmail: '',
   adminSelectedRecipeId: '',
   adminFeedbackTimeout: null,
+ 
   discoverUserEntries: [],
   discoverEntries: [],
   discoverFeedbackTimeout: null,
   discoverDraftRecipeId: '',
   discoverDraftMeal: '',
   discoverDraftPlan: null,
+
 
 };
 
@@ -1405,6 +1430,7 @@ function persistRecipeCatalog() {
   storage.saveRecipeCatalog(state.recipes);
 }
 
+ 
 function loadDiscoverEntries() {
   state.discoverUserEntries = normalizeDiscoverEntries(storage.getDiscoverEntries());
   refreshDiscoverEntries();
@@ -1420,6 +1446,7 @@ function refreshDiscoverEntries() {
   state.discoverEntries = combined;
   renderDiscoverFeed();
 }
+
 
 function getRecipeById(id) {
   if (!id) return null;
@@ -1662,8 +1689,10 @@ function clearResultCard() {
   DOM.resultTags.innerHTML = '';
   DOM.resultCalories.hidden = true;
   DOM.resultCalories.textContent = '';
+ 
   DOM.resultCost.hidden = true;
   DOM.resultCost.textContent = '';
+
   DOM.resultDetails.hidden = true;
   DOM.resultIngredients.innerHTML = '';
   DOM.resultSteps.innerHTML = '';
@@ -2721,6 +2750,7 @@ function formatIngredients(list) {
     .join('\n');
 }
 
+l 
 function parseIngredientPrices(value) {
   const lines = parseLines(value);
   const result = {};
@@ -2804,6 +2834,7 @@ function formatIngredientStores(recipe) {
   return lines.join('\n');
 }
 
+
 function parseSwaps(value) {
   return parseLines(value)
     .map((line) => {
@@ -2869,10 +2900,12 @@ function populateAdminForm(recipe) {
   DOM.adminRecipeKeywords.value = formatCommaList(recipe?.keywords);
   DOM.adminRecipeDescription.value = recipe?.description ?? '';
   DOM.adminRecipeIngredients.value = formatIngredients(recipe?.ingredients);
+ 
   DOM.adminRecipeIngredientPrices.value = formatIngredientPrices(recipe);
   DOM.adminRecipeIngredientStores.value = formatIngredientStores(recipe);
   DOM.adminRecipeStepsCasero.value = formatLines(recipe?.stepModes?.tradicional ?? recipe?.steps);
   DOM.adminRecipeStepsThermomix.value = formatLines(recipe?.stepModes?.thermomix);
+
   DOM.adminRecipeSwaps.value = formatSwaps(recipe?.swaps);
 }
 
@@ -2889,10 +2922,12 @@ function clearAdminForm() {
   DOM.adminRecipeKeywords.value = '';
   DOM.adminRecipeDescription.value = '';
   DOM.adminRecipeIngredients.value = '';
+ 
   DOM.adminRecipeIngredientPrices.value = '';
   DOM.adminRecipeIngredientStores.value = '';
   DOM.adminRecipeStepsCasero.value = '';
   DOM.adminRecipeStepsThermomix.value = '';
+
   DOM.adminRecipeSwaps.value = '';
 }
 
@@ -3011,6 +3046,7 @@ function buildRecipePayload() {
   const tags = parseCommaList(DOM.adminRecipeTags.value);
   const keywords = parseCommaList(DOM.adminRecipeKeywords.value).map(toKey).filter(Boolean);
   const ingredients = parseIngredients(DOM.adminRecipeIngredients.value);
+ 
   const stepCasero = parseLines(DOM.adminRecipeStepsCasero.value);
   const stepThermomix = parseLines(DOM.adminRecipeStepsThermomix.value);
   const priceGuide = parseIngredientPrices(DOM.adminRecipeIngredientPrices.value);
@@ -3024,6 +3060,7 @@ function buildRecipePayload() {
       ingredientGuides[key] = entry;
     }
   });
+
   const swaps = parseSwaps(DOM.adminRecipeSwaps.value);
   return {
     id: cleanString(DOM.adminRecipeId.value) || state.adminSelectedRecipeId || generateRecipeId(name),
@@ -3037,12 +3074,14 @@ function buildRecipePayload() {
     keywords,
     description: cleanString(DOM.adminRecipeDescription.value),
     ingredients,
+ 
     steps: stepCasero,
     stepModes: {
       tradicional: stepCasero,
       thermomix: stepThermomix,
     },
     ingredientGuides,
+
     swaps,
   };
 }
@@ -3459,6 +3498,12 @@ function hydrateFromStorage() {
     updateAdminControls();
   }
 
+  if (DOM.adminDialog?.open) {
+    renderAdminRecipeList();
+    renderAdminUserList();
+    updateAdminControls();
+  }
+
 }
 
 function registerEventListeners() {
@@ -3498,12 +3543,14 @@ function registerEventListeners() {
   DOM.adminNewRecipeButton?.addEventListener('click', handleAdminNewRecipe);
   DOM.adminDeleteRecipeButton?.addEventListener('click', handleAdminDeleteRecipe);
   DOM.adminRecipeName?.addEventListener('input', handleAdminRecipeNameInput);
+ 
   DOM.cookTab?.addEventListener('click', handlePrimaryTabClick);
   DOM.discoverTab?.addEventListener('click', handlePrimaryTabClick);
   DOM.discoverForm?.addEventListener('submit', handleDiscoverSubmit);
   DOM.discoverPrefillRecipe?.addEventListener('click', prefillDiscoverFromRecipe);
   DOM.discoverPrefillPlan?.addEventListener('click', prefillDiscoverFromPlan);
   DOM.discoverFeed?.addEventListener('click', handleDiscoverFeedClick);
+
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleDocumentKeydown);
 
