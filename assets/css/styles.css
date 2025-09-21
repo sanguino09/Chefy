@@ -195,9 +195,9 @@ main.layout {
 
 .hero {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2.5rem;
-  align-items: center;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 2.75rem;
+  align-items: stretch;
   background: var(--color-surface);
   padding: 2.8rem 3rem;
   border-radius: 26px;
@@ -206,16 +206,137 @@ main.layout {
   backdrop-filter: blur(20px);
 }
 
-.hero__subtitle {
-  color: var(--color-text-muted);
-  max-width: 32ch;
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.hero__heading {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.hero__activities {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.hero__activities-title {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(248, 250, 252, 0.7);
+}
+
+.hero__activities-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.hero__activity-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.35);
+  color: var(--color-text);
+  padding: 0.7rem 1.2rem;
+  font-weight: 500;
+  min-width: 0;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.hero__activity-button:hover,
+.hero__activity-button:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 18px 30px -20px rgba(56, 189, 248, 0.8);
+  outline: none;
+}
+
+.hero__activity-button--active {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.9), rgba(56, 189, 248, 0.9));
+  color: #0f172a;
+  border-color: transparent;
+  box-shadow: 0 18px 32px -18px rgba(249, 115, 22, 0.65);
+}
+
+.hero__activity-button--suggested {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.hero__activity-icon {
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .hero__cta {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
   align-items: flex-start;
-  gap: 1rem;
+}
+
+.hero__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-cat {
+  position: relative;
+  width: min(360px, 100%);
+  aspect-ratio: 1 / 1;
+  padding: 1.75rem;
+  border-radius: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.35), transparent 55%),
+              radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.28), transparent 55%),
+              rgba(15, 23, 42, 0.55);
+  box-shadow: var(--shadow-large);
+  overflow: hidden;
+}
+
+.hero-cat::after {
+  content: '';
+  position: absolute;
+  inset: 20% 18%;
+  border-radius: 30px;
+  background: radial-gradient(circle at 50% 20%, rgba(248, 250, 252, 0.15), transparent 70%);
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+.hero-cat__svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 18px 38px rgba(14, 165, 233, 0.25));
+  animation: hero-cat-float 6.5s ease-in-out infinite;
+}
+
+@keyframes hero-cat-float {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.01);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+}
+
+.hero__subtitle {
+  color: var(--color-text-muted);
+  max-width: 32ch;
 }
 
 .cta-button {
@@ -1544,8 +1665,20 @@ textarea:focus-visible {
     padding: 2.2rem;
   }
 
+  .hero__content {
+    gap: 1.5rem;
+  }
+
   .hero__cta {
     align-items: stretch;
+  }
+
+  .hero__visual {
+    margin-top: 1.5rem;
+  }
+
+  .hero-cat {
+    width: min(320px, 85vw);
   }
 
   .cta-button {
@@ -1584,6 +1717,15 @@ textarea:focus-visible {
 
   .hero {
     padding: 2rem 1.75rem;
+  }
+
+  .hero__activities-buttons {
+    gap: 0.5rem;
+  }
+
+  .hero__activity-button {
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
   }
 
   .card {
@@ -1661,6 +1803,18 @@ textarea:focus-visible {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
+  }
+
+  .hero__activities-buttons {
+    gap: 0.45rem;
+  }
+
+  .hero__activity-button {
+    flex: 1 1 100%;
+  }
+
+  .hero__activity-icon {
+    font-size: 0.95rem;
   }
 
   .auth-group {
