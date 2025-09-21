@@ -1,6 +1,7 @@
 const DOM = {
   generateButton: document.getElementById('generateButton'),
   mealHint: document.getElementById('mealHint'),
+  mealButtons: document.querySelectorAll('.hero__activity-button'),
   resultTitle: document.getElementById('resultTitle'),
   resultSubtitle: document.getElementById('resultSubtitle'),
   resultDescription: document.getElementById('resultDescription'),
@@ -1584,6 +1585,7 @@ const state = {
   activePlanId: '',
   lastRecipe: null,
   lastMeal: null,
+  preferredMeal: null,
   activeStepMode: 'tradicional',
   shoppingSummaryText: '',
   planShareText: '',
@@ -1714,9 +1716,29 @@ function formatMealButtonLabel(meal) {
 }
 
 function updateMealUI() {
-  const meal = detectMealType();
+  const preferred = MEALS.includes(state.preferredMeal) ? state.preferredMeal : null;
+  const meal = preferred ?? detectMealType();
   DOM.generateButton.textContent = formatMealButtonLabel(meal);
-  DOM.mealHint.textContent = `Según la hora, te recomendamos ${MEAL_LABELS[meal]}. ¡Personalízala a tu gusto!`;
+  DOM.mealHint.textContent = preferred
+    ? `Has fijado la actividad en ${MEAL_LABELS[meal]}. Pulsa de nuevo la actividad para volver a las sugerencias automáticas.`
+    : `Según la hora, te recomendamos ${MEAL_LABELS[meal]}. ¡Personalízala a tu gusto!`;
+  if (DOM.mealButtons?.forEach) {
+    DOM.mealButtons.forEach((button) => {
+      const option = button.dataset.mealOption;
+      if (!option) return;
+      const isPreferred = preferred === option;
+      const isSuggested = !preferred && option === meal;
+      button.classList.toggle('hero__activity-button--active', isPreferred);
+      button.classList.toggle('hero__activity-button--suggested', isSuggested);
+      button.setAttribute('aria-pressed', isPreferred ? 'true' : 'false');
+    });
+  }
+}
+
+function setPreferredMeal(meal) {
+  if (!MEALS.includes(meal)) return;
+  state.preferredMeal = state.preferredMeal === meal ? null : meal;
+  updateMealUI();
 }
 
 function updateCurrentYear() {
@@ -3695,7 +3717,8 @@ function displayNoRecipe(meal) {
 
 function generateRecipe() {
   if (!ensureAuthenticated()) return;
-  const meal = detectMealType();
+  const preferredMeal = MEALS.includes(state.preferredMeal) ? state.preferredMeal : null;
+  const meal = preferredMeal ?? detectMealType();
   const restricted = new Set(state.restrictions.map(toKey));
 
   const selected = new Set(state.selectedCuisines.map(toKey));
@@ -4119,6 +4142,15 @@ function hydrateFromStorage() {
 
 function registerEventListeners() {
   DOM.generateButton.addEventListener('click', generateRecipe);
+  if (DOM.mealButtons?.forEach) {
+    DOM.mealButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const meal = button.dataset.mealOption;
+        if (!meal) return;
+        setPreferredMeal(meal);
+      });
+    });
+  }
   DOM.settingsButton.addEventListener('click', handleSettingsOpen);
   DOM.addRestriction.addEventListener('click', () => addRestriction(DOM.customRestriction.value));
   DOM.customRestriction.addEventListener('keydown', (event) => {

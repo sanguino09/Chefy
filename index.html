@@ -81,17 +81,145 @@
 
     <section id="cookPanel" class="primary-panel primary-panel--active" role="tabpanel" aria-labelledby="cookTab">
       <section class="hero" aria-labelledby="heroTitle">
-        <div>
-          <h1 id="heroTitle">Tu sous-chef personal, siempre listo</h1>
-          <p class="hero__subtitle">
-            Genera desayunos, comidas o cenas inspiradas en tus gustos, valora tus favoritas y comparte planes completos con la comunidad.
-          </p>
+        <div class="hero__content">
+          <div class="hero__heading">
+            <h1 id="heroTitle">Tu sous-chef personal, siempre listo</h1>
+            <p class="hero__subtitle">
+              Genera desayunos, comidas o cenas inspiradas en tus gustos, valora tus favoritas y comparte planes completos con la comunidad.
+            </p>
+          </div>
+          <div class="hero__activities">
+            <p class="hero__activities-title" id="heroActivitiesTitle">Actividades del día</p>
+            <div class="hero__activities-buttons" role="group" aria-labelledby="heroActivitiesTitle">
+              <button type="button" class="hero__activity-button" data-meal-option="desayuno" aria-pressed="false">
+                <span class="hero__activity-icon" aria-hidden="true">🌅</span>
+                <span>Desayuno</span>
+              </button>
+              <button type="button" class="hero__activity-button" data-meal-option="comida" aria-pressed="false">
+                <span class="hero__activity-icon" aria-hidden="true">🌞</span>
+                <span>Comida</span>
+              </button>
+              <button type="button" class="hero__activity-button" data-meal-option="cena" aria-pressed="false">
+                <span class="hero__activity-icon" aria-hidden="true">🌙</span>
+                <span>Cena</span>
+              </button>
+            </div>
+          </div>
+          <div class="hero__cta">
+            <button id="generateButton" class="cta-button" type="button">
+              Generar receta
+            </button>
+            <p class="meal-hint" id="mealHint">Preparado para sorprenderte en cualquier momento del día.</p>
+          </div>
         </div>
-        <div class="hero__cta">
-          <button id="generateButton" class="cta-button" type="button">
-            Generar receta
-          </button>
-          <p class="meal-hint" id="mealHint">Preparado para sorprenderte en cualquier momento del día.</p>
+        <div class="hero__visual" aria-hidden="true">
+          <figure class="hero-cat">
+            <svg class="hero-cat__svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="heroCatBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fde68a" />
+                  <stop offset="100%" stop-color="#fbbf24" />
+                </linearGradient>
+                <linearGradient id="heroCatApron" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#0ea5e9" />
+                </linearGradient>
+                <linearGradient id="heroCatTail" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#fbbf24" />
+                  <stop offset="100%" stop-color="#f59e0b" />
+                </linearGradient>
+              </defs>
+              <ellipse cx="160" cy="276" rx="110" ry="26" fill="rgba(15, 23, 42, 0.55)" />
+              <path
+                d="M236 188C274 168 286 222 248 242C232 250 222 236 228 220C232 208 248 210 252 202C256 194 248 188 236 188Z"
+                fill="url(#heroCatTail)"
+              />
+              <path
+                d="M106 152C72 154 56 188 66 226C78 268 114 292 160 292C206 292 242 268 254 226C264 188 248 154 214 152Z"
+                fill="url(#heroCatBody)"
+              />
+              <path
+                d="M128 194C108 196 102 220 112 244C122 268 140 280 160 280C180 280 198 268 208 244C218 220 212 196 192 194Z"
+                fill="#fef3c7"
+              />
+              <path
+                d="M112 86L132 36L148 90Z"
+                fill="#fbbf24"
+              />
+              <path
+                d="M172 90L188 36L208 86Z"
+                fill="#fbbf24"
+              />
+              <path
+                d="M118 88L132 52L144 90Z"
+                fill="#fef3c7"
+              />
+              <path
+                d="M176 90L188 52L202 88Z"
+                fill="#fef3c7"
+              />
+              <circle cx="160" cy="124" r="60" fill="url(#heroCatBody)" />
+              <ellipse cx="160" cy="146" rx="44" ry="34" fill="#fef3c7" />
+              <rect x="120" y="48" width="80" height="26" rx="13" fill="#f8fafc" />
+              <path
+                d="M130 22C120 22 112 30 114 42C116 54 126 60 134 58H186C194 60 204 54 206 42C208 30 200 22 190 22Z"
+                fill="#f8fafc"
+              />
+              <path d="M130 58H190" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round" />
+              <circle cx="140" cy="122" r="12" fill="#0f172a" />
+              <circle cx="180" cy="122" r="12" fill="#0f172a" />
+              <circle cx="136" cy="118" r="3" fill="#f8fafc" />
+              <circle cx="176" cy="118" r="3" fill="#f8fafc" />
+              <path d="M152 134L168 134L160 142Z" fill="#f97316" />
+              <path d="M152 146C152 152 158 156 160 156C162 156 168 152 168 146" stroke="#f97316" stroke-width="3" stroke-linecap="round" />
+              <circle cx="132" cy="144" r="9" fill="#fda4af" opacity="0.8" />
+              <circle cx="188" cy="144" r="9" fill="#fda4af" opacity="0.8" />
+              <path d="M118 132C104 132 94 132 86 126" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" />
+              <path d="M118 144C104 144 92 146 82 140" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" />
+              <path d="M202 132C216 132 226 132 234 126" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" />
+              <path d="M202 144C216 144 228 146 238 140" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" />
+              <ellipse cx="128" cy="252" rx="28" ry="20" fill="#fef3c7" />
+              <ellipse cx="192" cy="252" rx="28" ry="20" fill="#fef3c7" />
+              <path
+                d="M132 208C134 240 144 258 160 258C176 258 186 240 188 208Z"
+                fill="url(#heroCatApron)"
+              />
+              <path d="M126 198C126 190 134 182 160 182C186 182 194 190 194 198" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" />
+              <path d="M100 206C112 214 118 232 120 246" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" />
+              <path d="M220 206C208 214 202 232 200 246" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" />
+              <path
+                d="M110 210C94 198 82 178 98 164C110 154 124 158 134 168C142 176 144 190 138 200"
+                fill="#fef3c7"
+              />
+              <path
+                d="M208 210C224 198 236 178 220 164C208 154 194 158 184 168C176 176 174 190 180 200"
+                fill="#fef3c7"
+              />
+              <path d="M120 70C122 78 134 88 160 88C186 88 198 78 200 70" stroke="#f8fafc" stroke-width="6" stroke-linecap="round" />
+              <path
+                d="M90 226C72 214 70 188 88 180C102 174 118 184 122 198"
+                stroke="#f97316"
+                stroke-width="8"
+                stroke-linecap="round"
+              />
+              <path
+                d="M92 178C84 164 90 148 104 144C120 140 132 152 134 166"
+                fill="#f59e0b"
+                opacity="0.6"
+              />
+              <path
+                d="M214 240C232 236 246 254 236 270C226 286 204 276 204 264"
+                stroke="#fde68a"
+                stroke-width="6"
+                stroke-linecap="round"
+              />
+              <circle cx="80" cy="210" r="8" fill="#38bdf8" opacity="0.6" />
+              <circle cx="230" cy="180" r="6" fill="#38bdf8" opacity="0.45" />
+              <circle cx="108" cy="238" r="5" fill="#fbbf24" opacity="0.65" />
+              <path d="M74 126L78 138L90 142L78 146L74 158L70 146L58 142L70 138Z" fill="#38bdf8" opacity="0.5" />
+              <path d="M250 110L254 120L264 124L254 128L250 138L246 128L236 124L246 120Z" fill="#f97316" opacity="0.4" />
+            </svg>
+          </figure>
         </div>
       </section>
 
